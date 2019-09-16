@@ -57,6 +57,12 @@
       }
     }
   },
+  "bin": [
+    "bin/auth",
+    "bin/config",
+    "bin/phd",
+    "bin/search"
+  ],
   "autoload": {
     "files": [
       "libphutil/src/moduleutils/core.php",
