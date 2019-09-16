@@ -1,0 +1,26 @@
+.phuix-dropdown-menu {
+    position: absolute;
+    width: 200px;
+    background: #fff;
+    margin-top: -1px;
+    padding: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .20);
+    border: 1px solid #C7CCD9;
+    border-radius: 3px;
+    margin-bottom: 16px;
+}
+
+.phuix-dropdown-menu a:focus {
+    /* We automatically focus links in dropdown menus for assistive devices, but
+       this is distracting for visual user agents. */
+    outline: none;
+}
+
+
+
+.device .phuix-dropdown-menu .phabricator-action-list-view {
+    /* When an action list view appears inside a dropdown menu, don't hide it
+       by default. */
+    display: block;
+    padding: 0;
+}

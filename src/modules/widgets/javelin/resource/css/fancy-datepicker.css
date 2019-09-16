@@ -1,0 +1,162 @@
+.aphront-form-date-container {
+    position: relative;
+    display: inline;
+}
+
+.aphront-form-date-container select {
+    margin: 2px;
+    display: inline;
+}
+.aphront-form-date-container input.aphront-form-date-enabled-input {
+    width: auto;
+    display: inline;
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.aphront-form-date-container .aphront-form-time-input-container,
+.aphront-form-date-container .aphront-form-date-input-container {
+    position: relative;
+    display: inline-block;
+    width: 7em;
+}
+
+.aphront-form-date-container input.aphront-form-time-input,
+.aphront-form-date-container input.aphront-form-date-input {
+    width: 7em;
+}
+
+.aphront-form-time-input-container div.jx-typeahead-results a.jx-result {
+    border: none;
+}
+
+.phui-time-typeahead-value {
+    padding: 4px;
+}
+
+.fancy-datepicker {
+    position: absolute;
+    width: 240px;
+}
+
+.device .fancy-datepicker {
+    width: 100%;
+}
+
+.fancy-datepicker-core {
+    width: 240px;
+    margin: 0 auto;
+    padding: 1px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.fancy-datepicker-core .month-table,
+.fancy-datepicker-core .day-table {
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 1px;
+    width: 100%;
+}
+
+.fancy-datepicker-core .month-table {
+    margin-bottom: 6px;
+    font-size: 13px;
+    background-color: #eceff5;
+    border-radius: 2px;
+}
+
+.fancy-datepicker-core .month-table td.lrbutton {
+    width: 18%;
+    color: #8C98B8;
+}
+
+.fancy-datepicker-core .month-table td {
+    padding: 4px;
+    font-weight: bold;
+    color: #6B748C;
+}
+
+.fancy-datepicker-core .month-table td.lrbutton:hover {
+    border-radius: 2px;
+    background: #e6e9ee;
+    color: #464C5C;
+}
+
+.fancy-datepicker-core .day-table td {
+    overflow: hidden;
+    vertical-align: center;
+    text-align: center;
+    border: 1px solid #DDE8EF;
+    padding: 4px 0;
+}
+
+.fancy-datepicker .fancy-datepicker-core .day-table td.day:hover {
+    background-color: #eceff5;
+    border-color: #BFCFDA;
+}
+
+.fancy-datepicker-core .day-table td.day-placeholder {
+    border-color: transparent;
+    background: transparent;
+}
+
+.fancy-datepicker-core .day-table td.weekend {
+    color: #92969D;
+    border-color: #C7CCD9;
+    background: #F7F7F7;
+}
+
+.fancy-datepicker-core .day-table td.day-name {
+    background: transparent;
+    border: 1px transparent;
+    vertical-align: bottom;
+    color: #92969D;
+}
+
+.fancy-datepicker-core .day-table td.today {
+    background: #EBECEE;
+    border-color: #A1A6B0;
+    color: #4B4D51;
+    font-weight: bold;
+}
+
+.fancy-datepicker-core .day-table td.datepicker-selected {
+    background: #d7eddf;
+    border-color: #139543;
+    color: #139543;
+}
+
+.fancy-datepicker-core td {
+    cursor: pointer;
+}
+
+.fancy-datepicker-core td.novalue {
+    cursor: inherit;
+}
+
+.picker-open .calendar-button .phui-icon-view {
+    color: #3498db;
+}
+
+.fancy-datepicker-core {
+    background-color: white;
+    border: 1px solid #C7CCD9;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .20);
+    border-radius: 3px;
+}
+
+/* When the activation checkbox for the control is toggled off, visually
+disable the individual controls. We don't actually use the "disabled" property
+because we still want the values to submit. This is just a visual hint that
+the controls won't be used. The controls themselves are still live, work
+properly, and submit values. */
+.datepicker-disabled select,
+.datepicker-disabled .calendar-button,
+.datepicker-disabled input[type="text"] {
+    opacity: 0.5;
+}
+
+.aphront-form-date-container.no-time .aphront-form-time-input{
+    display: none;
+}

@@ -1,0 +1,72 @@
+{
+  "name": "orangins/limitless",
+  "description": "Limitless Admin Template",
+  "keywords": [
+    "orangins",
+    "framework",
+    "advanced",
+    "admin template"
+  ],
+  "homepage": "https://coding.net/u/chenmiaowei",
+  "type": "project",
+  "license": "BSD-3-Clause",
+  "support": {
+    "issues": "https://coding.net/u/chenmiaowei/p/limitless/git",
+    "forum": "https://coding.net/u/chenmiaowei",
+    "wiki": "https://coding.net/u/chenmiaowei",
+    "source": "https://coding.net/u/chenmiaowei/p/limitless/git"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/huaweicloud/huaweicloud-sdk-php-obs.git"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4.0",
+    "ext-bcmath": "*",
+    "yiisoft/yii2": "~2.0.14",
+    "yiisoft/yii2-bootstrap": "~2.0.0",
+    "yiisoft/yii2-gii": "^2.0",
+    "yiisoft/yii2-imagine": "^2.1",
+    "yiisoft/yii2-jui": "^2.0@dev",
+    "rmccue/requests": "^1.7",
+    "mero/yii2-monolog": "^0.2.0@dev",
+    "predis/predis": "^2.0@dev",
+    "obs/esdk-obs-php": "*",
+    "qiniu/php-sdk": "v7.0.7",
+    "phpoffice/phpspreadsheet": "dev-master"
+  },
+  "require-dev": {
+    "yiisoft/yii2-debug": "dev-master",
+    "yiisoft/yii2-gii": "dev-master",
+    "yiisoft/yii2-faker": "dev-master",
+
+    "codeception/codeception": "2.5.x-dev",
+    "codeception/base": "2.5.x-dev",
+    "codeception/verify": "dev-master",
+    "codeception/specify": "dev-master"
+  },
+  "config": {
+    "process-timeout": 1800,
+    "fxp-asset": {
+      "installer-paths": {
+        "npm-asset-library": "vendor/npm",
+        "bower-asset-library": "vendor/bower"
+      }
+    }
+  },
+  "autoload": {
+    "files": [
+      "libphutil/src/moduleutils/core.php",
+      "libphutil/src/moduleutils/moduleutils.php"
+    ],
+    "classmap": [
+      "libphutil/src"
+    ],
+    "psr-4": {
+      "orangins\\": "src/"
+    }
+  }
+}

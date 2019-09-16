@@ -1,0 +1,816 @@
+.sidebar {
+    width: 12.875rem;
+}
+
+@media (min-width: 768px) {
+    .navbar-expand-md .navbar-brand {
+        min-width: 11.625rem;
+    }
+}
+
+.aural-only {
+    position: absolute !important;
+    clip: rect(1px, 1px, 1px, 1px);
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.phabricator-standard-page {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+}
+
+
+/* - Effects -------------------------------------------------------------------
+
+  Effects like highlighted items.
+
+*/
+
+.phui-oi.phui-oi-highlighted {
+    background: #fdf3da;
+}
+
+ul.phui-oi-list-view .phui-oi-highlighted
+.phui-oi-frame {
+    border-color: #c9b8a8;
+}
+
+.phui-oi-selected {
+    background: #dee7f8;
+}
+
+ul.phui-oi-list-view .phui-oi-selected
+.phui-oi-frame {
+    border-color: #a7b5bf;
+}
+
+.phui-oi-forbidden {
+    background: #f7e6e6;
+}
+
+
+/* - Draggable List ------------------------------------------------------------
+
+  These classes are applied by and/or provided for use with JX.DraggableList.
+
+*/
+
+.drag-ghost {
+    position: relative;
+    background: #eae6f7;
+    border-radius: 3px;
+    margin-bottom: 4px;
+    border: 1px dashed #bcb4da;
+}
+
+.drag-dragging {
+    opacity: 0.25;
+}
+
+.drag-sending {
+    opacity: 0.5;
+}
+
+.drag-clone,
+.drag-frame {
+    /* This allows mousewheel events to pass through the clone and frame while
+       they are being dragged. Without this, the mousewheel does not work during
+       a drag operation. */
+    pointer-events: none;
+}
+
+.drag-frame {
+    position: fixed;
+    overflow: hidden;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.drag-clone {
+    position: absolute;
+    list-style: none;
+}
+
+
+/**
+    phui-mobile-menu Fix
+ */
+.phui-header-action-links .phui-mobile-menu {
+    display: none;
+}
+
+.device .phui-header-action-links .phui-mobile-menu {
+    display: inline-block;
+}
+
+
+/*
+    Fontawsome Fix
+ */
+.fa-1x {
+    font-size: 24px;
+}
+.fa-2x {
+    font-size: 36px;
+}
+.fa-3x {
+    font-size: 48px;
+}
+
+
+/*
+    Fancybox Fix
+ */
+.fancybox-content {
+    overflow: unset;
+}
+
+/*
+    Bootstrap Fix
+ */
+.nav-sidebar .nav-link i {
+    font-size: 16px;
+!important;
+}
+
+.btn-group-xs > .btn, .btn-xs {
+    padding: .1875rem .4375rem;
+    font-size: .375rem;
+    border-radius: .0625rem;
+}
+
+/**
+    Dashboard Fix
+ */
+
+.aphront-multi-column-fluid .aphront-multi-column-column .dashboard-panel-placeholder {
+    display: none;
+}
+
+.aphront-multi-column-fluid .aphront-multi-column-column.dashboard-column-empty .dashboard-panel-placeholder {
+    display: block;
+!important;
+}
+
+/**
+    z-index Fix
+ */
+
+.drag-frame {
+    z-index: 16;
+}
+.phabricator-action-list-view.phabricator-action-list-toggle {
+    z-index: 101
+}
+
+.keyboard-focus-focus-reticle {
+    z-index: 102
+}
+
+.device-desktop .phui-timeline-minor-event .phui-timeline-image {
+    z-index: 102
+}
+
+.differential-reticle {
+    z-index: 102
+}
+
+.differential-changeset {
+    z-index: 102
+}
+
+.pholio-new-inline-comment {
+    z-index: 102
+}
+
+.slowvote-bar {
+    z-index: 102
+}
+
+div.phui-calendar-day-event {
+    z-index: 102
+}
+
+.slowvote-above-the-bar {
+    z-index: 103
+}
+
+.phui-timeline-icon-fill {
+    z-index: 103
+}
+
+.phui-crumbs-view {
+    z-index: 103
+}
+
+.phabricator-nav-local {
+    z-index: 104
+}
+
+.project-board-header {
+    z-index: 104
+}
+
+.conpherence-layout .conpherence-no-threads {
+    z-index: 104
+}
+
+.conpherence-menu-pane {
+    z-index: 104
+}
+
+.phabricator-nav-drag {
+    z-index: 104
+}
+
+.conpherence-message-pane .conpherence-search-main {
+    z-index: 104
+}
+
+.dark-console {
+    z-index: 105
+}
+
+.phui-calendar-date-number {
+    z-index: 105
+}
+
+.phabricator-main-menu {
+    z-index: 106
+}
+
+.aphront-developer-error-callout {
+    z-index: 106
+}
+
+.loading .messages-loading-mask, .loading .widgets-loading-mask {
+    z-index: 106
+}
+
+.diff-banner {
+    z-index: 106
+}
+
+.conpherence-durable-column {
+    z-index: 107
+}
+
+.jx-scrollbar-bar {
+    z-index: 108
+}
+
+.differential-haunt-mode-1 .differential-add-comment-panel, .differential-haunt-mode-2 .differential-add-comment-panel {
+    z-index: 108
+}
+
+.remarkup-assist-pinned {
+    z-index: 108
+}
+
+.device-desktop .phabricator-notification-menu {
+    z-index: 109
+}
+
+.jx-mask {
+    z-index: 1010
+}
+
+.jx-notification-container {
+    z-index: 1011
+}
+
+.phabricator-global-upload-instructions {
+    z-index: 1011
+}
+
+.lightbox-attachment {
+    z-index: 1012
+}
+
+div.jx-typeahead-results {
+    z-index: 1013
+}
+
+.jx-client-dialog {
+    z-index: 1014
+}
+
+.fancy-datepicker {
+    z-index: 1015
+}
+
+.drag-frame {
+    z-index: 1016
+}
+
+.jx-hovercard-container {
+    z-index: 1017
+}
+
+.pholio-device-lightbox {
+    z-index: 1020
+}
+
+.phuix-autocomplete {
+    z-index: 1021
+}
+
+.conpherence-participant-pane {
+    z-index: 1025
+}
+
+.conpherence-layout .conpherence-loading-mask {
+    z-index: 1030
+}
+
+.phuix-dropdown-menu {
+    z-index: 1032
+}
+
+.busy {
+    z-index: 1040
+}
+
+.remarkup-control-fullscreen-mode {
+    z-index: 1050
+}
+
+.jx-tooltip-container {
+    z-index: 1051
+}
+
+
+/**
+    Page Header Fix
+ */
+
+.phui-header-image {
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    width: 50px;
+    height: 50px;
+    border-radius: 3px;
+}
+
+/* - Search --------------------------------------------------------------------
+
+  The main search input in the menu bar.
+
+*/
+.device-desktop .phabricator-main-menu-search {
+    width: 298px;
+}
+
+.device .phabricator-main-menu-search {
+    height: 40px;
+}
+
+.phabricator-main-menu-search-container {
+    padding: 8px 0;
+    position: relative;
+    height: 24px;
+    margin: 0 8px 0 0;
+}
+
+.phabricator-main-menu-search-target {
+    position: absolute;
+    top: 42px;
+}
+
+.device-desktop .phabricator-main-menu-search-target {
+    width: 360px;
+}
+
+.device .phabricator-main-menu-search-target {
+    width: 100%;
+    margin-left: -25px;
+}
+
+.device .phabricator-main-menu-search-container {
+    padding: 4px 0;
+    margin: 0 4px;
+}
+
+.phabricator-main-menu .phabricator-main-menu-search input {
+    outline: 0;
+    margin: 0;
+    box-shadow: none;
+    transition: none;
+
+    color: #6B748C;
+    width: 100%;
+    right: 0;
+    position: absolute;
+    font-size: 10px;
+    border: none;
+    background-color: #ffffff;
+    height: 28px;
+    padding: 3px 28px 3px 48px;
+    float: left;
+}
+
+.device .phabricator-main-menu-search input {
+    height: 32px;
+    font-size: 13px;
+    width: 100%;
+    padding-left: 50px;
+    border: 1px solid #A1A6B0;
+}
+
+.phabricator-main-menu .phabricator-main-menu-search input:focus {
+    background: #ffffff;
+    opacity: 1;
+    color: #2980b9;
+    box-shadow: none;
+}
+
+.phabricator-main-menu-search input.jx-typeahead-placeholder {
+    color: #6B748C;
+}
+
+.phabricator-main-menu-search button {
+    color: #6B748C;
+    position: absolute;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    text-shadow: none;
+    min-width: 0;
+    height: 24px;
+    width: 28px;
+    top: 2px;
+    right: -6px;
+    margin: 0 8px 0 0;
+    padding: 0;
+    border-radius: 0;
+}
+
+.phabricator-main-menu-search button.phabricator-main-menu-search-dropdown {
+    position: absolute;
+    right: auto;
+    left: 3px;
+    width: 40px;
+    z-index: 101;
+}
+
+.device-desktop .phabricator-main-menu-search button.phabricator-main-menu-search-dropdown {
+    height: 24px;
+    top: 2px;
+    border-radius: 3px;
+}
+
+.device-desktop .phabricator-main-menu-search button.phabricator-main-menu-search-dropdown:hover .phui-icon-view {
+    color: #4B4D51;
+}
+
+.device .phabricator-main-menu-search
+button.phabricator-main-menu-search-dropdown {
+    left: 2px;
+    background: #fff;
+}
+
+button.phabricator-main-menu-search-dropdown .caret:before,
+a.phabricator-core-user-menu .caret:before {
+    content: "\f107";
+    font-family: FontAwesome;
+}
+
+.phabricator-main-menu-search button.phabricator-main-menu-search-dropdown
+.phui-icon-view {
+    color: #6B748C;
+    font-size: 15px;
+    top: 4px;
+    left: 8px;
+    position: absolute;
+}
+
+.phabricator-main-menu-search-dropdown .caret {
+    /*position: absolute;*/
+    /*right: 20px;*/
+    /*top: 2px;*/
+    border: none;
+    margin-left: 5px;
+    margin-top: 1px;
+}
+
+.phabricator-main-menu-search button:hover {
+    color: #4B4D51;
+}
+
+.device .phabricator-main-menu-search button {
+    top: 6px;
+    border-radius: 0;
+    height: 28px;
+    right: -6px;
+}
+
+.phabricator-main-menu-search-target div.jx-typeahead-results {
+    background: #ffffff;
+    word-wrap: break-word;
+    overflow-y: auto;
+    /*box-shadow: {$dropshadow};*/
+    /*border: 1px solid {$lightgreyborder};*/
+    border-radius: 3px;
+    margin-left: -64px;
+}
+
+.device .phabricator-main-menu-search-target div.jx-typeahead-results {
+    margin-left: 28px;
+}
+
+.phabricator-main-search-typeahead-result .phabricator-search-icon {
+    width: 28px;
+    height: 28px;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 24px;
+    text-align: center;
+    vertical-align: bottom;
+}
+
+.phabricator-main-search-typeahead-result {
+    display: block;
+    padding: 6px 8px 8px 44px;
+    background-position: 8px;
+    background-size: 30px 30px;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.phabricator-main-search-typeahead-result .result-name {
+    display: block;
+    font-size: 10px;
+    font-weight: bold;
+    /*color: {$darkgreytext};*/
+}
+
+.phabricator-main-search-typeahead-result.result-closed {
+    opacity: .8;
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+}
+
+.phabricator-main-search-typeahead-result.result-closed
+.result-name {
+    text-decoration: line-through;
+    /*color: {$lightgreytext};*/
+}
+
+.phabricator-main-search-typeahead-result.has-image {
+    padding-left: 48px;
+}
+
+.phabricator-main-search-typeahead-result .result-type {
+    /*color: {$lightgreytext};*/
+    /*font-size: {$smallestfontsize};*/
+    font-weight: normal;
+}
+
+.device .phabricator-application-menu-expanded.phabricator-search-menu-expanded
+.phabricator-search-menu {
+    padding: 0;
+}
+
+.device-phone .phabricator-main-search-typeahead-result .result-name {
+    font-size: 13px;
+}
+
+.device-phone .phabricator-main-search-typeahead-result .result-type {
+    font-size: 10px;
+}
+
+/**
+ * @provides phabricator-notification-css
+ */
+
+.jx-notification-container {
+    position: fixed;
+
+    bottom: 24px;
+    left: 24px;
+}
+
+.jx-notification {
+    width: 240px;
+    padding: 8px 12px;
+
+    font-size: 11px;
+    overflow: hidden;
+
+    background: #ddeef9;
+    color: #4B4D51;
+    border: 1px solid #3498db;
+
+    cursor: pointer;
+
+    border-radius: 3px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25);
+    margin-top: 4px;
+}
+
+.jx-notification-alert {
+    background: #fdf5d4;
+    border: 1px solid #f1c40f;
+}
+
+.jx-notification-debug {
+    background: #eae6f7;
+    border: 1px solid #6e5cb6;
+}
+
+.jx-notification-done {
+    background: #d7eddf;
+    border: 1px solid #139543;
+}
+
+.jx-notification-error {
+    background: #f4dddb;
+    border: 1px solid #c0392b;
+}
+
+.jx-notification-security {
+    background: #ecdff1;
+    border: 1px solid #8e44ad;
+}
+
+.jx-notification-read-only {
+    background: #EBECEE;
+    border: 1px solid #676A70;
+}
+
+.jx-notification-container .phabricator-notification {
+    padding: 0;
+}
+
+/**
+ * @provides phabricator-notification-menu-css
+ */
+
+.phabricator-notification-menu {
+    background: #fff;
+    font-size: 12px;
+    line-height: 18px;
+    word-wrap: break-word;
+    overflow-y: auto;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .20);
+    border: 1px solid #C7CCD9;
+    border-radius: 3px;
+}
+
+.phabricator-notification {
+    padding: 8px 12px;
+}
+
+.phabricator-notification-menu-loading {
+    text-align: center;
+    padding: 10px 0;
+    color: #92969D;
+}
+
+.device-desktop .phabricator-notification-menu,
+.device-tablet .phabricator-notification-menu {
+    position: absolute;
+    width: 360px;
+    top: 42px;
+}
+
+.device-phone .phabricator-notification-menu {
+    border-bottom: 1px solid #DDE8EF;
+    width: 94%;
+    max-width: 390px;
+    top: 42px !important;
+    left: 3% !important;
+    position: absolute;
+}
+
+.phabricator-notification-list.pm {
+    padding: 0;
+}
+
+.phabricator-notification-list .phabricator-notification {
+    padding: 8px;
+}
+
+.phabricator-notification-menu .phabricator-notification {
+    cursor: pointer;
+}
+
+.device-desktop .phabricator-notification-menu .phabricator-notification:hover {
+    background: #F7F7F7;
+}
+
+.device-desktop .phabricator-notification-menu
+.phabricator-notification-unread.phabricator-notification:hover {
+    background: #e6e9ee;
+}
+
+.phabricator-notification + .phabricator-notification {
+    border-top: 1px solid #DDE8EF;
+}
+
+.no-notifications {
+    color: #92969D;
+}
+
+.phabricator-notification-warning {
+    background: #fdf3da;
+}
+
+.phabricator-notification-list .phabricator-notification-unread,
+.phabricator-notification-menu .phabricator-notification-unread {
+    background: #eceff5;
+}
+
+.phabricator-notification-read {
+    color: #92969D;
+}
+
+.phabricator-notification-foot {
+    color: #92969D;
+    font-size: 11px;
+    line-height: 18px;
+    position: relative;
+}
+
+.phabricator-notification-unread .phabricator-notification-foot {
+    padding-left: 10px;
+}
+
+.phabricator-notification-foot .phabricator-notification-status {
+    display: none;
+}
+
+.phabricator-notification-unread .phabricator-notification-foot
+.phabricator-notification-status {
+    font-size: 7px;
+    color: #8C98B8;
+    position: absolute;
+    display: inline-block;
+    top: 6px;
+    left: 0;
+}
+
+.phabricator-notification-header {
+    font-weight: bold;
+    padding: 10px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid #DDE8EF;
+}
+
+.phabricator-notification-header a {
+    color: #4B4D51;
+}
+
+.phabricator-notification-header a:hover {
+    text-decoration: underline;
+}
+
+.phabricator-notification-header .phabricator-notification-clear-all {
+    color: #136CB2;
+    float: right;
+    font-weight: normal;
+}
+
+.phabricator-notification-footer {
+    background: #EBECEE;
+    border-top: 1px solid #DDE8EF;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    padding: 8px;
+    font-size: 12px;
+    color: #4B4D51;
+}
+
+.phabricator-notification-footer a {
+    color: #4B4D51;
+}
+
+.phabricator-notification-footer a:hover {
+    text-decoration: underline;
+}
+
+.phabricator-notification-menu .aphlict-connection-status {
+    color: #92969D;
+}
+
+.aphlict-connection-status {
+    position: relative;
+}
+
+.aphlict-connection-status .phui-icon-view {
+    font-size: 9px;
+    position: absolute;
+    top: 4px;
+}
+
+.aphlict-connection-status .connection-status-text {
+    margin-left: 12px;
+}

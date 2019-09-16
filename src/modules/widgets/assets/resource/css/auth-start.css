@@ -1,0 +1,38 @@
+.login-container {
+    width: 800px;
+    height: 450px;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 1px 1px 46px 0px rgba(0, 0, 0, 0.5);
+}
+
+
+.welcome {
+    font-size: 30px;
+    font-family: MicrosoftYaHei;
+    color: rgba(51, 51, 51, 1);
+    line-height: 40px;
+    margin-top: 40px;
+}
+
+.input-username {
+    font-size:20px;
+    margin-top: 25px;
+    border-bottom: solid 3px #979797;
+    height: 64px
+}
+
+.input-password {
+    font-size:20px;
+    border-bottom: solid 3px #979797;
+    height: 64px
+}
+
+.login-btn {
+    height: 58px;
+    font-size:26px;
+    margin-top: 15px;
+}
+
+.line-height-30 {
+    height: 30px;
+}

@@ -1,0 +1,148 @@
+<?php
+
+namespace orangins\lib\view\form\control;
+
+use orangins\lib\helpers\JavelinHtml;
+use orangins\lib\helpers\OranginsUtil;
+
+/**
+ * Class AphrontFormSelectControl
+ * @package orangins\lib\view\form\control
+ * @author 陈妙威
+ */
+final class AphrontFormSelectControl extends AphrontFormControl
+{
+
+    /**
+     * @return mixed|string
+     * @author 陈妙威
+     */
+    protected function getCustomControlClass()
+    {
+        return 'aphront-form-control-select';
+    }
+
+    /**
+     * @var
+     */
+    private $data;
+    /**
+     * @var array
+     */
+    private $disabledOptions = array();
+
+    /**
+     * @param array $options
+     * @return $this
+     * @author 陈妙威
+     */
+    public function setOptions(array $options)
+    {
+        $this->data = $options;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
+    public function getOptions()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param array $disabled
+     * @return $this
+     * @author 陈妙威
+     */
+    public function setDisabledOptions(array $disabled)
+    {
+        $this->disabledOptions = $disabled;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     * @author 陈妙威
+     * @throws \yii\base\Exception
+     */
+    protected function renderInput()
+    {
+        return self::renderSelectTag(
+            $this->getValue(),
+            $this->getOptions(),
+            array(
+                'name' => $this->getName(),
+                'disabled' => $this->getDisabled() ? 'disabled' : null,
+                'id' => $this->getID(),
+                'class' => 'form-control'
+            ),
+            $this->disabledOptions);
+    }
+
+    /**
+     * @param $selected
+     * @param array $options
+     * @param array $attrs
+     * @param array $disabled
+     * @return mixed
+     * @author 陈妙威
+     * @throws \yii\base\Exception
+     */
+    public static function renderSelectTag(
+        $selected,
+        array $options,
+        array $attrs = array(),
+        array $disabled = array())
+    {
+        $option_tags = self::renderOptions($selected, $options, $disabled);
+        return JavelinHtml::tag('select', $option_tags, $attrs);
+    }
+
+    /**
+     * @param $selected
+     * @param array $options
+     * @param array $disabled
+     * @return array
+     * @author 陈妙威
+     * @throws \yii\base\Exception
+     */
+    private static function renderOptions(
+        $selected,
+        array $options,
+        array $disabled = array())
+    {
+        $disabled = OranginsUtil::array_fuse($disabled);
+
+        $tags = array();
+        $already_selected = false;
+        foreach ($options as $value => $thing) {
+            if (is_array($thing)) {
+                $tags[] = JavelinHtml::tag('optgroup', self::renderOptions($selected, $thing), array(
+                    'label' => $value,
+                ));
+            } else {
+                // When there are a list of options including similar values like
+                // "0" and "" (the empty string), only select the first matching
+                // value. Ideally this should be more precise about matching, but we
+                // have 2,000 of these controls at this point so hold that for a
+                // broader rewrite.
+                if (!$already_selected && ($value == $selected)) {
+                    $is_selected = 'selected';
+                    $already_selected = true;
+                } else {
+                    $is_selected = null;
+                }
+
+                $tags[] = JavelinHtml::tag('option', $thing, array(
+                    'selected' => $is_selected,
+                    'value' => $value,
+                    'disabled' => isset($disabled[$value]) ? 'disabled' : null,
+                ));
+            }
+        }
+        return $tags;
+    }
+
+}
