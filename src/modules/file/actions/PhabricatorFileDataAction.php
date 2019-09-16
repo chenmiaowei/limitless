@@ -182,7 +182,8 @@ final class PhabricatorFileDataAction extends PhabricatorFileAction
         // In Chrome, we must permit this domain in "object-src" CSP when serving a
         // PDF or the browser will refuse to render it.
         if (!$is_download && $file->isPDF()) {
-            $request_uri = (clone $request->getAbsoluteRequestURI())
+            $absoluteRequestURI = clone $request->getAbsoluteRequestURI();
+            $request_uri = $absoluteRequestURI
                 ->setPath(null)
                 ->setFragment(null)
                 ->setQueryParams(array());

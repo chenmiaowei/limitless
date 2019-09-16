@@ -2,31 +2,41 @@
 
 namespace orangins\modules\meta\actions;
 
+use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
+use orangins\lib\view\form\AphrontFormView;
+use orangins\lib\view\form\control\AphrontFormPolicyControl;
+use orangins\lib\view\form\control\AphrontFormStaticControl;
+use orangins\lib\view\form\control\AphrontFormSubmitControl;
 use orangins\lib\view\phui\PHUIHeaderView;
 use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\lib\view\phui\PHUITwoColumnView;
+use orangins\modules\meta\editor\PhabricatorApplicationEditor;
 use orangins\modules\meta\query\PhabricatorApplicationQuery;
+use orangins\modules\meta\xactions\PhabricatorApplicationPolicyChangeTransaction;
+use orangins\modules\phid\PhabricatorPHIDType;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\models\PhabricatorPolicy;
+use orangins\modules\policy\models\PhabricatorPolicyQuery;
 use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorApplicationEditAction
  * @package orangins\modules\meta\actions
  * @author 陈妙威
  */
-final class PhabricatorApplicationEditAction
-    extends PhabricatorApplicationsAction
+final class PhabricatorApplicationEditAction extends PhabricatorApplicationsAction
 {
 
     /**
-     * @return Aphront404Response|\orangins\lib\view\page\PhabricatorStandardPageView
+     * @return Aphront404Response|AphrontRedirectResponse|\orangins\lib\view\AphrontDialogView|\orangins\lib\view\page\PhabricatorStandardPageView
      * @throws \PhutilInvalidStateException
+     * @throws \PhutilMethodNotImplementedException
      * @throws \ReflectionException
-     * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -75,7 +85,7 @@ final class PhabricatorApplicationEditAction
                 }
 
                 $x = clone $template;
-                $xactions[] = ($x)
+                $xactions[] = $x
                     ->setTransactionType(
                         PhabricatorApplicationPolicyChangeTransaction::TRANSACTIONTYPE)
                     ->setMetadataValue(

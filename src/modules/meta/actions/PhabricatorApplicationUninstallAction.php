@@ -2,21 +2,33 @@
 
 namespace orangins\modules\meta\actions;
 
-use orangins\lib\request\AphrontRequest;
+use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontDialogResponse;
+use orangins\lib\response\AphrontRedirectResponse;
+use orangins\lib\view\AphrontDialogView;
+use orangins\modules\home\application\PhabricatorHomeApplication;
+use orangins\modules\meta\editor\PhabricatorApplicationEditor;
 use orangins\modules\meta\query\PhabricatorApplicationQuery;
+use orangins\modules\meta\xactions\PhabricatorApplicationUninstallTransaction;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
 
-final class PhabricatorApplicationUninstallAction
-    extends PhabricatorApplicationsAction
+final class PhabricatorApplicationUninstallAction extends PhabricatorApplicationsAction
 {
 
     /**
-     * @param AphrontRequest $request
-     * @return Aphront404Response|AphrontDialogResponse|\orangins\lib\view\AphrontDialogView
-     * @throws \yii\base\Exception
+     * @return Aphront404Response|AphrontDialogResponse|AphrontRedirectResponse|AphrontDialogView
+     * @throws \PhutilInvalidStateException
+     * @throws \PhutilJSONParserException
+     * @throws \PhutilMethodNotImplementedException
+     * @throws \PhutilTypeExtraParametersException
+     * @throws \PhutilTypeMissingParametersException
      * @throws \ReflectionException
+     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
+     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -66,7 +78,7 @@ final class PhabricatorApplicationUninstallAction
                 $xactions = array();
                 $template = $application->getApplicationTransactionTemplate();
                 $x = clone $template;
-                $xactions[] = ($x)
+                $xactions[] = $x
                     ->setTransactionType(
                         PhabricatorApplicationUninstallTransaction::TRANSACTIONTYPE)
                     ->setNewValue($action);

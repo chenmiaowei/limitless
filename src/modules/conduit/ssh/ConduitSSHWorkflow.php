@@ -1,4 +1,5 @@
 <?php
+namespace orangins\modules\typeahead\ssh;
 
 use orangins\lib\infrastructure\ssh\PhabricatorSSHWorkflow;
 use orangins\modules\conduit\call\ConduitCall;

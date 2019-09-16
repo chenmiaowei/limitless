@@ -1,7 +1,10 @@
 <?php
+namespace orangins\lib\infrastructure\log;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\OranginsObject;
+use PhutilDeferredLog;
 use yii\helpers\ArrayHelper;
 
 /**
