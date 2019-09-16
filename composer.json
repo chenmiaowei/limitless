@@ -34,7 +34,6 @@
     "rmccue/requests": "^1.7",
     "mero/yii2-monolog": "^0.2.0@dev",
     "predis/predis": "^2.0@dev",
-    "obs/esdk-obs-php": "*",
     "qiniu/php-sdk": "v7.0.7",
     "phpoffice/phpspreadsheet": "dev-master"
   },
