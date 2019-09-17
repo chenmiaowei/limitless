@@ -251,7 +251,6 @@ final class PhutilDaemonHandle extends Phobject
 
     /**
      * @return $this
-     * @throws Exception
      * @author 陈妙威
      */
     public function wakeFromHibernation()
@@ -291,7 +290,6 @@ final class PhutilDaemonHandle extends Phobject
 
     /**
      * @author 陈妙威
-     * @throws Exception
      */
     public function update()
     {
@@ -478,7 +476,8 @@ final class PhutilDaemonHandle extends Phobject
      */
     private function getDaemonCWD()
     {
-        return \Yii::getAlias(\Yii::$app->scriptsPath) . '/daemon/exec/';
+        $root = dirname(phutil_get_library_root('phutil'));
+        return $root . '/scripts/daemon/exec/';
     }
 
     /**
