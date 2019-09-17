@@ -383,7 +383,7 @@ final class PhutilLibraryMapBuilder extends Phobject
                                 $file,
                                 $prior));
                     }
-//          $library_map[$lib_type][$symbol] = $file;
+                    $library_map[$lib_type][$symbol] = $file;
                 }
             }
             $library_map['xmap'] += $info['xmap'];
@@ -410,9 +410,10 @@ final class PhutilLibraryMapBuilder extends Phobject
     /**
      * Write a finalized library map.
      *
-     * @param  dict Library map structure to write.
+     * @param array $library_map
      * @return void
      *
+     * @throws FilesystemException
      * @task source
      */
     private function writeLibraryMap(array $library_map)
