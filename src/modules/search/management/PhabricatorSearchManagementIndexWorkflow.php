@@ -4,7 +4,7 @@ namespace orangins\modules\search\management;
 
 use Exception;
 use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
-use orangins\lib\infrastructure\storage\storage\LiskMigrationIterator;
+use orangins\lib\infrastructure\storage\lisk\LiskMigrationIterator;
 use orangins\modules\phid\helpers\PhabricatorPHID;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\search\interfaces\PhabricatorIndexableInterface;

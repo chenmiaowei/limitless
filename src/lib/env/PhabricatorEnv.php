@@ -424,8 +424,7 @@ final class PhabricatorEnv extends OranginsObject
         }
 
         if (!$env) {
-            $root = dirname(phutil_get_library_root('orangins'));
-            $path = $root . '/config/local/ENVIRONMENT';
+            $path = \Yii::getAlias(\Yii::$app->configPath) . '/local/ENVIRONMENT';
             if (FileSystemHelper::pathExists($path)) {
                 $env = trim(FileSystemHelper::readFile($path));
             }

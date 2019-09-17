@@ -95,8 +95,7 @@ final class PhabricatorConfigVersionAction
             $version_property_list->addProperty($name, $display);
         }
 
-        $phabricator_root = dirname(phutil_get_library_root('orangins'));
-        $version_path = $phabricator_root . '/config/local/VERSION';
+        $version_path = \Yii::getAlias(\Yii::$app->configPath) . '/local/VERSION';
         if (Filesystem::pathExists($version_path)) {
             $version_from_file = Filesystem::readFile($version_path);
             $version_property_list->addProperty(

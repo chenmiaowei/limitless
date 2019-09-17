@@ -28,9 +28,10 @@ final class PhabricatorConfigLocalSource extends PhabricatorConfigProxySource
 
     /**
      * @param array $keys
-     * @return PhabricatorConfigProxySource|void
+     * @return PhabricatorConfigProxySource
      * @throws FilesystemException
      * @throws \yii\base\Exception
+     * @throws \Exception
      */
     public function setKeys(array $keys)
     {
@@ -41,8 +42,10 @@ final class PhabricatorConfigLocalSource extends PhabricatorConfigProxySource
 
     /**
      * @param array $keys
-     * @return PhabricatorConfigProxySource|void
+     * @return PhabricatorConfigProxySource
      * @throws FilesystemException
+     * @throws \yii\base\Exception
+     * @throws \Exception
      */
     public function deleteKeys(array $keys)
     {
@@ -96,6 +99,7 @@ final class PhabricatorConfigLocalSource extends PhabricatorConfigProxySource
     /**
      * @throws FilesystemException
      * @throws \yii\base\Exception
+     * @throws \Exception
      */
     private function saveConfig()
     {
@@ -110,8 +114,7 @@ final class PhabricatorConfigLocalSource extends PhabricatorConfigProxySource
      */
     private function getConfigPath()
     {
-        $root = dirname(phutil_get_library_root('orangins'));
-        $path = $root . '/config/local/local.json';
+        $path = \Yii::getAlias(\Yii::$app->configPath) . '/local/local.json';
         return $path;
     }
 }
