@@ -8,6 +8,8 @@
  */
 namespace orangins\lib\console;
 
+use orangins\lib\env\PhabricatorEnv;
+
 /**
  * Class Application
  * @package orangins\lib\web
@@ -16,7 +18,24 @@ namespace orangins\lib\console;
 class Application extends \yii\console\Application
 {
     /**
-     * @var
+     * @var string
      */
     public $configPath;
+
+    /**
+     * @var bool
+     */
+    public $configOptional = false;
+
+    /**
+     * Application constructor.
+     * @param array $config
+     * @throws \ReflectionException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function __construct(array $config = [])
+    {
+        parent::__construct($config);
+        PhabricatorEnv::initializeScriptEnvironment($this->configOptional);
+    }
 }

@@ -8,6 +8,8 @@
  */
 namespace orangins\lib\web;
 
+use orangins\lib\env\PhabricatorEnv;
+
 /**
  * Class Application
  * @package orangins\lib\web
@@ -19,4 +21,22 @@ class Application extends \yii\web\Application
      * @var
      */
     public $configPath;
+
+    /**
+     * @var bool
+     */
+    public $configOptional = false;
+
+    /**
+     * Application constructor.
+     * @param array $config
+     * @throws \ReflectionException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function __construct(array $config = [])
+    {
+        parent::__construct($config);
+
+        PhabricatorEnv::initializeWebEnvironment();
+    }
 }
