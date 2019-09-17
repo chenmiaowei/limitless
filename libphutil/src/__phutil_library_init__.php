@@ -5,7 +5,17 @@ define('__LIBPHUTIL__', true);
 $root = dirname(__FILE__);
 
 /** @var \Composer\Autoload\ClassLoader $loader */
-require(__DIR__ . '/../../vendor/autoload.php');
+
+$composerAutoload = [
+    __DIR__ . '/../../vendor/autoload.php', // standalone with "composer install" run
+    __DIR__ . '/../../../../autoload.php',  // script is installed as a composer binary
+];
+foreach ($composerAutoload as $autoload) {
+    if (file_exists($autoload)) {
+        require($autoload);
+        break;
+    }
+}
 //require_once $root.'/moduleutils/core.php';
 //require_once $root.'/moduleutils/PhutilBootloader.php';
 //require_once $root.'/moduleutils/PhutilBootloaderException.php';
