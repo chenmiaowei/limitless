@@ -1,6 +1,6 @@
 <?php
 
-namespace orangins\lib\infrastructure\storage\storage;
+namespace orangins\lib\infrastructure\storage\lisk;
 
 use orangins\lib\db\ActiveRecord;
 use PhutilBufferedIterator;
