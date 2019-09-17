@@ -51,7 +51,7 @@ abstract class PhabricatorDaemonManagementWorkflow
 
     /**
      * @return mixed
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     final protected function getPIDDirectory()
@@ -62,7 +62,7 @@ abstract class PhabricatorDaemonManagementWorkflow
 
     /**
      * @return mixed
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     final protected function getLogDirectory()
@@ -100,8 +100,11 @@ abstract class PhabricatorDaemonManagementWorkflow
 
     /**
      * @return array
-     * @throws \yii\base\Exception
      * @throws \FilesystemException
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     final protected function loadRunningDaemons()
@@ -199,11 +202,10 @@ abstract class PhabricatorDaemonManagementWorkflow
      * @param array $daemons
      * @param $debug
      * @param bool $run_as_current_user
-     * @throws Exception
      * @throws PhutilArgumentUsageException
-     * @throws \CommandException
      * @throws \FilesystemException
-     * @throws \PhutilProxyException
+     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     final protected function launchDaemons(
@@ -231,21 +233,24 @@ abstract class PhabricatorDaemonManagementWorkflow
                     throw new PhutilArgumentUsageException(
                         \Yii::t("app",
                             "You are trying to run a daemon as a nonstandard user, " .
-                            "and `%s` was not able to `%s` to the correct user. \n" .
-                            'Phabricator is configured to run daemons as "%s", ' .
-                            'but the current user is "%s". ' . "\n" .
-                            'Use `%s` to run as a different user, pass `%s` to ignore this ' .
-                            'warning, or edit `%s` to change the configuration.',
-                            'phd',
-                            'sudo',
-                            $phd_user,
-                            $current_user,
-                            'sudo',
-                            '--as-current-user',
-                            'phd.user'));
+                            "and `{0}` was not able to `{1}` to the correct user. \n" .
+                            'Phabricator is configured to run daemons as "{2}", ' .
+                            'but the current user is "{3}". ' . "\n" .
+                            'Use `{4}` to run as a different user, pass `{5}` to ignore this ' .
+                            'warning, or edit `{6}` to change the configuration.', [
+                                'phd',
+                                'sudo',
+                                $phd_user,
+                                $current_user,
+                                'sudo',
+                                '--as-current-user',
+                                'phd.user'
+                            ]));
                 } else {
                     $this->runDaemonsAsUser = $phd_user;
-                    $console->writeOut(\Yii::t("app",'Starting daemons as %s', $phd_user) . "\n");
+                    $console->writeOut(\Yii::t("app",'Starting daemons as {0}', [
+                            $phd_user
+                        ]) . "\n");
                 }
             }
         }
@@ -439,13 +444,15 @@ abstract class PhabricatorDaemonManagementWorkflow
     /**
      * @param array $options
      * @return int
-     * @throws Exception
      * @throws PhutilArgumentUsageException
-     * @throws \CommandException
      * @throws \FilesystemException
-     * @throws \PhutilProxyException
+     * @throws \PhutilInvalidStateException
      * @throws \PhutilTypeExtraParametersException
      * @throws \PhutilTypeMissingParametersException
+     * @throws \ReflectionException
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     final protected function executeStartCommand(array $options)
@@ -607,8 +614,10 @@ abstract class PhabricatorDaemonManagementWorkflow
     /**
      * @param array $pids
      * @return int
-     * @throws \yii\base\Exception
      * @throws \FilesystemException
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \yii\base\Exception
      * @author 陈妙威
      */
     final protected function executeReloadCommand(array $pids)
@@ -695,7 +704,7 @@ abstract class PhabricatorDaemonManagementWorkflow
     /**
      * @param $pids
      * @param $grace_period
-     * @return array|\dict
+     * @return array
      * @author 陈妙威
      */
     private function sendStopSignals($pids, $grace_period)
@@ -722,7 +731,7 @@ abstract class PhabricatorDaemonManagementWorkflow
      * @param array $pids
      * @param $signo
      * @param $wait
-     * @return array|\dict
+     * @return array
      * @author 陈妙威
      */
     private function sendSignal(array $pids, $signo, $wait)
@@ -792,7 +801,7 @@ abstract class PhabricatorDaemonManagementWorkflow
     /**
      * @param array $daemons
      * @param $debug
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function printLaunchingDaemons(array $daemons, $debug)
