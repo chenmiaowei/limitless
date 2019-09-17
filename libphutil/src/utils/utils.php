@@ -30,7 +30,7 @@ function id($x) {
  * @param   scalar  Index to access in the array.
  * @param   wild    Default value to return if the key is not present in the
  *                  array.
- * @return  wild    If `$array[$key]` exists, that value is returned. If not,
+ * @return  object    If `$array[$key]` exists, that value is returned. If not,
  *                  $default is returned without raising a warning.
  */
 function idx(array $array, $key, $default = null) {

@@ -37,7 +37,7 @@ final class PhutilDaemonHandle extends Phobject
      */
     private $properties;
     /**
-     * @var
+     * @var ExecFuture
      */
     private $future;
     /**
@@ -112,6 +112,7 @@ final class PhutilDaemonHandle extends Phobject
             $config,
             array(
                 'class' => 'string',
+                'inidir' => 'string',
                 'argv' => 'optional list<string>',
                 'load' => 'optional list<string>',
                 'log' => 'optional string|null',
@@ -162,7 +163,7 @@ final class PhutilDaemonHandle extends Phobject
     }
 
     /**
-     * @return wild
+     * @return object
      * @author 陈妙威
      */
     public function getDaemonClass()
@@ -172,7 +173,7 @@ final class PhutilDaemonHandle extends Phobject
 
     /**
      * @param $key
-     * @return wild
+     * @return object
      * @author 陈妙威
      */
     private function getProperty($key)
@@ -201,7 +202,7 @@ final class PhutilDaemonHandle extends Phobject
     }
 
     /**
-     * @return wild
+     * @return object
      * @author 陈妙威
      */
     public function getDaemonArguments()
@@ -251,6 +252,7 @@ final class PhutilDaemonHandle extends Phobject
 
     /**
      * @return $this
+     * @throws Exception
      * @author 陈妙威
      */
     public function wakeFromHibernation()
@@ -290,6 +292,7 @@ final class PhutilDaemonHandle extends Phobject
 
     /**
      * @author 陈妙威
+     * @throws Exception
      */
     public function update()
     {
@@ -519,7 +522,7 @@ final class PhutilDaemonHandle extends Phobject
      * Dispatch an event to event listeners.
      *
      * @param  string Event type.
-     * @param  dict   Event parameters.
+     * @param  array   Event parameters.
      * @return void
      */
     private function dispatchEvent($type, array $params = array())

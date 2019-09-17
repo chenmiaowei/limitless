@@ -291,6 +291,7 @@ abstract class PhabricatorDaemonManagementWorkflow
         Filesystem::assertIsDirectory($pid_dir);
         Filesystem::assertWritable($pid_dir);
 
+        $config['inidir'] =  \Yii::getAlias(\Yii::$app->scriptsPath) . "/__init_script__.php";
         $config['piddir'] = $pid_dir;
         $config['daemons'] = $daemons;
 

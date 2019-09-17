@@ -23,7 +23,7 @@ abstract class PhabricatorDaemon extends PhutilDaemon
     protected function willRun()
     {
         parent::willRun();
-        require_once \Yii::getAlias(\Yii::$app->scriptsPath) . '/__init_script__.php';
+        require_once $this->inidir;
     }
 
     /**
