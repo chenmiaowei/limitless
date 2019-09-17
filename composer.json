@@ -57,10 +57,6 @@
     }
   },
   "bin": [
-    "bin/auth",
-    "bin/config",
-    "bin/phd",
-    "bin/search"
   ],
   "autoload": {
     "files": [

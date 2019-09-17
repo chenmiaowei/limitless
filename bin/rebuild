@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-require_once dirname(dirname(__FILE__)) . '/libphutil/scripts/__init_script__.php';
+require_once __DIR__ . '/../libphutil/scripts/__init_script__.php';
 
 $args = new PhutilArgumentParser($argv);
 $args->setTagline(pht('rebuild the library map file'));

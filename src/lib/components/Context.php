@@ -23,7 +23,6 @@ class Context extends Component implements BootstrapInterface
     /**
      * Bootstrap method to be called during application bootstrap stage.
      * @param Application $app the application currently running
-     * @throws \yii\base\Exception
      * @throws \ReflectionException
      */
     public function bootstrap($app)
