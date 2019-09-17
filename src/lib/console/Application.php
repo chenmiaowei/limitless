@@ -21,6 +21,10 @@ class Application extends \yii\console\Application
      * @var string
      */
     public $configPath;
+    /**
+     * @var string
+     */
+    public $scriptsPath;
 
     /**
      * @var bool

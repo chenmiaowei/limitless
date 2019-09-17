@@ -23,6 +23,11 @@ class Application extends \yii\web\Application
     public $configPath;
 
     /**
+     * @var string
+     */
+    public $scriptsPath;
+
+    /**
      * @var bool
      */
     public $configOptional = false;

@@ -296,8 +296,7 @@ abstract class PhabricatorDaemonManagementWorkflow
 
         $command = csprintf('./phd-daemon %Ls', $flags);
 
-        $phabricator_root = dirname(phutil_get_library_root('orangins'));
-        $daemon_script_dir = $phabricator_root . '/scripts/daemon/';
+        $daemon_script_dir = \Yii::getAlias(\Yii::$app->scriptsPath) . '/daemon/';
 
         if ($debug) {
             // Don't terminate when the user sends ^C; it will be sent to the
@@ -306,7 +305,8 @@ abstract class PhabricatorDaemonManagementWorkflow
                 SIGINT,
                 array(__CLASS__, 'ignoreSignal'));
 
-            echo "\n    phabricator/scripts/daemon/ \$ {$command}\n\n";
+            $alias = \Yii::getAlias(\Yii::$app->scriptsPath);
+            echo "\n    $alias/daemon/ \$ {$command}\n\n";
 
             $tempfile = new TempFile('daemon.config');
             Filesystem::writeFile($tempfile, json_encode($config));

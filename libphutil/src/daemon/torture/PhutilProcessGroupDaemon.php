@@ -3,13 +3,15 @@
 /**
  * Daemon which spawns nonterminating, death-resistant children.
  */
-final class PhutilProcessGroupDaemon extends PhutilTortureTestDaemon {
+final class PhutilProcessGroupDaemon extends PhutilTortureTestDaemon
+{
 
-  protected function run() {
-    $root = phutil_get_library_root('phutil');
-    $root = dirname($root);
-
-    execx('%s', $root.'/scripts/daemon/torture/resist-death.php');
-  }
+    /**
+     * @author 陈妙威
+     */
+    protected function run()
+    {
+        execx('%s', \Yii::getAlias(\Yii::$app->scriptsPath) . '/daemon/torture/resist-death.php');
+    }
 
 }
