@@ -23,9 +23,7 @@ abstract class PhabricatorDaemon extends PhutilDaemon
     protected function willRun()
     {
         parent::willRun();
-        $phabricator = phutil_get_library_root('orangins');
-        $root = dirname($phabricator);
-        require_once $root . '/scripts/__init_script__.php';
+        require_once \Yii::getAlias(\Yii::$app->scriptsPath) . '/__init_script__.php';
     }
 
     /**
@@ -87,7 +85,7 @@ abstract class PhabricatorDaemon extends PhutilDaemon
         // PATH.
         $sudo = Filesystem::resolveBinary('sudo');
         if (!$sudo) {
-            throw new Exception(\Yii::t("app","Unable to find 'sudo'!"));
+            throw new Exception(\Yii::t("app", "Unable to find 'sudo'!"));
         }
 
         // Flags here are:
