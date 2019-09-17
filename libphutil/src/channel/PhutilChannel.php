@@ -246,7 +246,7 @@ abstract class PhutilChannel extends Phobject {
    * channel code more easily, by naming channels something meaningful.
    *
    * @param string Channel name.
-   * @return this
+   * @return $this
    *
    * @task impl
    */
@@ -362,7 +362,7 @@ abstract class PhutilChannel extends Phobject {
    * consumed.
    *
    * @param int|null Maximum read buffer size, or `null` for a limitless buffer.
-   * @return this
+   * @return $this
    * @task impl
    */
   public function setReadBufferSize($size) {

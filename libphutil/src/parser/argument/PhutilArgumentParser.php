@@ -470,7 +470,7 @@ final class PhutilArgumentParser extends Phobject {
    *    --xprofile <file>   Write out an XHProf profile.
    *    --help              Show help.
    *
-   * @return this
+   * @return $this
    *
    * @phutil-external-symbol function xhprof_enable
    */

@@ -17,7 +17,7 @@
  * parameters.
  *
  * @param string The name of the tag, like `a` or `div`.
- * @param map<string, string> A map of tag attributes.
+ * @param array<string, string> A map of tag attributes.
  * @param wild Content to put in the tag.
  * @return PhutilSafeHTML Tag object.
  */

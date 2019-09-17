@@ -214,7 +214,7 @@ abstract class AbstractDirectedGraph extends Phobject {
    * constructs the graph level-by-level, calling @{method:loadEdges} to
    * expand the graph at each stage until it is complete.
    *
-   * @return this
+   * @return $this
    * @task build
    */
   final public function loadGraph() {

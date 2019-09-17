@@ -56,7 +56,7 @@ final class PhutilSymbolLoader {
    * `interface`.
    *
    * @param string  Type of symbol to load.
-   * @return this
+   * @return $this
    *
    * @task config
    */
@@ -71,7 +71,7 @@ final class PhutilSymbolLoader {
    * library will be loaded.
    *
    * @param string Library name.
-   * @return this
+   * @return $this
    *
    * @task config
    */
@@ -90,7 +90,7 @@ final class PhutilSymbolLoader {
    * in files below that path will be selected.
    *
    * @param string Path relative to library root, like "apps/cheese/".
-   * @return this
+   * @return $this
    *
    * @task config
    */
@@ -105,7 +105,7 @@ final class PhutilSymbolLoader {
    * or function name.
    *
    * @param string Symbol name.
-   * @return this
+   * @return $this
    *
    * @task config
    */
@@ -121,7 +121,7 @@ final class PhutilSymbolLoader {
    * implies loading only classes.
    *
    * @param string Base class name.
-   * @return this
+   * @return $this
    *
    * @task config
    */
@@ -139,7 +139,7 @@ final class PhutilSymbolLoader {
    * @{method:selectSymbolsWithoutLoading}.
    *
    * @param bool True if the query should load only concrete symbols.
-   * @return this
+   * @return $this
    *
    * @task config
    */
@@ -315,7 +315,7 @@ final class PhutilSymbolLoader {
    * classes.
    *
    * @param  list<wild>           List of constructor arguments.
-   * @return map<string, object>  Map of class names to constructed objects.
+   * @return array<string, object>  Map of class names to constructed objects.
    */
   public function loadObjects(array $argv = array()) {
     $symbols = $this

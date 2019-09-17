@@ -94,7 +94,7 @@ abstract class PhutilKeyValueCache extends Phobject {
    *
    * @param dict<string, wild>  Map of cache keys to values.
    * @param int|null            TTL for cache keys, in seconds.
-   * @return this
+   * @return $this
    * @task kvimpl
    */
   abstract public function setKeys(array $keys, $ttl = null);
@@ -104,7 +104,7 @@ abstract class PhutilKeyValueCache extends Phobject {
    * Delete a list of keys from the cache.
    *
    * @param list<string> List of keys to delete.
-   * @return this
+   * @return $this
    * @task kvimpl
    */
   abstract public function deleteKeys(array $keys);
@@ -113,7 +113,7 @@ abstract class PhutilKeyValueCache extends Phobject {
   /**
    * Completely destroy all data in the cache.
    *
-   * @return this
+   * @return $this
    * @task kvimpl
    */
   abstract public function destroyCache();

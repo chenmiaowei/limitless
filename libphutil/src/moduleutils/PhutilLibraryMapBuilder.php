@@ -44,7 +44,7 @@ final class PhutilLibraryMapBuilder extends Phobject
      * Control status output. Use `--quiet` to set this.
      *
      * @param  bool  If true, don't show status output.
-     * @return this
+     * @return $this
      *
      * @task map
      */
@@ -58,7 +58,7 @@ final class PhutilLibraryMapBuilder extends Phobject
      * Control subprocess parallelism limit. Use `--limit` to set this.
      *
      * @param  int   Maximum number of subprocesses to run in parallel.
-     * @return this
+     * @return $this
      *
      * @task map
      */
@@ -72,7 +72,7 @@ final class PhutilLibraryMapBuilder extends Phobject
      * Get the map of symbols in this library, analyzing the library to build it
      * if necessary.
      *
-     * @return map<string, wild> Information about symbols in this library.
+     * @return array<string, wild> Information about symbols in this library.
      *
      * @task map
      */
@@ -92,7 +92,7 @@ final class PhutilLibraryMapBuilder extends Phobject
      * Returns a map of file paths to information about symbols used and defined
      * in the file.
      *
-     * @return map<string, wild> Information about files in this library.
+     * @return array<string, wild> Information about files in this library.
      *
      * @task map
      */
@@ -123,7 +123,7 @@ final class PhutilLibraryMapBuilder extends Phobject
      * Write a status message to the user, if not running in quiet mode.
      *
      * @param  string  Message to write.
-     * @return this
+     * @return $this
      *
      * @task map
      */
@@ -260,7 +260,7 @@ final class PhutilLibraryMapBuilder extends Phobject
     /**
      * Drop the symbol cache, forcing a clean rebuild.
      *
-     * @return this
+     * @return $this
      *
      * @task symbol
      */

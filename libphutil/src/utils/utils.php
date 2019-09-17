@@ -632,8 +632,8 @@ function assert_instances_of(array $arr, $class) {
 /**
  * Assert that two arrays have the exact same keys, in any order.
  *
- * @param map Array with expected keys.
- * @param map Array with actual keys.
+ * @param array Array with expected keys.
+ * @param array Array with actual keys.
  * @return void
  */
 function assert_same_keys(array $expect, array $actual) {
@@ -1649,7 +1649,7 @@ function phutil_hashes_are_identical($u, $v) {
 /**
  * Build a query string from a dictionary.
  *
- * @param map<string, string> Dictionary of parameters.
+ * @param array<string, string> Dictionary of parameters.
  * @return string HTTP query string.
  */
 function phutil_build_http_querystring(array $parameters) {

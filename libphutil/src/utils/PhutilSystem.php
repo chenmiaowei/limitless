@@ -15,7 +15,7 @@ final class PhutilSystem extends Phobject {
    * returned from this method will vary from system to system and the numbers
    * themselves may be only roughly accurate.
    *
-   * @return map<string, wild> Dictionary of memory information.
+   * @return array<string, wild> Dictionary of memory information.
    * @task memory
    */
   public static function getSystemMemoryInformation() {
@@ -44,7 +44,7 @@ final class PhutilSystem extends Phobject {
    * information on Linux.
    *
    * @param string Raw `/proc/meminfo`.
-   * @return map<string, wild> Parsed memory information.
+   * @return array<string, wild> Parsed memory information.
    * @task memory
    */
   public static function parseMemInfo($data) {
@@ -97,7 +97,7 @@ final class PhutilSystem extends Phobject {
    * information on Mac OS X.
    *
    * @param string Raw `vm_stat` output.
-   * @return map<string, wild> Parsed memory information.
+   * @return array<string, wild> Parsed memory information.
    * @task memory
    */
   public static function parseVMStat($data) {

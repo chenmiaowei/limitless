@@ -47,7 +47,7 @@ abstract class PhutilProtocolChannel extends PhutilChannelChannel {
    * Write a message to the channel.
    *
    * @param wild    Some message.
-   * @return this
+   * @return $this
    *
    * @task io
    */
@@ -62,7 +62,7 @@ abstract class PhutilProtocolChannel extends PhutilChannelChannel {
    * you can use it to inject out-of-band messages.
    *
    * @param wild    Some message.
-   * @return this
+   * @return $this
    *
    * @task io
    */

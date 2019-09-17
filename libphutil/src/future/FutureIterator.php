@@ -122,7 +122,7 @@ final class FutureIterator extends Phobject implements Iterator {
    *
    * @param float Maximum number of seconds to block waiting on futures before
    *              yielding null.
-   * @return this
+   * @return $this
    *
    * @task config
    */
@@ -142,7 +142,7 @@ final class FutureIterator extends Phobject implements Iterator {
    *  }
    *
    * @param int Maximum number of simultaneous jobs allowed.
-   * @return this
+   * @return $this
    *
    * @task config
    */

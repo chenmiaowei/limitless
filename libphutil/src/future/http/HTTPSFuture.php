@@ -33,7 +33,7 @@ final class HTTPSFuture extends BaseHTTPFuture {
    * which contains the cert. So we make a temporary file and store it there.
    *
    * @param string The multi-line, possibly lengthy, SSL certificate to use.
-   * @return this
+   * @return $this
    */
   public function setCABundleFromString($certificate) {
     $temp = new TempFile();
@@ -46,7 +46,7 @@ final class HTTPSFuture extends BaseHTTPFuture {
    * Set the SSL certificate to use for this session, given a path.
    *
    * @param string The path to a valid SSL certificate for this session
-   * @return this
+   * @return $this
    */
   public function setCABundleFromPath($path) {
     $this->cabundle = $path;
@@ -68,7 +68,7 @@ final class HTTPSFuture extends BaseHTTPFuture {
    *
    * @param boolean true to follow any Location header present in the response,
    *                false to return the request directly
-   * @return this
+   * @return $this
    */
   public function setFollowLocation($follow) {
     $this->followLocation = $follow;
@@ -144,7 +144,7 @@ final class HTTPSFuture extends BaseHTTPFuture {
    * @param string  File content.
    * @param string  File name.
    * @param string  File mime type.
-   * @return this
+   * @return $this
    */
   public function attachFileData($key, $data, $name, $mime_type) {
     if (isset($this->files[$key])) {
@@ -465,7 +465,7 @@ final class HTTPSFuture extends BaseHTTPFuture {
    * Discard any buffered data. Normally, you call this after reading the
    * data with @{method:read}.
    *
-   * @return this
+   * @return $this
    */
   public function discardBuffers() {
     $this->responseBuffer = '';
@@ -654,7 +654,7 @@ final class HTTPSFuture extends BaseHTTPFuture {
    * You must write the entire body before starting the request.
    *
    * @param string Raw body.
-   * @return this
+   * @return $this
    */
   public function write($raw_body) {
     $this->rawBody = $raw_body;

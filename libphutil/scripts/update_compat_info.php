@@ -32,7 +32,7 @@ $output['constants'] = array();
  * represented by an empty string.
  *
  * @param  map<string, string>
- * @return map<string, string | null>
+ * @return array<string, string | null>
  */
 function parse_compat_info(array $compat) {
   return array(
