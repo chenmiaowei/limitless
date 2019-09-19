@@ -822,6 +822,8 @@ final class PHUIListItemView extends AphrontTagView
             $classes[] = 'phui-list-item-indented';
         }
 
+
+
         $action_link = null;
         if ($this->actionIcon) {
             $action_icon = (new PHUIIconView())
@@ -846,6 +848,11 @@ final class PHUIListItemView extends AphrontTagView
         }
 
         $icons = $this->getIcons();
+
+
+        if($this->type === self::TYPE_DIVIDER) {
+            return null;
+        }
 
         $list_item = JavelinHtml::phutil_tag(
             $this->href ? 'a' : ($this->type === self::TYPE_DIVIDER ? 'hr' : 'div'),

@@ -391,7 +391,7 @@ final class PhabricatorProfileMenuItemView
         if ($this->getIsDivider()) {
             $view
                 ->setType(PHUIListItemView::TYPE_DIVIDER)
-                ->addClass('phui-divider');
+                ->addClass('nav-item-divider phui-divider');
         }
 
         $tooltip = $this->getTooltip();
