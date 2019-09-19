@@ -22,30 +22,28 @@
       "url": "https://github.com/huaweicloud/huaweicloud-sdk-php-obs.git"
     }
   ],
-  "minimum-stability": "dev",
   "require": {
-    "php": ">=5.4.0",
+    "php": ">=7.1.0",
     "ext-bcmath": "*",
-    "yiisoft/yii2": "~2.0.14",
-    "yiisoft/yii2-bootstrap": "~2.0.0",
-    "yiisoft/yii2-gii": "^2.0",
-    "yiisoft/yii2-imagine": "^2.1",
-    "yiisoft/yii2-jui": "^2.0@dev",
-    "rmccue/requests": "^1.7",
-    "mero/yii2-monolog": "^0.2.0@dev",
-    "predis/predis": "^2.0@dev",
+    "yiisoft/yii2": "2.0.27",
+    "yiisoft/yii2-bootstrap": "2.0.10",
+    "yiisoft/yii2-imagine": "2.2.0",
+    "yiisoft/yii2-jui": "2.0.7",
+    "rmccue/requests": "v1.7.0",
+    "mero/yii2-monolog": "0.1.2",
+    "predis/predis": "v1.1.1",
     "qiniu/php-sdk": "v7.0.7",
-    "phpoffice/phpspreadsheet": "dev-master"
+    "phpoffice/phpspreadsheet": "1.9.0"
   },
   "require-dev": {
-    "yiisoft/yii2-debug": "dev-master",
-    "yiisoft/yii2-gii": "dev-master",
-    "yiisoft/yii2-faker": "dev-master",
+    "yiisoft/yii2-debug": "2.1.9",
+    "yiisoft/yii2-gii": "2.1.1",
+    "yiisoft/yii2-faker": "2.0.4",
 
-    "codeception/codeception": "2.5.x-dev",
-    "codeception/base": "2.5.x-dev",
-    "codeception/verify": "dev-master",
-    "codeception/specify": "dev-master"
+    "codeception/codeception": "2.5.6",
+    "codeception/base": "2.5.6",
+    "codeception/verify": "1.2.0",
+    "codeception/specify": "1.2.0"
   },
   "config": {
     "process-timeout": 1800,
