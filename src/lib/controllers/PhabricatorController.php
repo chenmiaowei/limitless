@@ -102,7 +102,7 @@ class PhabricatorController extends Controller
         if ($this->request === null) {
             $request = Yii::$app->request;
             $request->setViewer($this->getViewer());
-            $this->request =$request;
+            $this->request = $request;
         }
         return $this->request;
     }
@@ -354,14 +354,6 @@ class PhabricatorController extends Controller
         }
         Yii::$app->response->setStatusCode($response->getHTTPResponseCode());
 
-        $request = $this->getRequest();
-        if ($response instanceof AphrontRedirectResponse) {
-            if ($request->isAjax() || $request->isQuicksand()) {
-            } else {
-                return Yii::$app->response->redirect($response->getURI());
-            }
-        }
-
         // Allow clients an unlimited amount of time to download the response.
 
         // This allows clients to perform a "slow loris" attack, where they
@@ -538,14 +530,14 @@ class PhabricatorController extends Controller
         try {
             $response = $this->willBeginExecution($action);
 
-            if(!$response) {
+            if (!$response) {
                 $response = parent::runAction($id, $params);
             }
         } catch (\Exception $e) {
             $processing_exception = $e;
         }
         $write_guard->dispose();
-        if($processing_exception) {
+        if ($processing_exception) {
             throw $processing_exception;
         } else {
             return $response;
@@ -726,7 +718,7 @@ class PhabricatorController extends Controller
             echo $celerityStaticResourceResponse->renderHTMLFooter($view, null);
         });
 
-        if($action->hasProperty('enableCsrfValidation')) {
+        if ($action->hasProperty('enableCsrfValidation')) {
             $this->enableCsrfValidation = $action->enableCsrfValidation;
         }
         return parent::beforeAction($action);
@@ -759,9 +751,13 @@ class PhabricatorController extends Controller
     {
         $response = $this->produceResponse($this->getRequest(), $response);
         $response = $this->willSendResponse($response);
-        $response->setRequest($this->getRequest());
-        $response = $this->writeResponse($response);
-        return $response;
+        if ($response instanceof AphrontRedirectResponse) {
+            return Yii::$app->response->redirect($response->getURI());
+        } else {
+            $response->setRequest($this->getRequest());
+            $response = $this->writeResponse($response);
+            return $response;
+        }
     }
 
 
