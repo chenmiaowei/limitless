@@ -775,15 +775,15 @@ final class PhabricatorConduitAPIController
 //                    // caution and fail. In the future, if we make the Conduit API
 //                    // actually do type checking, it might be reasonable to treat it as
 //                    // a string if the parameter type is string.
-//                    throw new Exception(
-//                        \Yii::t("app",
-//                            "The value for parameter '{0}' is not valid JSON. All " .
-//                            "parameters must be encoded as JSON values, including strings " .
-//                            "(which means you need to surround them in double quotes). " .
-//                            "Check your syntax. Value was: {1}.", [
-//                                $key,
-//                                $value
-//                            ]));
+                    throw new Exception(
+                        \Yii::t("app",
+                            "The value for parameter '{0}' is not valid JSON. All " .
+                            "parameters must be encoded as JSON values, including strings " .
+                            "(which means you need to surround them in double quotes). " .
+                            "Check your syntax. Value was: {1}.", [
+                                $key,
+                                $value
+                            ]));
                 } else {
                     $params[$key] = $decoded_value;
                 }

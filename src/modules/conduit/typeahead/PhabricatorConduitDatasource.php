@@ -5,13 +5,10 @@ namespace orangins\modules\conduit\typeahead;
 use orangins\modules\conduit\method\ConduitAPIMethod;
 use orangins\modules\conduit\query\PhabricatorConduitMethodQuery;
 use orangins\modules\people\application\PhabricatorPeopleApplication;
-use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\phid\PhabricatorObjectHandle;
 use orangins\modules\phid\query\PhabricatorHandleQuery;
 use orangins\modules\typeahead\datasource\PhabricatorTypeaheadDatasource;
 use orangins\modules\typeahead\model\PhabricatorTypeaheadResult;
-use orangins\lib\view\phui\PHUIIconView;
-use yii\helpers\Url;
 
 /**
  * Class PhabricatorPeopleDatasource

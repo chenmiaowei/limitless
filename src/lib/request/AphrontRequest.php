@@ -615,6 +615,10 @@ class AphrontRequest extends Request
             if (!strncmp($key, '__', 2)) {
                 unset($data[$key]);
             }
+
+            if($this->csrfParam === $key) {
+                unset($data[$key]);
+            }
         }
 
         return $data;

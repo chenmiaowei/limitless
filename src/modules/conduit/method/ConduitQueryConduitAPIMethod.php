@@ -3,7 +3,7 @@
 namespace orangins\modules\conduit\method;
 
 use orangins\modules\conduit\protocol\ConduitAPIRequest;
-use PhabricatorConduitMethodQuery;
+use orangins\modules\conduit\query\PhabricatorConduitMethodQuery;
 
 /**
  * Class ConduitQueryConduitAPIMethod

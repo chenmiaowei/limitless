@@ -138,7 +138,6 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
             $types['order'] = 'optional order';
             $types += $this->getPagerParamTypes();
         }
-
         return $types;
     }
 
