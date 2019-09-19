@@ -13,8 +13,10 @@ use Filesystem;
 use orangins\lib\db\ActiveRecord;
 use orangins\lib\infrastructure\edges\interfaces\PhabricatorEdgeInterface;
 use orangins\lib\request\AphrontRequest;
+use orangins\modules\auth\constants\PhabricatorAuthFactorProviderStatus;
 use orangins\modules\auth\engine\PhabricatorAuthPasswordEngine;
 use orangins\modules\auth\engine\PhabricatorAuthSessionEngine;
+use orangins\modules\auth\models\PhabricatorAuthFactorConfig;
 use orangins\modules\auth\models\PhabricatorAuthPassword;
 use orangins\modules\auth\models\PhabricatorAuthSession;
 use orangins\modules\auth\password\PhabricatorAuthPasswordHashInterface;
@@ -30,7 +32,6 @@ use orangins\modules\people\search\PhabricatorUserFulltextEngine;
 use orangins\modules\search\interfaces\PhabricatorFulltextInterface;
 use orangins\modules\settings\setting\PhabricatorTranslationSetting;
 use orangins\modules\auth\sshkey\PhabricatorSSHPublicKeyInterface;
-use app\task\models\PhabricatorTaskIdentity;
 use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
 use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
@@ -517,25 +518,6 @@ class PhabricatorUser extends ActiveRecordPHID
 
 
     /**
-     * @return bool
-     */
-    public function getIsEnrolledInMultiFactor()
-    {
-        return $this->is_enrolled_in_multi_factor;
-    }
-
-    /**
-     * @param bool $is_enrolled_in_multi_factor
-     * @return self
-     */
-    public function setIsEnrolledInMultiFactor($is_enrolled_in_multi_factor)
-    {
-        $this->is_enrolled_in_multi_factor = $is_enrolled_in_multi_factor;
-        return $this;
-    }
-
-
-    /**
      * @return array|PhabricatorUserEmail|null|\yii\db\ActiveRecord
      * @throws \yii\base\InvalidConfigException
      * @throws Exception
@@ -817,25 +799,6 @@ class PhabricatorUser extends ActiveRecordPHID
             $adminProfiles->save();
         }
         return $adminProfiles;
-    }
-
-    /**
-     * 获取认证信息
-     * @return PhabricatorTaskIdentity
-     * @throws \yii\base\InvalidConfigException
-     * @author 赵圆丽
-     */
-    public function getUserIdentity()
-    {
-        $identity = PhabricatorTaskIdentity::find()
-            ->andWhere(['user_phid' => $this->phid])
-            ->andWhere(['status' => PhabricatorTaskIdentity::STATUS_SUCCESS])
-            ->one();
-        if (!$identity) {
-            return new PhabricatorTaskIdentity();
-        }
-        /** @var PhabricatorTaskIdentity $identity */
-        return $identity;
     }
 
     /**
@@ -2068,5 +2031,70 @@ class PhabricatorUser extends ActiveRecordPHID
             's_signed_legalpad_documents',
         ]);
         return $merge;
+    }
+
+
+    /* -(  Multi-Factor Authentication  )---------------------------------------- */
+
+
+    /**
+     * Update the flag storing this user's enrollment in multi-factor auth.
+     *
+     * With certain settings, we need to check if a user has MFA on every page,
+     * so we cache MFA enrollment on the user object for performance. Calling this
+     * method synchronizes the cache by examining enrollment records. After
+     * updating the cache, use @{method:getIsEnrolledInMultiFactor} to check if
+     * the user is enrolled.
+     *
+     * This method should be called after any changes are made to a given user's
+     * multi-factor configuration.
+     *
+     * @return void
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @task factors
+     */
+    public function updateMultiFactorEnrollment()
+    {
+        $factors = PhabricatorAuthFactorConfig::find()
+            ->setViewer($this)
+            ->withUserPHIDs(array($this->getPHID()))
+            ->withFactorProviderStatuses(
+                array(
+                    PhabricatorAuthFactorProviderStatus::STATUS_ACTIVE,
+                    PhabricatorAuthFactorProviderStatus::STATUS_DEPRECATED,
+                ))
+            ->execute();
+
+        $enrolled = count($factors) ? 1 : 0;
+        if ($enrolled !== $this->is_enrolled_in_multi_factor) {
+            $unguarded = AphrontWriteGuard::beginScopedUnguardedWrites();
+            PhabricatorUser::updateAll([
+                'is_enrolled_in_multi_factor' => $enrolled,
+            ], [
+                'id' => $this->getID()
+            ]);
+            unset($unguarded);
+            $this->is_enrolled_in_multi_factor = $enrolled;
+        }
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function getIsEnrolledInMultiFactor()
+    {
+        return $this->is_enrolled_in_multi_factor;
+    }
+
+    /**
+     * @param bool $is_enrolled_in_multi_factor
+     * @return self
+     */
+    public function setIsEnrolledInMultiFactor($is_enrolled_in_multi_factor)
+    {
+        $this->is_enrolled_in_multi_factor = $is_enrolled_in_multi_factor;
+        return $this;
     }
 }

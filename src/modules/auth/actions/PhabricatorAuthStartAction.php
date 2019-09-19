@@ -2,12 +2,6 @@
 
 namespace orangins\modules\auth\actions;
 
-use orangins\lib\view\form\AphrontFormView;
-use orangins\lib\view\form\control\AphrontFormFileControl;
-use orangins\lib\view\form\control\AphrontFormPasswordControl;
-use orangins\lib\view\form\control\AphrontFormSubmitControl;
-use orangins\lib\view\form\control\AphrontFormTextControl;
-use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\modules\auth\constants\PhabricatorCookies;
 use orangins\modules\auth\engine\PhabricatorAuthSessionEngine;
 use orangins\modules\auth\handler\PhabricatorAuthLoginHandler;
@@ -21,9 +15,6 @@ use orangins\lib\response\AphrontResponse;
 use orangins\lib\view\AphrontDialogView;
 use orangins\lib\view\layout\AphrontMultiColumnView;
 use orangins\lib\view\page\PhabricatorStandardPageView;
-use orangins\modules\file\models\PhabricatorFile;
-use app\task\assets\AuthStartAsset;
-use orangins\modules\widgets\fancybox\FancyboxAsset;
 
 /**
  * Class PhabricatorAuthStartAction

@@ -2,6 +2,7 @@
 
 namespace orangins\modules\auth\models;
 
+use orangins\modules\auth\query\PhabricatorAuthFactorConfigQuery;
 use Yii;
 
 /**
@@ -147,5 +148,14 @@ class PhabricatorAuthFactorConfig extends \orangins\lib\db\ActiveRecord
     {
         $this->properties = $properties;
         return $this;
+    }
+
+    /**
+     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorAuthFactorConfigQuery
+     * @author 陈妙威
+     */
+    public static function find()
+    {
+        return new PhabricatorAuthFactorConfigQuery(get_called_class());
     }
 }

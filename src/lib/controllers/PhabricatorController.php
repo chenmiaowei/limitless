@@ -37,12 +37,10 @@ use orangins\modules\auth\application\PhabricatorAuthApplication;
 use orangins\modules\celerity\CelerityAPI;
 use orangins\modules\meta\query\PhabricatorApplicationQuery;
 use orangins\modules\people\models\PhabricatorUser;
-use orangins\modules\spaces\query\PhabricatorSpacesNamespaceQuery;
 use Yii;
 use Exception;
 use yii\base\InvalidRouteException;
 use yii\helpers\Url;
-use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\web\View;
@@ -519,11 +517,6 @@ class PhabricatorController extends Controller
      * @param array $params
      * @return Aphront403Response|mixed
      * @throws InvalidRouteException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @throws Exception
      * @author 陈妙威
      */
@@ -534,7 +527,41 @@ class PhabricatorController extends Controller
         if ($action === null) {
             throw new InvalidRouteException('Unable to resolve the request: ' . $this->getUniqueId() . '/' . $id);
         }
+        $write_guard = new AphrontWriteGuard(array($this, 'validateRequest'));
+        $processing_exception = null;
+        $response_code = 200;
+        try {
+            $response = $this->willBeginExecution($action);
 
+            if(!$response) {
+                $response = parent::runAction($id, $params);
+            }
+        } catch (\Exception $e) {
+            $processing_exception = $e;
+            $response_code = 500;
+        }
+        $write_guard->dispose();
+        Yii::$app->response->setStatusCode($response_code);
+        if($processing_exception) {
+            throw $processing_exception;
+        } else {
+            return $response;
+        }
+    }
+
+    /**
+     * @param $action
+     * @return string
+     * @throws \PhutilMethodNotImplementedException
+     * @throws \ReflectionException
+     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws Exception
+     * @author 陈妙威
+     */
+    public function willBeginExecution($action)
+    {
         if ($action instanceof PhabricatorAction) {
             $request = $this->getRequest();
             $user = $this->getViewer();
@@ -670,23 +697,6 @@ class PhabricatorController extends Controller
             if ($action->shouldRequireAdmin() && !$user->getIsAdmin()) {
                 return $this->processActionResponse(new Aphront403Response());
             }
-        }
-
-        $write_guard = new AphrontWriteGuard(array($this, 'validateRequest'));
-        $processing_exception = null;
-        $response_code = 200;
-        try {
-            $runAction = parent::runAction($id, $params);
-        } catch (\Exception $e) {
-            $processing_exception = $e;
-            $response_code = 500;
-        }
-        $write_guard->dispose();
-
-        if($processing_exception) {
-            throw $processing_exception;
-        } else {
-            return $runAction;
         }
     }
 

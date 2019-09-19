@@ -18,7 +18,6 @@ use orangins\modules\typeahead\model\PhabricatorTypeaheadResult;
 
 /**
  * Class PhabricatorTaskTagLocalDatasource
- * @package app\task\typeahead
  * @author 陈妙威
  */
 class PhabricatorRBACNodeDatasource extends PhabricatorTypeaheadDatasource

@@ -10,7 +10,6 @@ namespace orangins\modules\finance\actions;
 
 use orangins\lib\actions\PhabricatorAction;
 use orangins\lib\view\layout\AphrontSideNavFilterView;
-use app\task\query\PhabricatorTaskSearchEngine;
 use PhutilURI;
 
 /**
@@ -22,8 +21,8 @@ class FinanceAction extends PhabricatorAction
 {
     /**
      * @return null
+     * @throws \Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function buildApplicationMenu()
     {
@@ -33,14 +32,11 @@ class FinanceAction extends PhabricatorAction
     /**
      * @param bool $for_app
      * @return AphrontSideNavFilterView
-     * @throws \yii\base\Exception
      * @throws \Exception
      * @author 陈妙威
      */
     public function buildSideNavView($for_app = false)
     {
-        $viewer = $this->getViewer();
-
         $nav = new AphrontSideNavFilterView();
         $nav->setBaseURI(new PhutilURI($this->getApplicationURI()));
 

@@ -10,14 +10,13 @@
 namespace orangins\modules\tag\typeahead;
 
 
+use orangins\modules\tag\application\PhabricatorTagsApplication;
 use orangins\modules\tag\models\PhabricatorTag;
-use app\task\application\PhabricatorTasksApplication;
 use orangins\modules\typeahead\datasource\PhabricatorTypeaheadDatasource;
 use orangins\modules\typeahead\model\PhabricatorTypeaheadResult;
 
 /**
  * Class PhabricatorTaskTagLocalDatasource
- * @package app\task\typeahead
  * @author 陈妙威
  */
 class PhabricatorTagTypeaheadDatasource extends PhabricatorTypeaheadDatasource
@@ -61,7 +60,7 @@ class PhabricatorTagTypeaheadDatasource extends PhabricatorTypeaheadDatasource
      */
     public function getDatasourceApplicationClass()
     {
-        return PhabricatorTasksApplication::class;
+        return PhabricatorTagsApplication::class;
     }
 
     /**

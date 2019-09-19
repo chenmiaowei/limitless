@@ -95,7 +95,7 @@ final class PhabricatorAuthMainMenuBarExtension
             ->setText(\Yii::t("app", 'Log In'))
             ->setHref(Url::to($params))
             ->setNoCSS(true)
-            ->addClass('phabricator-core-login-button');
+            ->addClass('navbar-nav-link phabricator-core-login-button');
     }
 
 }
