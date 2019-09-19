@@ -353,8 +353,14 @@ class PhabricatorController extends Controller
             Yii::$app->response->headers->set($all_header[0], $all_header[1]);
         }
         Yii::$app->response->setStatusCode($response->getHTTPResponseCode());
-//        $this->writeHTTPStatus($response->getHTTPResponseCode(), $response->getHTTPResponseMessage());
-//        $this->writeHeaders($all_headers);
+
+        $request = $this->getRequest();
+        if ($response instanceof AphrontRedirectResponse) {
+            if ($request->isAjax() || $request->isQuicksand()) {
+            } else {
+                return Yii::$app->response->redirect($response->getURI());
+            }
+        }
 
         // Allow clients an unlimited amount of time to download the response.
 
@@ -529,7 +535,6 @@ class PhabricatorController extends Controller
         }
         $write_guard = new AphrontWriteGuard(array($this, 'validateRequest'));
         $processing_exception = null;
-        $response_code = 200;
         try {
             $response = $this->willBeginExecution($action);
 
@@ -538,10 +543,8 @@ class PhabricatorController extends Controller
             }
         } catch (\Exception $e) {
             $processing_exception = $e;
-            $response_code = 500;
         }
         $write_guard->dispose();
-        Yii::$app->response->setStatusCode($response_code);
         if($processing_exception) {
             throw $processing_exception;
         } else {
