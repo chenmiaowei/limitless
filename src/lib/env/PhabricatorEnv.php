@@ -345,6 +345,13 @@ final class PhabricatorEnv extends OranginsObject
             // If the database is not available, just skip this configuration
             // source. This happens during `bin/storage upgrade`, `bin/conf` before
             // schema setup, etc.
+        } catch (\yii\db\Exception $ex) {
+            // This means we can't connect to any database host. That's fine as
+            // long as we're running a setup script like `bin/storage`.
+            if (!$config_optional) {
+                throw $ex;
+            }
+
         } catch (PhabricatorClusterStrandedException $ex) {
             // This means we can't connect to any database host. That's fine as
             // long as we're running a setup script like `bin/storage`.

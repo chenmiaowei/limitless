@@ -1,0 +1,10 @@
+{
+  "log.access.path": "/Users/air/Documents/personal/arbitrage/src/runtime/logs/access.log",
+  "phpmailer.smtp-password": "ddDD123123",
+  "phpmailer.smtp-user": "upsource@okchexian.com",
+  "phpmailer.smtp-protocol": "ssl",
+  "phpmailer.smtp-port": 465,
+  "phpmailer.smtp-host": "smtp.exmail.qq.com",
+  "orangins.base-uri": "http://limitless.localhost.com",
+  "storage.local-disk.path": null
+}

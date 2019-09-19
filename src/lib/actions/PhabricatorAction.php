@@ -20,6 +20,9 @@ use orangins\lib\view\layout\AphrontSideNavFilterView;
 use orangins\lib\view\layout\PhabricatorActionListView;
 use orangins\lib\view\layout\PHUICurtainView;
 use orangins\modules\auth\engine\PhabricatorAuthSessionEngine;
+use orangins\modules\home\application\PhabricatorHomeApplication;
+use orangins\modules\home\engine\PhabricatorHomeProfileMenuEngine;
+use orangins\modules\meta\query\PhabricatorApplicationQuery;
 use orangins\modules\transactions\engine\PhabricatorTimelineEngine;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use orangins\modules\transactions\models\PhabricatorApplicationTransactionComment;
@@ -627,5 +630,41 @@ class PhabricatorAction extends Action
         if($hasCapability)  {
             $nav->addFilter($key, $name, $uri, $icon);
         }
+    }
+
+    /**
+     * @param PhabricatorUser $viewer
+     * @param $item_identifier
+     * @return \orangins\lib\view\layout\AphrontSideNavFilterView
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws \Exception
+     * @author 陈妙威
+     */
+    final protected function newNavigation(
+        PhabricatorUser $viewer,
+        $item_identifier = null) {
+        $home_app = (new PhabricatorApplicationQuery())
+            ->setViewer($viewer)
+            ->withShortName(false)
+            ->withClasses(array(PhabricatorHomeApplication::class))
+            ->withInstalled(true)
+            ->executeOne();
+
+        $engine = (new PhabricatorHomeProfileMenuEngine())
+            ->setViewer($viewer)
+            ->setProfileObject($home_app)
+            ->setCustomPHID($viewer->getPHID())
+            ->setAction($this)
+            ->setShowContentCrumbs(false);
+
+        $view_list = $engine->newProfileMenuItemViewList();
+
+        $item_identifier && $view_list->setSelectedViewWithItemIdentifier($item_identifier);
+
+        $navigation = $view_list->newNavigationView();
+
+        return $navigation;
     }
 }
