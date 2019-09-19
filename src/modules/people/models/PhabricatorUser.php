@@ -250,22 +250,26 @@ class PhabricatorUser extends ActiveRecordPHID
         $providers = PhabricatorAuthProvider::getAllEnabledProviders();
         /** @var PhabricatorAuthProvider[] $providers */
         $providers = mpull($providers, null, 'className');
-        /** @var PhabricatorAuthProvider $provider */
-        $provider = $providers[PhabricatorMobileAuthProvider::className()];
 
-        $account = $account = PhabricatorExternalAccount::find()->andWhere([
-            'account_type' => $provider->getProviderType(),
-            'account_id' => $address,
-        ])->one();
-        if ($account) {
-            $user = PhabricatorUser::find()->andWhere(
-                'phid = :phid', [
-                ':phid' => $account->getUserPHID()
-            ])->one();
+        if (!isset($providers[PhabricatorMobileAuthProvider::className()])) {
+            return null;
         } else {
-            $user = null;
+            /** @var PhabricatorAuthProvider $provider */
+            $provider = $providers[PhabricatorMobileAuthProvider::className()];
+            $account = $account = PhabricatorExternalAccount::find()->andWhere([
+                'account_type' => $provider->getProviderType(),
+                'account_id' => $address,
+            ])->one();
+            if ($account) {
+                $user = PhabricatorUser::find()->andWhere(
+                    'phid = :phid', [
+                    ':phid' => $account->getUserPHID()
+                ])->one();
+            } else {
+                $user = null;
+            }
+            return $user;
         }
-        return $user;
     }
 
 
