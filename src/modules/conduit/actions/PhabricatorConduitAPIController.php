@@ -185,14 +185,6 @@ final class PhabricatorConduitAPIController
             ->setError((string)$error_code)
             ->setDuration(phutil_microseconds_since($time_start));
 
-//        $userServiceConduitPrices = UserServiceConduitPrice::getAllTypes();
-//        foreach ($userServiceConduitPrices as $userServiceConduitPrice) {
-//            if($userServiceConduitPrice->getMethodObject()->getAPIMethodName() === $call->getHandler()->getAPIMethodName()) {
-//
-//            } else {
-//                continue;
-//            }
-//        }
 
         if (!PhabricatorEnv::isReadOnly()) {
             $unguarded = AphrontWriteGuard::beginScopedUnguardedWrites();
@@ -250,7 +242,6 @@ final class PhabricatorConduitAPIController
         $request = $this->getRequest();
 
         if ($request->getViewer()->getPHID()) {
-//            $request->validateCSRF();
             return $this->validateAuthenticatedUser(
                 $api_request,
                 $request->getViewer());

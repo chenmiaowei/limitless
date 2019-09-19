@@ -30,7 +30,6 @@ class PhabricatorUserServiceEditAction extends PhabricatorUserServiceAction
     /**
      * @author 陈妙威
      * @return mixed
-     * @throws \AphrontDuplicateKeyQueryException
      * @throws \PhutilInvalidStateException
      * @throws \PhutilJSONParserException
      * @throws \PhutilMethodNotImplementedException
