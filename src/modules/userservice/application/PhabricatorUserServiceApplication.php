@@ -78,15 +78,6 @@ class PhabricatorUserServiceApplication extends PhabricatorApplication
         return 'fa-female';
     }
 
-    /**
-     * @param PhabricatorUser $viewer
-     * @return bool
-     * @author 陈妙威
-     */
-    public function isPinnedByDefault(PhabricatorUser $viewer)
-    {
-        return true;
-    }
 
 
     /**

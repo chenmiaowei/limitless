@@ -11,13 +11,8 @@ namespace orangins\modules\userservice\actions;
 
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
-use orangins\lib\view\form\AphrontFormView;
-use orangins\lib\view\form\control\AphrontFormSubmitControl;
 use orangins\lib\view\form\control\AphrontFormTokenizerControl;
-use orangins\lib\view\phui\PHUIObjectBoxView;
-use orangins\lib\view\phui\PHUIPageHeaderView;
-use orangins\lib\view\phui\PHUITwoColumnView;
-use orangins\modules\typeahead\typeahead\PhabricatorConduitCompositeDatasource;
+use orangins\modules\conduit\typeahead\PhabricatorConduitCompositeDatasource;
 use orangins\modules\userservice\capability\UserServiceFinanceCapability;
 use orangins\modules\userservice\editors\PhabricatorUserServiceEditor;
 use orangins\modules\userservice\models\PhabricatorUserService;
@@ -46,6 +41,7 @@ class PhabricatorUserServiceEditAction extends PhabricatorUserServiceAction
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException*@throws \Exception
+     * @throws \Exception
      */
     public function run()
     {

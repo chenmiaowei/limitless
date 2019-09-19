@@ -141,19 +141,13 @@ final class PhabricatorUserServiceSearchEngine extends PhabricatorApplicationSea
 
     /**
      * @return array
-     * @throws \PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function getBuiltinQueryNames()
     {
         $names = array();
-
-        if ($this->requireViewer()->isLoggedIn()) {
-            $names['authored'] = \Yii::t("app", 'Authored');
-        }
-
         $names += array(
-            'all' => \Yii::t("app", 'All'),
+            'all' => '用户服务',
         );
 
         return $names;
@@ -162,7 +156,6 @@ final class PhabricatorUserServiceSearchEngine extends PhabricatorApplicationSea
     /**
      * @param $query_key
      * @return mixed
-     * @throws \PhutilInvalidStateException
      * @throws \ReflectionException
      * @throws \Exception
      * @author 陈妙威
@@ -175,11 +168,6 @@ final class PhabricatorUserServiceSearchEngine extends PhabricatorApplicationSea
         switch ($query_key) {
             case 'all':
                 return $query;
-            case 'authored':
-                $author_phid = array($this->requireViewer()->getPHID());
-                return $query
-                    ->setParameter('authorPHIDs', $author_phid)
-                    ->setParameter('explicit', true);
         }
 
         return parent::buildSavedQueryFromBuiltin($query_key);
@@ -208,7 +196,7 @@ final class PhabricatorUserServiceSearchEngine extends PhabricatorApplicationSea
 
         $result = new PhabricatorApplicationSearchResultView();
         $result->setTable($tableView);
-        $result->setFooter($this->renderBatchEditor($query));
+        $result->setFooter($this->renderBatchEditor());
 
         return $result;
     }
@@ -217,6 +205,7 @@ final class PhabricatorUserServiceSearchEngine extends PhabricatorApplicationSea
      * @return null
      * @throws \PhutilInvalidStateException
      * @throws \ReflectionException
+     * @throws \Exception
      * @author 陈妙威
      */
     protected function getNewUserBody()

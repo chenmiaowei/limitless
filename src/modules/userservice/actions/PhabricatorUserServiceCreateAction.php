@@ -22,8 +22,8 @@ use orangins\lib\view\layout\PHUICardView;
 use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\lib\view\phui\PHUIPageHeaderView;
 use orangins\lib\view\phui\PHUITwoColumnView;
+use orangins\modules\conduit\typeahead\PhabricatorConduitCompositeDatasource;
 use orangins\modules\people\typeahead\PhabricatorPeopleUserFunctionDatasource;
-use orangins\modules\typeahead\typeahead\PhabricatorConduitCompositeDatasource;
 use orangins\modules\userservice\capability\UserServiceFinanceCapability;
 use orangins\modules\userservice\editors\PhabricatorUserServiceEditor;
 use orangins\modules\userservice\models\PhabricatorUserService;
@@ -124,7 +124,7 @@ class PhabricatorUserServiceCreateAction extends PhabricatorUserServiceAction
                             ->setTransactionType(PhabricatorUserServiceAPITransaction::TRANSACTIONTYPE)
                             ->setNewValue($apis);
 
-                        $editor = (new PhabricatorUserServiceEditor())
+                        (new PhabricatorUserServiceEditor())
                             ->setActor($request->getViewer())
                             ->setContinueOnNoEffect(true)
                             ->setContentSourceFromRequest($request)
@@ -232,7 +232,7 @@ class PhabricatorUserServiceCreateAction extends PhabricatorUserServiceAction
                             ->setTransactionType(PhabricatorUserServiceAPITransaction::TRANSACTIONTYPE)
                             ->setNewValue($apis);
 
-                        $editor = (new PhabricatorUserServiceEditor())
+                        (new PhabricatorUserServiceEditor())
                             ->setActor($request->getViewer())
                             ->setContinueOnNoEffect(true)
                             ->setContentSourceFromRequest($request)

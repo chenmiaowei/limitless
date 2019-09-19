@@ -1,6 +1,6 @@
 <?php
 
-namespace orangins\modules\typeahead\typeahead;
+namespace orangins\modules\conduit\typeahead;
 
 use orangins\modules\typeahead\datasource\PhabricatorTypeaheadCompositeDatasource;
 

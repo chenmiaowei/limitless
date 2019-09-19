@@ -25,21 +25,27 @@ class PhabricatorUserServiceListAction extends PhabricatorUserServiceAction
 {
     /**
      * @return mixed
-     * @throws \yii\base\Exception
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     public function run()
     {
         $request = $this->getRequest();
         $querykey = $request->getURIData('queryKey');
+        $nav = $this->newNavigation($this->getViewer());
 
         $action = (new PhabricatorApplicationSearchAction('search', $this->controller))
             ->setQueryKey($querykey)
             ->setSearchEngine(
                 (new PhabricatorUserServiceSearchEngine())->setAction($this))
-            ->setNavigation($this->buildSideNavView());
+            ->setNavigation($nav);
 
-        return $this->delegateToAction($action);
+        $delegateToAction = $this->delegateToAction($action);
+        $nav->selectFilter("userservice-index");
+        return $delegateToAction;
     }
 
 
@@ -56,7 +62,7 @@ class PhabricatorUserServiceListAction extends PhabricatorUserServiceAction
             (new PHUIListItemView())
                 ->setName(\Yii::t("app",'创建用户服务'))
                 ->setWorkflow(true)
-                ->setIcon('fa-upload')
+                ->setIcon('fa-plus')
                 ->setHref($this->getApplicationURI('index/create')));
 
         return $crumbs;

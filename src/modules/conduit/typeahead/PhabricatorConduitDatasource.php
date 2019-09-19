@@ -1,6 +1,6 @@
 <?php
 
-namespace orangins\modules\typeahead\typeahead;
+namespace orangins\modules\conduit\typeahead;
 
 use orangins\modules\conduit\method\ConduitAPIMethod;
 use orangins\modules\conduit\query\PhabricatorConduitMethodQuery;

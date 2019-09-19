@@ -113,12 +113,8 @@ final class PhabricatorUserServiceMenuItem extends PhabricatorProfileMenuItem
 
         $subitems[] = (new PHUIListItemView())
             ->setKey('userservice-index')
-            ->setName(\Yii::t("app", "失信列表"))
+            ->setName(\Yii::t("app", "服务列表"))
             ->setHref(Url::to(['/userservice/index/query']));
-        $subitems[] = (new PHUIListItemView())
-            ->setKey('userservice-import')
-            ->setName(\Yii::t("app", "数据下载"))
-            ->setHref(Url::to(['/userservice/import/query']));
         $item[] = $this->newItemView()
             ->setURI('#')
             ->setSubListItems($subitems)
