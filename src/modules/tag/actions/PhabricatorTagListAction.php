@@ -40,18 +40,12 @@ class PhabricatorTagListAction extends PhabricatorAction
         $request = $this->getRequest();
         $querykey = $request->getURIData('queryKey');
 
-        $navigation = $this->buildNavigation($viewer);
-        $selectedFilter = $navigation->getSelectedFilter();
-
         $action = (new PhabricatorApplicationSearchAction('search', $this->controller))
             ->setQueryKey($querykey)
-            ->setSearchEngine((new PhabricatorTagSearchEngine()))
-            ->setNavigation($navigation)
+            ->setSearchEngine((new PhabricatorTagSearchEngine()));
         ;
 
         $delegateToAction = $this->delegateToAction($action);
-        $navigation->selectFilter($selectedFilter);
-
         return $delegateToAction;
     }
 
@@ -70,41 +64,5 @@ class PhabricatorTagListAction extends PhabricatorAction
                 ->setHref($this->getApplicationURI('index/create')));
 
         return $crumbs;
-    }
-
-    /**
-     * @param PhabricatorUser $viewer
-     * @param $item_identifier
-     * @return \orangins\lib\view\layout\AphrontSideNavFilterView
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \Exception
-     * @author 陈妙威
-     */
-     protected function buildNavigation(
-        PhabricatorUser $viewer,
-        $item_identifier = null) {
-        $home_app = (new PhabricatorApplicationQuery())
-            ->setViewer($viewer)
-            ->withShortName(false)
-            ->withClasses(array(PhabricatorHomeApplication::class))
-            ->withInstalled(true)
-            ->executeOne();
-
-        $engine = (new PhabricatorHomeProfileMenuEngine())
-            ->setViewer($viewer)
-            ->setProfileObject($home_app)
-            ->setCustomPHID($viewer->getPHID())
-            ->setAction($this)
-            ->setShowContentCrumbs(false);
-
-        $view_list = $engine->newProfileMenuItemViewList();
-
-        $item_identifier && $view_list->setSelectedViewWithItemIdentifier($item_identifier);
-
-        $navigation = $view_list->newNavigationView();
-
-        return $navigation;
     }
 }

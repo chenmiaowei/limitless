@@ -5,6 +5,7 @@ namespace orangins\modules\daemon\query;
 use AphrontWriteGuard;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\daemon\application\PhabricatorDaemonsApplication;
+use orangins\modules\daemon\models\PhabricatorDaemonLog;
 use PhutilDaemonHandle;
 use Exception;
 
