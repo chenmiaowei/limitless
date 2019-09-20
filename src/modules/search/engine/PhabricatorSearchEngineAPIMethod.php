@@ -8,6 +8,7 @@ use orangins\lib\view\control\AphrontTableView;
 use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\modules\conduit\method\ConduitAPIMethod;
 use orangins\modules\conduit\protocol\ConduitAPIRequest;
+use yii\helpers\ArrayHelper;
 
 abstract class PhabricatorSearchEngineAPIMethod
     extends ConduitAPIMethod
@@ -391,7 +392,7 @@ EOTEXT
         foreach ($columns as $key => $column) {
             $rows[] = array(
                 $key,
-                idx($column, 'unique') ? pht('Yes') : pht('No'),
+                ArrayHelper::getValue($column, 'unique') ? pht('Yes') : pht('No'),
             );
         }
 

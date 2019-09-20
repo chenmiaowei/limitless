@@ -126,12 +126,12 @@ final class PhabricatorPeopleProfileEditController
         $crumbs->addTextCrumb(\Yii::t("app", 'Edit Profile'));
         $crumbs->setBorder(true);
 
-        $nav = $this->newNavigation(
+        $nav = $this->buildNavigation(
             $user,
             PhabricatorPeopleProfileMenuEngine::ITEM_MANAGE);
 
         $header = (new PHUIPageHeaderView())
-            ->setHeader(\Yii::t("app", 'Edit Profile: %s', $user->getFullName()))
+            ->setHeader(\Yii::t("app", 'Edit Profile: {0}', [$user->getFullName()]))
             ->setHeaderIcon('fa-pencil');
 
         $view = (new PHUITwoColumnView())

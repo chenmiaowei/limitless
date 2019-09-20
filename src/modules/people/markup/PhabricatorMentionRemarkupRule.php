@@ -12,6 +12,7 @@ use orangins\modules\policy\interfaces\PhabricatorPolicyInterface;
 use orangins\modules\widgets\javelin\JavelinHoverCardAsset;
 use PhutilRemarkupEngine;
 use PhutilRemarkupRule;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorMentionRemarkupRule
@@ -225,7 +226,7 @@ final class PhabricatorMentionRemarkupRule extends PhutilRemarkupRule
                         array(
                             'class' => 'phabricator-remarkup-mention-unknown',
                         ),
-                        '@' . idx($original, $token, $username));
+                        '@' . ArrayHelper::getValue($original, $token, $username));
                     $engine->overwriteStoredText($token, $tag);
                 }
             }

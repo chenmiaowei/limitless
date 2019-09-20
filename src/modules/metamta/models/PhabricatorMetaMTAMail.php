@@ -57,7 +57,8 @@ use yii\helpers\ArrayHelper;
  * @property string status
  */
 class PhabricatorMetaMTAMail extends ActiveRecordPHID
-    implements PhabricatorPolicyInterface,
+    implements
+    PhabricatorPolicyInterface,
     PhabricatorEdgeInterface
 {
     /**
@@ -2428,6 +2429,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
         return $this;
     }
 
+    /** PhabricatorEdgeInterface */
     /**
      * @return string
      * @author 陈妙威

@@ -3,6 +3,7 @@
 namespace orangins\modules\conpherence\actions;
 
 use Exception;
+use yii\helpers\ArrayHelper;
 
 final class ConpherenceUpdateAction
     extends ConpherenceAction

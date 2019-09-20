@@ -3,6 +3,7 @@
 namespace orangins\modules\auth\constants;
 
 use orangins\lib\OranginsObject;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorAuthFactorProviderStatus
@@ -56,7 +57,7 @@ final class PhabricatorAuthFactorProviderStatus
      */
     public function getName()
     {
-        return idx($this->spec, 'name', $this->key);
+        return ArrayHelper::getValue($this->spec, 'name', $this->key);
     }
 
     /**
@@ -65,7 +66,7 @@ final class PhabricatorAuthFactorProviderStatus
      */
     public function getStatusHeaderIcon()
     {
-        return idx($this->spec, 'header.icon');
+        return ArrayHelper::getValue($this->spec, 'header.icon');
     }
 
     /**
@@ -74,7 +75,7 @@ final class PhabricatorAuthFactorProviderStatus
      */
     public function getStatusHeaderColor()
     {
-        return idx($this->spec, 'header.color');
+        return ArrayHelper::getValue($this->spec, 'header.color');
     }
 
     /**
@@ -92,7 +93,7 @@ final class PhabricatorAuthFactorProviderStatus
      */
     public function getListIcon()
     {
-        return idx($this->spec, 'list.icon');
+        return ArrayHelper::getValue($this->spec, 'list.icon');
     }
 
     /**
@@ -101,7 +102,7 @@ final class PhabricatorAuthFactorProviderStatus
      */
     public function getListColor()
     {
-        return idx($this->spec, 'list.color');
+        return ArrayHelper::getValue($this->spec, 'list.color');
     }
 
     /**
@@ -110,7 +111,7 @@ final class PhabricatorAuthFactorProviderStatus
      */
     public function getFactorIcon()
     {
-        return idx($this->spec, 'factor.icon');
+        return ArrayHelper::getValue($this->spec, 'factor.icon');
     }
 
     /**
@@ -119,7 +120,7 @@ final class PhabricatorAuthFactorProviderStatus
      */
     public function getFactorColor()
     {
-        return idx($this->spec, 'factor.color');
+        return ArrayHelper::getValue($this->spec, 'factor.color');
     }
 
     /**
@@ -128,7 +129,7 @@ final class PhabricatorAuthFactorProviderStatus
      */
     public function getOrder()
     {
-        return idx($this->spec, 'order', 0);
+        return ArrayHelper::getValue($this->spec, 'order', 0);
     }
 
     /**
@@ -149,7 +150,7 @@ final class PhabricatorAuthFactorProviderStatus
     private static function newSpecification($key)
     {
         $specs = self::newSpecifications();
-        return idx($specs, $key, array());
+        return ArrayHelper::getValue($specs, $key, array());
     }
 
     /**

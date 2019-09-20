@@ -6,6 +6,7 @@ use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQu
 use orangins\modules\oauthserver\application\PhabricatorOAuthServerApplication;
 use orangins\modules\oauthserver\models\PhabricatorOAuthClientAuthorization;
 use orangins\modules\oauthserver\models\PhabricatorOAuthServerClient;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorOAuthClientAuthorizationQuery
@@ -104,7 +105,7 @@ final class PhabricatorOAuthClientAuthorizationQuery
         $clients = mpull($clients, null, 'getPHID');
 
         foreach ($authorizations as $key => $authorization) {
-            $client = idx($clients, $authorization->getClientPHID());
+            $client = ArrayHelper::getValue($clients, $authorization->getClientPHID());
 
             if (!$client) {
                 $this->didRejectResult($authorization);

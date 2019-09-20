@@ -11,7 +11,6 @@ use orangins\modules\file\models\PhabricatorFileChunk;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\system\engine\PhabricatorDestructionEngine;
 use Exception;
-use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorChunkedFileStorageEngine

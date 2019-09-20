@@ -100,7 +100,10 @@ final class PhabricatorMetaMTAMailQuery
 
     /**
      * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \yii\base\Exception
+     * @throws \AphrontAccessDeniedQueryException
+     * @throws \PhutilTypeExtraParametersException
+     * @throws \PhutilTypeMissingParametersException
+     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -110,16 +113,23 @@ final class PhabricatorMetaMTAMailQuery
 
     /**
      * @return array|void
+     * @throws \PhutilInvalidStateException
+     * @throws \PhutilTypeExtraParametersException
+     * @throws \PhutilTypeMissingParametersException
+     * @throws \ReflectionException
+     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
+     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws \yii\base\Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
     {
-         parent::buildWhereClauseParts();
+        parent::buildWhereClauseParts();
 
         if ($this->ids !== null) {
             $this->andWhere([
                 'IN',
-                'metamta_mail.id',
+                'mail.id',
                 $this->ids
             ]);
         }
@@ -127,7 +137,7 @@ final class PhabricatorMetaMTAMailQuery
         if ($this->phids !== null) {
             $this->andWhere([
                 'IN',
-                'metamta_mail.phid',
+                'mail.phid',
                 $this->phids
             ]);
         }
@@ -135,7 +145,7 @@ final class PhabricatorMetaMTAMailQuery
         if ($this->actorPHIDs !== null) {
             $this->andWhere([
                 'IN',
-                'metamta_mail.author_phid',
+                'mail.actor_phid',
                 $this->actorPHIDs
             ]);
         }
@@ -156,21 +166,21 @@ final class PhabricatorMetaMTAMailQuery
                     [
                         'edge.dst' => $viewer->getPHID()
                     ],
-                       [
-                        'metamta_mail.author_phid' => $viewer->getPHID()
+                    [
+                        'mail.actor_phid' => $viewer->getPHID()
                     ],
                 ]);
             }
         }
 
         if ($this->createdMin !== null) {
-            $this->andWhere('metamta_mail.created_at>=:created_at', [
+            $this->andWhere('mail.created_at>=:created_at', [
                 ":created_at" => $this->createdMin
             ]);
         }
 
         if ($this->createdMax !== null) {
-            $this->andWhere('metamta_mail.created_at<=:created_at', [
+            $this->andWhere('mail.created_at<=:created_at', [
                 ":created_at" => $this->createdMax
             ]);
         }
@@ -183,13 +193,13 @@ final class PhabricatorMetaMTAMailQuery
     protected function buildJoinClause()
     {
         if ($this->actorPHIDs === null && $this->recipientPHIDs === null) {
-            $this->leftJoin("metamta_mail_edge edge", "metamta_mail.phid=edge.src AND edge.type=:type", [
+            $this->leftJoin("metamta_edge edge", "mail.phid=edge.src AND edge.type=:type", [
                 ":type" => PhabricatorMetaMTAMailHasRecipientEdgeType::EDGECONST
             ]);
         }
 
         if ($this->recipientPHIDs !== null) {
-            $this->leftJoin("metamta_mail_edge recipient", "metamta_mail.phid = recipient.src AND recipient.type=:type", [
+            $this->leftJoin("metamta_edge recipient", "mail.phid = recipient.src AND recipient.type=:type", [
                 ":type" => PhabricatorMetaMTAMailHasRecipientEdgeType::EDGECONST
             ]);
         }

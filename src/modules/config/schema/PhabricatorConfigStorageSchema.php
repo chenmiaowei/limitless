@@ -3,6 +3,7 @@
 namespace orangins\modules\config\schema;
 
 use orangins\lib\OranginsObject;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorConfigStorageSchema

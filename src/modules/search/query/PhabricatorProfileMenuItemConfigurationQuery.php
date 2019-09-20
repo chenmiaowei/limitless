@@ -4,6 +4,8 @@ namespace orangins\modules\search\query;
 
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\search\application\PhabricatorSearchApplication;
+use orangins\modules\search\menuitems\PhabricatorProfileMenuItem;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorProfileMenuItemConfigurationQuery
@@ -118,6 +120,13 @@ final class PhabricatorProfileMenuItemConfigurationQuery
     /**
      * @param AphrontDatabaseConnection $conn
      * @return array|void
+     * @throws \PhutilInvalidStateException
+     * @throws \PhutilTypeExtraParametersException
+     * @throws \PhutilTypeMissingParametersException
+     * @throws \ReflectionException
+     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
+     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws \yii\base\Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts(AphrontDatabaseConnection $conn)
@@ -205,7 +214,7 @@ final class PhabricatorProfileMenuItemConfigurationQuery
     {
         $items = PhabricatorProfileMenuItem::getAllMenuItems();
         foreach ($page as $key => $item) {
-            $item_type = idx($items, $item->getMenuItemKey());
+            $item_type = ArrayHelper::getValue($items, $item->getMenuItemKey());
             if (!$item_type) {
                 $this->didRejectResult($item);
                 unset($page[$key]);
@@ -230,7 +239,7 @@ final class PhabricatorProfileMenuItemConfigurationQuery
         $profiles = mpull($profiles, null, 'getPHID');
 
         foreach ($page as $key => $item) {
-            $profile = idx($profiles, $item->getProfilePHID());
+            $profile = ArrayHelper::getValue($profiles, $item->getProfilePHID());
             if (!$profile) {
                 $this->didRejectResult($item);
                 unset($page[$key]);

@@ -2,11 +2,14 @@
 
 namespace orangins\modules\notification\builder;
 
+use Exception;
 use orangins\lib\OranginsObject;
+use orangins\lib\view\AphrontNullView;
 use orangins\modules\feed\story\PhabricatorFeedStory;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\settings\setting\PhabricatorNotificationsSetting;
 use orangins\modules\transactions\feed\PhabricatorApplicationTransactionFeedStory;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorNotificationBuilder
@@ -175,6 +178,7 @@ final class PhabricatorNotificationBuilder extends OranginsObject
 
     /**
      * @return AphrontNullView
+     * @throws Exception
      * @author 陈妙威
      */
     public function buildView()
@@ -200,6 +204,18 @@ final class PhabricatorNotificationBuilder extends OranginsObject
 
     /**
      * @return array
+     * @throws \AphrontQueryException
+     * @throws \PhutilAggregateException
+     * @throws \PhutilInvalidStateException
+     * @throws \PhutilTypeExtraParametersException
+     * @throws \PhutilTypeMissingParametersException
+     * @throws \ReflectionException
+     * @throws \orangins\lib\exception\ActiveRecordException
+     * @throws \orangins\modules\file\FilesystemException
+     * @throws \orangins\modules\file\exception\PhabricatorFileStorageConfigurationException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\UnknownPropertyException
+     * @throws \yii\db\IntegrityException
      * @author 陈妙威
      */
     public function buildDict()

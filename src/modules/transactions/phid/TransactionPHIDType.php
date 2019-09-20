@@ -10,6 +10,7 @@ use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\transactions\application\PhabricatorTransactionsApplication;
 use orangins\modules\transactions\query\PhabricatorApplicationTransactionQuery;
 use PhutilClassMapQuery;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class OranginsPeopleUserPHIDType
@@ -110,7 +111,7 @@ final class TransactionPHIDType extends PhabricatorPHIDType
 
         $results = array();
         foreach ($phid_subtypes as $subtype => $subtype_phids) {
-            $query = idx($queries, $subtype);
+            $query = ArrayHelper::getValue($queries, $subtype);
             if (!$query) {
                 continue;
             }

@@ -40,7 +40,7 @@ class PhabricatorTagListAction extends PhabricatorAction
         $request = $this->getRequest();
         $querykey = $request->getURIData('queryKey');
 
-        $navigation = $this->newNavigation($viewer);
+        $navigation = $this->buildNavigation($viewer);
         $selectedFilter = $navigation->getSelectedFilter();
 
         $action = (new PhabricatorApplicationSearchAction('search', $this->controller))
@@ -82,7 +82,7 @@ class PhabricatorTagListAction extends PhabricatorAction
      * @throws \Exception
      * @author 陈妙威
      */
-     protected function newNavigation(
+     protected function buildNavigation(
         PhabricatorUser $viewer,
         $item_identifier = null) {
         $home_app = (new PhabricatorApplicationQuery())

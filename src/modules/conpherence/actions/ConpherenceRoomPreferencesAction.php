@@ -2,20 +2,38 @@
 
 namespace orangins\modules\conpherence\actions;
 
+use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
 use orangins\lib\view\form\control\AphrontFormRadioButtonControl;
 use orangins\modules\conpherence\models\ConpherenceThread;
 use orangins\modules\settings\setting\PhabricatorConpherenceNotificationsSetting;
+use yii\helpers\ArrayHelper;
 
+/**
+ * Class ConpherenceRoomPreferencesAction
+ * @package orangins\modules\conpherence\actions
+ * @author 陈妙威
+ */
 final class ConpherenceRoomPreferencesAction
     extends ConpherenceAction
 {
 
+    /**
+     * @return bool
+     * @author 陈妙威
+     */
     public function shouldAllowPublic()
     {
         return true;
     }
 
+    /**
+     * @return AphrontRedirectResponse|\orangins\lib\view\AphrontDialogView|Aphront404Response
+     * @throws \ReflectionException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
+     * @author 陈妙威
+     */
     public function run()
     {
         $request = $this->getRequest();

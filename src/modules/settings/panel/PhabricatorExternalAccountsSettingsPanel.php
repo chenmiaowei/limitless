@@ -11,6 +11,7 @@ use orangins\modules\auth\query\PhabricatorExternalAccountQuery;
 use orangins\modules\people\models\PhabricatorExternalAccount;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\settings\panelgroup\PhabricatorSettingsAuthenticationPanelGroup;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorExternalAccountsSettingsPanel

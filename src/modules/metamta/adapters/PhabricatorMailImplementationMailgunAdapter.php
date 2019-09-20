@@ -4,9 +4,11 @@ namespace orangins\modules\metamta\adapters;
 
 use Exception;
 use HTTPSFuture;
+use orangins\lib\env\PhabricatorEnv;
 use PhutilJSONParserException;
 use PhutilProxyException;
 use PhutilTypeSpec;
+use yii\helpers\ArrayHelper;
 
 /**
  * Mail adapter that uses Mailgun's web API to deliver email.
@@ -186,6 +188,7 @@ final class PhabricatorMailImplementationMailgunAdapter
 
     /**
      * @return array|mixed
+     * @throws Exception
      * @author 陈妙威
      */
     public function newLegacyOptions()
@@ -198,7 +201,8 @@ final class PhabricatorMailImplementationMailgunAdapter
 
     /**
      * @return bool
-     * @throws \yii\base\Exception
+     * @throws PhutilProxyException
+     * @throws Exception
      * @author 陈妙威
      */
     public function send()
@@ -253,7 +257,7 @@ final class PhabricatorMailImplementationMailgunAdapter
             $response = phutil_json_decode($body);
         } catch (PhutilJSONParserException $ex) {
             throw new PhutilProxyException(
-                \Yii::t("app",'Failed to JSON decode response.'),
+                \Yii::t("app", 'Failed to JSON decode response.'),
                 $ex);
         }
 

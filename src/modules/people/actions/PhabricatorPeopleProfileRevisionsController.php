@@ -54,7 +54,7 @@ final class PhabricatorPeopleProfileRevisionsController
         $crumbs->addTextCrumb(\Yii::t("app", 'Recent Revisions'));
         $crumbs->setBorder(true);
 
-        $nav = $this->newNavigation(
+        $nav = $this->buildNavigation(
             $user,
             PhabricatorPeopleProfileMenuEngine::ITEM_REVISIONS);
 

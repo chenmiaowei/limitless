@@ -65,7 +65,7 @@ final class PhabricatorPeopleProfileManageController
         $properties = $this->buildPropertyView($user);
         $name = $user->getUsername();
 
-        $nav = $this->newNavigation(
+        $nav = $this->buildNavigation(
             $user,
             PhabricatorPeopleProfileMenuEngine::ITEM_MANAGE);
 

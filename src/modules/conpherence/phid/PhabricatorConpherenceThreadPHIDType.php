@@ -7,6 +7,7 @@ use orangins\modules\conpherence\models\ConpherenceThread;
 use orangins\modules\phid\PhabricatorPHIDType;
 use orangins\modules\phid\query\PhabricatorHandleQuery;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorConpherenceThreadPHIDType
@@ -27,7 +28,7 @@ final class PhabricatorConpherenceThreadPHIDType extends PhabricatorPHIDType
      */
     public function getTypeName()
     {
-        return \Yii::t("app",'Conpherence Room');
+        return \Yii::t("app", 'Conpherence Room');
     }
 
     /**
@@ -82,7 +83,7 @@ final class PhabricatorConpherenceThreadPHIDType extends PhabricatorPHIDType
             $monogram = $thread->getMonogram();
 
             $handle->setName($title);
-            $handle->setFullName(\Yii::t("app",'{0}: {1}', [$monogram, $title]));
+            $handle->setFullName(\Yii::t("app", '{0}: {1}', [$monogram, $title]));
             $handle->setURI('/' . $monogram);
         }
     }

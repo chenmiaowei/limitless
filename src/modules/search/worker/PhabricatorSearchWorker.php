@@ -11,6 +11,7 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\search\index\PhabricatorIndexEngine;
 use PhutilLockException;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorSearchWorker
@@ -63,7 +64,7 @@ final class PhabricatorSearchWorker extends PhabricatorWorker
     protected function doWork()
     {
         $data = $this->getTaskData();
-        $object_phid = idx($data, 'documentPHID');
+        $object_phid = ArrayHelper::getValue($data, 'documentPHID');
 
         // See T12425. By the time we run an indexing task, the object it indexes
         // may have been deleted. This is unusual, but not concerning, and failing
@@ -73,7 +74,7 @@ final class PhabricatorSearchWorker extends PhabricatorWorker
         // indexing exceptions unless we're in "strict" mode. This mode is set by
         // the "bin/search index" tool.
 
-        $is_strict = idx($data, 'strict', false);
+        $is_strict = ArrayHelper::getValue($data, 'strict', false);
 
         try {
             $object = $this->loadObjectForIndexing($object_phid);
@@ -88,7 +89,7 @@ final class PhabricatorSearchWorker extends PhabricatorWorker
         $engine = (new PhabricatorIndexEngine())
             ->setObject($object);
 
-        $parameters = idx($data, 'parameters', array());
+        $parameters = ArrayHelper::getValue($data, 'parameters', array());
         $engine->setParameters($parameters);
 
         if (!$engine->shouldIndexObject()) {

@@ -171,7 +171,7 @@ final class PhabricatorAuthFactorConfigQuery
 //        $providers = mpull($providers, null, 'getPHID');
 //
 //        foreach ($configs as $key => $config) {
-//            $provider = idx($providers, $config->getFactorProviderPHID());
+//            $provider = ArrayHelper::getValue($providers, $config->getFactorProviderPHID());
 //
 //            if (!$provider) {
 //                unset($configs[$key]);

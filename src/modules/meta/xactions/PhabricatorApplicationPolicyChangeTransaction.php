@@ -8,6 +8,7 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\constants\PhabricatorPolicies;
 use orangins\modules\policy\models\PhabricatorPolicyQuery;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorApplicationPolicyChangeTransaction

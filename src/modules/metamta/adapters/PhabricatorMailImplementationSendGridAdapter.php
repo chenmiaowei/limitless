@@ -8,6 +8,7 @@ use orangins\lib\env\PhabricatorEnv;
 use PhutilJSONParserException;
 use PhutilProxyException;
 use PhutilTypeSpec;
+use yii\helpers\ArrayHelper;
 
 /**
  * Mail adapter that uses SendGrid's web API to deliver email.
@@ -57,8 +58,8 @@ final class PhabricatorMailImplementationSendGridAdapter
 
     /**
      * @return array|mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function newLegacyOptions()
     {

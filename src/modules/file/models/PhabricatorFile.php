@@ -689,12 +689,12 @@ class PhabricatorFile extends ActiveRecordPHID
         // NOTE: Once we receive the first chunk, we'll detect its MIME type and
         // update the parent file if a MIME type hasn't been provided. This matters
         // for large media files like video.
-        $mime_type = idx($params, 'mime-type');
+        $mime_type = ArrayHelper::getValue($params, 'mime-type');
         if (!strlen($mime_type)) {
             $file->setMimeType('application/octet-stream');
         }
 
-        $chunked_hash = idx($params, 'chunkedHash');
+        $chunked_hash = ArrayHelper::getValue($params, 'chunkedHash');
 
         // Get rid of this parameter now; we aren't passing it any further down
         // the stack.

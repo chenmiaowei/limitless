@@ -113,7 +113,7 @@ final class PhabricatorMetaMTAMailSearchEngine extends PhabricatorApplicationSea
      */
     protected function getURI($path = null, $params = [])
     {
-        return Url::to(ArrayHelper::merge(['/mail/index/' . $path], $params));
+        return Url::to(ArrayHelper::merge(['/metamta/index/' . $path], $params));
     }
 
     /**

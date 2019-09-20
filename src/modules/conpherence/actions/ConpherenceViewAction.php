@@ -3,6 +3,7 @@ namespace orangins\modules\conpherence\actions;
 
 use orangins\lib\view\form\control\PhabricatorRemarkupControl;
 use orangins\modules\notification\view\PhabricatorNotificationStatusView;
+use yii\helpers\ArrayHelper;
 
 final class ConpherenceViewAction extends
   ConpherenceAction {

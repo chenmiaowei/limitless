@@ -232,6 +232,6 @@ final class PhabricatorWxampAuthAdapter extends PhutilAuthAdapter
             $this->oauthAccountData = $this->loadOAuthAccountData();
         }
 
-        return idx($this->oauthAccountData, $key, $default);
+        return ArrayHelper::getValue($this->oauthAccountData, $key, $default);
     }
 }

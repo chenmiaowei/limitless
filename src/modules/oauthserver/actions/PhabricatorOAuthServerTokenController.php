@@ -10,6 +10,7 @@ use orangins\modules\oauthserver\PhabricatorOAuthResponse;
 use orangins\modules\oauthserver\PhabricatorOAuthServer;
 use orangins\modules\people\models\PhabricatorUser;
 use PhutilURI;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorOAuthServerTokenController
@@ -58,7 +59,7 @@ final class PhabricatorOAuthServerTokenController
         $server = new PhabricatorOAuthServer();
 
         $client_id_parameter = $request->getStr('client_id');
-        $client_id_header = idx($_SERVER, 'PHP_AUTH_USER');
+        $client_id_header = ArrayHelper::getValue($_SERVER, 'PHP_AUTH_USER');
         if (strlen($client_id_parameter) && strlen($client_id_header)) {
             if ($client_id_parameter !== $client_id_header) {
                 throw new Exception(
@@ -72,7 +73,7 @@ final class PhabricatorOAuthServerTokenController
         }
 
         $client_secret_parameter = $request->getStr('client_secret');
-        $client_secret_header = idx($_SERVER, 'PHP_AUTH_PW');
+        $client_secret_header = ArrayHelper::getValue($_SERVER, 'PHP_AUTH_PW');
         if (strlen($client_secret_parameter)) {
             // If the `client_secret` parameter is present, prefer parameters.
             $client_phid = $client_id_parameter;

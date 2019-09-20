@@ -15,6 +15,7 @@ use orangins\modules\settings\panelgroup\PhabricatorSettingsEmailPanelGroup;
 use orangins\modules\settings\setting\PhabricatorEmailTagsSetting;
 use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
 use PhutilClassMapQuery;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorEmailPreferencesSettingsPanel
@@ -83,12 +84,12 @@ final class PhabricatorEmailPreferencesSettingsPanel
      * @throws \PhutilTypeExtraParametersException
      * @throws \PhutilTypeMissingParametersException
      * @throws \ReflectionException
-
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidConfigException*@throws \Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function processRequest(AphrontRequest $request)
@@ -212,7 +213,6 @@ final class PhabricatorEmailPreferencesSettingsPanel
      * @return mixed
      * @throws \PhutilInvalidStateException
      * @throws \ReflectionException
-     * @throws \yii\base\Exception
      * @author 陈妙威
      */
     private function getAllEditorsWithTags(PhabricatorUser $user = null)

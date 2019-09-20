@@ -3,6 +3,8 @@
 namespace orangins\modules\config\check;
 
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\infrastructure\cluster\PhabricatorDatabaseRef;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorDatabaseSetupCheck

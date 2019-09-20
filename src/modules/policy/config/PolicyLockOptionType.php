@@ -5,12 +5,15 @@ namespace orangins\modules\policy\config;
 use orangins\modules\config\customer\PhabricatorConfigJSONOptionType;
 use orangins\modules\config\option\PhabricatorConfigOption;
 use orangins\modules\people\models\PhabricatorUser;
+use orangins\modules\phid\helpers\PhabricatorPHID;
 use orangins\modules\phid\PhabricatorPHIDConstants;
 use orangins\modules\phid\query\PhabricatorHandleQuery;
+use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\constants\PhabricatorPolicies;
 use orangins\modules\policy\models\PhabricatorPolicyQuery;
 use PhutilClassMapQuery;
 use Exception;
+use yii\helpers\ArrayHelper;
 
 final class PolicyLockOptionType
     extends PhabricatorConfigJSONOptionType
@@ -27,7 +30,7 @@ final class PolicyLockOptionType
     public function validateOption(PhabricatorConfigOption $option, $value)
     {
         $capabilities = (new PhutilClassMapQuery())
-            ->setAncestorClass('PhabricatorPolicyCapability')
+            ->setAncestorClass(PhabricatorPolicyCapability::className())
             ->setUniqueMethod('getCapabilityKey')
             ->execute();
 
@@ -51,9 +54,10 @@ final class PolicyLockOptionType
                 } catch (Exception $ex) {
                     throw new Exception(
                         \Yii::t("app",
-                            'Capability "%s" has invalid policy "%s".',
-                            $capability_key,
-                            $policy));
+                            'Capability "{0}" has invalid policy "{1}".', [
+                                $capability_key,
+                                $policy
+                            ]));
                 }
             }
 
@@ -61,8 +65,9 @@ final class PolicyLockOptionType
                 if (!$capability->shouldAllowPublicPolicySetting()) {
                     throw new Exception(
                         \Yii::t("app",
-                            'Capability "%s" does not support public policy.',
-                            $capability_key));
+                            'Capability "{0}" does not support public policy.', [
+                                $capability_key
+                            ]));
                 }
             }
         }
@@ -78,10 +83,12 @@ final class PolicyLockOptionType
                 if (!$handle->isComplete()) {
                     throw new Exception(
                         \Yii::t("app",
-                            'Capability "%s" has invalid policy "%s"; "%s" does not exist.',
-                            $capability_key,
-                            $policy,
-                            $policy));
+                            'Capability "{0}" has invalid policy "{1}"; "{2}" does not exist.',
+                            [
+                                $capability_key,
+                                $policy,
+                                $policy
+                            ]));
                 }
             }
         }

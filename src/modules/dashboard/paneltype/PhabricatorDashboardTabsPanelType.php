@@ -17,6 +17,7 @@ use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use PhutilJSONParserException;
 use PhutilURI;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
 /**
@@ -169,10 +170,10 @@ final class PhabricatorDashboardTabsPanelType
 
         $last_idx = null;
         foreach ($config as $idx => $tab_spec) {
-            $panel_id = idx($tab_spec, 'panelID');
-            $subpanel = idx($panels, $panel_id);
+            $panel_id = ArrayHelper::getValue($tab_spec, 'panelID');
+            $subpanel = ArrayHelper::getValue($panels, $panel_id);
 
-            $name = idx($tab_spec, 'name');
+            $name = ArrayHelper::getValue($tab_spec, 'name');
             if (!strlen($name)) {
                 if ($subpanel) {
                     $name = $subpanel->getName();
@@ -303,8 +304,8 @@ final class PhabricatorDashboardTabsPanelType
         $panel_list = array();
         $no_headers = PhabricatorDashboardPanelRenderingEngine::HEADER_MODE_NONE;
         foreach ($config as $idx => $tab_spec) {
-            $panel_id = idx($tab_spec, 'panelID');
-            $subpanel = idx($panels, $panel_id);
+            $panel_id = ArrayHelper::getValue($tab_spec, 'panelID');
+            $subpanel = ArrayHelper::getValue($panels, $panel_id);
 
             if ($subpanel) {
                 $panel_content = (new PhabricatorDashboardPanelRenderingEngine())

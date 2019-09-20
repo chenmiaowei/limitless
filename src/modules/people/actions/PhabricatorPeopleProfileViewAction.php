@@ -114,7 +114,7 @@ final class PhabricatorPeopleProfileViewAction
 //                    $calendar,
                 ));
 
-        $nav = $this->newNavigation(
+        $nav = $this->buildNavigation(
             $user,
             PhabricatorPeopleProfileMenuEngine::ITEM_PROFILE);
 

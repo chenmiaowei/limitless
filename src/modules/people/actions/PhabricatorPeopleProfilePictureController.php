@@ -380,7 +380,7 @@ final class PhabricatorPeopleProfilePictureController
         $crumbs->addTextCrumb(\Yii::t("app", 'Edit Profile Picture'));
         $crumbs->setBorder(true);
 
-        $nav = $this->newNavigation(
+        $nav = $this->buildNavigation(
             $user,
             PhabricatorPeopleProfileMenuEngine::ITEM_MANAGE);
 

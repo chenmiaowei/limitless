@@ -13,7 +13,7 @@ use Yii;
  * @property string $created_at
  * @property string $updated_at
  */
-class MetamtaMailproperties extends \yii\db\ActiveRecord
+class PhabricatorMetaMTAMailProperties extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}

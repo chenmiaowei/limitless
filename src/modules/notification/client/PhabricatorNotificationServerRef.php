@@ -2,90 +2,179 @@
 
 namespace orangins\modules\notification\client;
 
+use HTTPFutureHTTPResponseStatus;
+use HTTPSFuture;
 use orangins\lib\OranginsObject;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\modules\cache\PhabricatorCaches;
 use Exception;
+use PhutilURI;
+use yii\helpers\ArrayHelper;
 
+/**
+ * Class PhabricatorNotificationServerRef
+ * @package orangins\modules\notification\client
+ * @author 陈妙威
+ */
 final class PhabricatorNotificationServerRef
     extends OranginsObject
 {
 
+    /**
+     * @var
+     */
     private $type;
+    /**
+     * @var
+     */
     private $host;
+    /**
+     * @var
+     */
     private $port;
+    /**
+     * @var
+     */
     private $protocol;
+    /**
+     * @var
+     */
     private $path;
+    /**
+     * @var
+     */
     private $isDisabled;
 
+    /**
+     *
+     */
     const KEY_REFS = 'notification.refs';
 
+    /**
+     * @param $type
+     * @return $this
+     * @author 陈妙威
+     */
     public function setType($type)
     {
         $this->type = $type;
         return $this;
     }
 
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
     public function getType()
     {
         return $this->type;
     }
 
+    /**
+     * @param $host
+     * @return $this
+     * @author 陈妙威
+     */
     public function setHost($host)
     {
         $this->host = $host;
         return $this;
     }
 
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
     public function getHost()
     {
         return $this->host;
     }
 
+    /**
+     * @param $port
+     * @return $this
+     * @author 陈妙威
+     */
     public function setPort($port)
     {
         $this->port = $port;
         return $this;
     }
 
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
     public function getPort()
     {
         return $this->port;
     }
 
+    /**
+     * @param $protocol
+     * @return $this
+     * @author 陈妙威
+     */
     public function setProtocol($protocol)
     {
         $this->protocol = $protocol;
         return $this;
     }
 
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
     public function getProtocol()
     {
         return $this->protocol;
     }
 
+    /**
+     * @param $path
+     * @return $this
+     * @author 陈妙威
+     */
     public function setPath($path)
     {
         $this->path = $path;
         return $this;
     }
 
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
     public function getPath()
     {
         return $this->path;
     }
 
+    /**
+     * @param $is_disabled
+     * @return $this
+     * @author 陈妙威
+     */
     public function setIsDisabled($is_disabled)
     {
         $this->isDisabled = $is_disabled;
         return $this;
     }
 
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
     public function getIsDisabled()
     {
         return $this->isDisabled;
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     * @author 陈妙威
+     */
     public static function getLiveServers()
     {
         $cache = PhabricatorCaches::getRequestCache();
@@ -99,6 +188,11 @@ final class PhabricatorNotificationServerRef
         return $refs;
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     * @author 陈妙威
+     */
     public static function newRefs()
     {
         $configs = PhabricatorEnv::getEnvConfig('notification.servers');
@@ -118,6 +212,11 @@ final class PhabricatorNotificationServerRef
         return $refs;
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     * @author 陈妙威
+     */
     public static function getEnabledServers()
     {
         $servers = self::getLiveServers();
@@ -131,6 +230,11 @@ final class PhabricatorNotificationServerRef
         return array_values($servers);
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     * @author 陈妙威
+     */
     public static function getEnabledAdminServers()
     {
         $servers = self::getEnabledServers();
@@ -144,6 +248,12 @@ final class PhabricatorNotificationServerRef
         return array_values($servers);
     }
 
+    /**
+     * @param $with_protocol
+     * @return array
+     * @throws Exception
+     * @author 陈妙威
+     */
     public static function getEnabledClientServers($with_protocol)
     {
         $servers = self::getEnabledServers();
@@ -164,11 +274,21 @@ final class PhabricatorNotificationServerRef
         return array_values($servers);
     }
 
+    /**
+     * @return bool
+     * @author 陈妙威
+     */
     public function isAdminServer()
     {
         return ($this->type == 'admin');
     }
 
+    /**
+     * @param null $to_path
+     * @return PhutilURI
+     * @throws Exception
+     * @author 陈妙威
+     */
     public function getURI($to_path = null)
     {
         $full_path = rtrim($this->getPath(), '/') . '/' . ltrim($to_path, '/');
@@ -186,6 +306,12 @@ final class PhabricatorNotificationServerRef
         return $uri;
     }
 
+    /**
+     * @param null $to_path
+     * @return PhutilURI
+     * @throws Exception
+     * @author 陈妙威
+     */
     public function getWebsocketURI($to_path = null)
     {
         $instance = PhabricatorEnv::getEnvConfig('cluster.instance');
@@ -204,6 +330,11 @@ final class PhabricatorNotificationServerRef
         return $uri;
     }
 
+    /**
+     * @return bool
+     * @throws Exception
+     * @author 陈妙威
+     */
     public function testClient()
     {
         if ($this->isAdminServer()) {
@@ -229,6 +360,11 @@ final class PhabricatorNotificationServerRef
             \Yii::t("app",'Got HTTP 200, but expected HTTP 501 (WebSocket Upgrade)!'));
     }
 
+    /**
+     * @return mixed
+     * @throws Exception
+     * @author 陈妙威
+     */
     public function loadServerStatus()
     {
         if (!$this->isAdminServer()) {
@@ -246,6 +382,11 @@ final class PhabricatorNotificationServerRef
         return phutil_json_decode($body);
     }
 
+    /**
+     * @param array $data
+     * @throws Exception
+     * @author 陈妙威
+     */
     public function postMessage(array $data)
     {
         if (!$this->isAdminServer()) {

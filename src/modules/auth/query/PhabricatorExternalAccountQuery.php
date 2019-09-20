@@ -8,6 +8,7 @@ use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\people\application\PhabricatorPeopleApplication;
 use orangins\modules\people\models\PhabricatorExternalAccount;
 use orangins\modules\people\models\PhabricatorUser;
+use yii\helpers\ArrayHelper;
 
 /**
  * NOTE: When loading ExternalAccounts for use in an authentication context
@@ -193,7 +194,7 @@ final class PhabricatorExternalAccountQuery
 
         foreach ($accounts as $key => $account) {
             $config_phid = $account->getProviderConfigPHID();
-            $config = idx($configs, $config_phid);
+            $config = ArrayHelper::getValue($configs, $config_phid);
 
             if (!$config) {
                 unset($accounts[$key]);

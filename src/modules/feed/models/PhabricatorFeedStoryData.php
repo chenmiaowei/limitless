@@ -9,6 +9,7 @@ use orangins\modules\people\db\ActiveRecordAuthorTrait;
 use orangins\modules\system\engine\PhabricatorDestructionEngine;
 use orangins\modules\system\interfaces\PhabricatorDestructibleInterface;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "feed_storydata".
@@ -169,7 +170,7 @@ class PhabricatorFeedStoryData extends ActiveRecordPHID
      */
     public function getValue($key, $default = null)
     {
-        return idx($this->getStoryData(), $key, $default);
+        return ArrayHelper::getValue($this->getStoryData(), $key, $default);
     }
 
 

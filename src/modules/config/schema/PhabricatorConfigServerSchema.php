@@ -1,52 +1,111 @@
 <?php
+
 namespace orangins\modules\config\schema;
 
+use yii\helpers\ArrayHelper;
+
+/**
+ * Class PhabricatorConfigServerSchema
+ * @package orangins\modules\config\schema
+ * @author 陈妙威
+ */
 final class PhabricatorConfigServerSchema
-  extends PhabricatorConfigStorageSchema {
+    extends PhabricatorConfigStorageSchema
+{
 
-  private $ref;
-  private $databases = array();
+    /**
+     * @var
+     */
+    private $ref;
+    /**
+     * @var array
+     */
+    private $databases = array();
 
-  public function setRef(PhabricatorDatabaseRef $ref) {
-    $this->ref = $ref;
-    return $this;
-  }
-
-  public function getRef() {
-    return $this->ref;
-  }
-
-  public function addDatabase(PhabricatorConfigDatabaseSchema $database) {
-    $key = $database->getName();
-    if (isset($this->databases[$key])) {
-      throw new Exception(
-        \Yii::t("app",'Trying to add duplicate database "%s"!', $key));
+    /**
+     * @param PhabricatorDatabaseRef $ref
+     * @return $this
+     * @author 陈妙威
+     */
+    public function setRef(PhabricatorDatabaseRef $ref)
+    {
+        $this->ref = $ref;
+        return $this;
     }
-    $this->databases[$key] = $database;
-    return $this;
-  }
 
-  public function getDatabases() {
-    return $this->databases;
-  }
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
+    public function getRef()
+    {
+        return $this->ref;
+    }
 
-  public function getDatabase($key) {
-    return ArrayHelper::getValue($this->getDatabases(), $key);
-  }
+    /**
+     * @param PhabricatorConfigDatabaseSchema $database
+     * @return $this
+     * @author 陈妙威
+     */
+    public function addDatabase(PhabricatorConfigDatabaseSchema $database)
+    {
+        $key = $database->getName();
+        if (isset($this->databases[$key])) {
+            throw new Exception(
+                \Yii::t("app", 'Trying to add duplicate database "%s"!', $key));
+        }
+        $this->databases[$key] = $database;
+        return $this;
+    }
 
-  protected function getSubschemata() {
-    return $this->getDatabases();
-  }
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    public function getDatabases()
+    {
+        return $this->databases;
+    }
 
-  protected function compareToSimilarSchema(
-    PhabricatorConfigStorageSchema $expect) {
-    return array();
-  }
+    /**
+     * @param $key
+     * @return mixed
+     * @author 陈妙威
+     */
+    public function getDatabase($key)
+    {
+        return ArrayHelper::getValue($this->getDatabases(), $key);
+    }
 
-  public function newEmptyClone() {
-    $clone = clone $this;
-    $clone->databases = array();
-    return $clone;
-  }
+    /**
+     * @return array|mixed
+     * @author 陈妙威
+     */
+    protected function getSubschemata()
+    {
+        return $this->getDatabases();
+    }
+
+    /**
+     * @param PhabricatorConfigStorageSchema $expect
+     * @return array|mixed
+     * @author 陈妙威
+     */
+    protected function compareToSimilarSchema(
+        PhabricatorConfigStorageSchema $expect)
+    {
+        return array();
+    }
+
+    /**
+     * @return mixed|PhabricatorConfigServerSchema
+     * @author 陈妙威
+     */
+    public function newEmptyClone()
+    {
+        $clone = clone $this;
+        $clone->databases = array();
+        return $clone;
+    }
 
 }

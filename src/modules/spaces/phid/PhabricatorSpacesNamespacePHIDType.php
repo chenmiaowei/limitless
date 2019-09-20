@@ -8,6 +8,7 @@ use orangins\modules\phid\query\PhabricatorHandleQuery;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\spaces\application\PhabricatorSpacesApplication;
 use orangins\modules\spaces\models\PhabricatorSpacesNamespace;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorSpacesNamespacePHIDType
@@ -110,8 +111,10 @@ final class PhabricatorSpacesNamespacePHIDType
      * @param PhabricatorObjectQuery $query
      * @param array $names
      * @return array
-     * @author 陈妙威
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
      * @throws \yii\base\InvalidConfigException
+     * @author 陈妙威
      */
     public function loadNamedObjects(
         PhabricatorObjectQuery $query,
@@ -131,7 +134,7 @@ final class PhabricatorSpacesNamespacePHIDType
 
         $results = array();
         foreach ($objects as $id => $object) {
-            foreach (idx($id_map, $id, array()) as $name) {
+            foreach (ArrayHelper::getValue($id_map, $id, array()) as $name) {
                 $results[$name] = $object;
             }
         }

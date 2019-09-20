@@ -23,6 +23,7 @@ use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use PhutilRemarkupEngine;
 use PhutilUTF8StringTruncator;
 use Exception;
+use yii\helpers\ArrayHelper;
 
 
 /**
@@ -193,7 +194,7 @@ abstract class PhabricatorFeedStory
             }
 
             $object_phid = $story->getPrimaryObjectPHID();
-//            $object_project_phids = idx($project_phids, $object_phid, array());
+//            $object_project_phids = ArrayHelper::getValue($project_phids, $object_phid, array());
 //            $story->setProjectPHIDs($object_project_phids);
 //            foreach ($object_project_phids as $dst) {
 //                $key_phids[$key][$dst] = true;
@@ -343,7 +344,7 @@ abstract class PhabricatorFeedStory
      */
     public function getObject($phid)
     {
-        $object = idx($this->objects, $phid);
+        $object = ArrayHelper::getValue($this->objects, $phid);
         if (!$object) {
             throw new Exception(
                 pht(

@@ -10,6 +10,7 @@ use orangins\modules\config\models\PhabricatorConfigEntry;
 use orangins\modules\config\option\PhabricatorApplicationConfigOptions;
 use PhutilArgumentParser;
 use PhutilConsole;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorConfigManagementMigrateWorkflow
@@ -55,7 +56,7 @@ final class PhabricatorConfigManagementMigrateWorkflow
         $config_sources = PhabricatorEnv::getConfigSourceStack()->getStack();
         $console->writeOut(
             "%s\n",
-            \Yii::t("app",'Migrating file-based config to more modern config...'));
+            \Yii::t("app", 'Migrating file-based config to more modern config...'));
         foreach ($config_sources as $config_source) {
             if (!($config_source instanceof PhabricatorConfigFileSource)) {
                 $console->writeOut(
@@ -65,20 +66,20 @@ final class PhabricatorConfigManagementMigrateWorkflow
                         get_class($config_source)));
                 continue;
             }
-            $console->writeOut("%s\n", \Yii::t("app",'Migrating file source...'));
+            $console->writeOut("%s\n", \Yii::t("app", 'Migrating file source...'));
             $all_keys = $config_source->getAllKeys();
             foreach ($all_keys as $key => $value) {
                 /** @var PhabricatorApplicationConfigOptions $option */
                 $option = ArrayHelper::getValue($options, $key);
                 if (!$option) {
-                    $console->writeOut("%s\n", \Yii::t("app",'Skipping obsolete option: %s', $key));
+                    $console->writeOut("%s\n", \Yii::t("app", 'Skipping obsolete option: %s', $key));
                     continue;
                 }
                 $in_local = $local_config->getKeys(array($option->getKey()));
                 if ($in_local) {
                     $console->writeOut(
                         "%s\n",
-                        \Yii::t("app",'Skipping option "%s"; already in local config.', $key));
+                        \Yii::t("app", 'Skipping option "%s"; already in local config.', $key));
                     continue;
                 }
                 $is_locked = $option->getLocked();
@@ -87,13 +88,13 @@ final class PhabricatorConfigManagementMigrateWorkflow
                     $key_count++;
                     $console->writeOut(
                         "%s\n",
-                        \Yii::t("app",'Migrated option "%s" from file to local config.', $key));
+                        \Yii::t("app", 'Migrated option "%s" from file to local config.', $key));
                 } else {
                     $in_database = $database_config->getKeys(array($option->getKey()));
                     if ($in_database) {
                         $console->writeOut(
                             "%s\n",
-                            \Yii::t("app",'Skipping option "%s"; already in database config.', $key));
+                            \Yii::t("app", 'Skipping option "%s"; already in database config.', $key));
                         continue;
                     } else {
                         $config_entry = PhabricatorConfigEntry::loadConfigEntry($key);
@@ -102,13 +103,13 @@ final class PhabricatorConfigManagementMigrateWorkflow
                         $key_count++;
                         $console->writeOut(
                             "%s\n",
-                            \Yii::t("app",'Migrated option "%s" from file to database config.', $key));
+                            \Yii::t("app", 'Migrated option "%s" from file to database config.', $key));
                     }
                 }
             }
         }
 
-        $console->writeOut("%s\n", \Yii::t("app",'Done. Migrated %d keys.', $key_count));
+        $console->writeOut("%s\n", \Yii::t("app", 'Done. Migrated %d keys.', $key_count));
         return 0;
     }
 

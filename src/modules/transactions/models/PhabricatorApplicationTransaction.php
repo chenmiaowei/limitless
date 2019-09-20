@@ -2651,8 +2651,8 @@ abstract class PhabricatorApplicationTransaction extends ActiveRecordPHID
             // story (in most cases/contexts), but the state change story is largely
             // just clutter and slightly confusing/misleading.
 
-            $inline_details = idx($details, $phid, array());
-            $inline_author_phid = idx($inline_details, 'authorPHID');
+            $inline_details = ArrayHelper::getValue($details, $phid, array());
+            $inline_author_phid = ArrayHelper::getValue($inline_details, 'authorPHID');
             if ($inline_author_phid) {
                 if ($inline_author_phid == $this->getAuthorPHID()) {
                     if ($is_done) {

@@ -6,6 +6,7 @@ use HTTPSFuture;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\infrastructure\daemon\workers\exception\PhabricatorWorkerPermanentFailureException;
 use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerTask;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class FeedPublisherHTTPWorker
@@ -30,7 +31,7 @@ final class FeedPublisherHTTPWorker extends FeedPushWorker
         $story = $this->loadFeedStory();
         $data = $story->getStoryData();
 
-        $uri = idx($this->getTaskData(), 'uri');
+        $uri = ArrayHelper::getValue($this->getTaskData(), 'uri');
         $valid_uris = PhabricatorEnv::getEnvConfig('feed.http-hooks');
         if (!in_array($uri, $valid_uris)) {
             throw new PhabricatorWorkerPermanentFailureException();

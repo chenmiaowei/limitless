@@ -57,7 +57,7 @@ final class PhabricatorPeopleProfileCommitsController
         $crumbs->addTextCrumb(\Yii::t("app", 'Recent Commits'));
         $crumbs->setBorder(true);
 
-        $nav = $this->newNavigation(
+        $nav = $this->buildNavigation(
             $user,
             PhabricatorPeopleProfileMenuEngine::ITEM_COMMITS);
 

@@ -19,6 +19,7 @@ use orangins\modules\search\query\PhabricatorSearchApplicationSearchEngine;
 use PhutilAggregateException;
 use PhutilJSONParserException;
 use PhutilProxyException;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorElasticFulltextStorageEngine
@@ -51,10 +52,10 @@ class PhabricatorElasticFulltextStorageEngine
     {
         $this->service = $service;
         $config = $service->getConfig();
-        $index = idx($config, 'path', '/phabricator');
+        $index = ArrayHelper::getValue($config, 'path', '/phabricator');
         $this->index = str_replace('/', '', $index);
-        $this->timeout = idx($config, 'timeout', 15);
-        $this->version = (int)idx($config, 'version', 5);
+        $this->timeout = ArrayHelper::getValue($config, 'timeout', 15);
+        $this->version = (int)ArrayHelper::getValue($config, 'version', 5);
         return $this;
     }
 

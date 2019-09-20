@@ -17,6 +17,7 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\people\models\PhabricatorUserCache;
 use orangins\modules\settings\models\PhabricatorUserPreferences;
 use orangins\modules\settings\setting\PhabricatorEmailTagsSetting;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorFeedStoryPublisher
@@ -400,7 +401,7 @@ final class PhabricatorFeedStoryPublisher extends OranginsObject
                 $notify = false;
                 foreach ($tags as $tag) {
                     // If this is set to "email" or "notify", notify the user.
-                    if ((int)idx($mailtags, $tag, $pref_default) != $pref_ignore) {
+                    if ((int)ArrayHelper::getValue($mailtags, $tag, $pref_default) != $pref_ignore) {
                         $notify = true;
                         break;
                     }

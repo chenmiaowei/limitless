@@ -3,7 +3,9 @@
 namespace orangins\modules\file\actions;
 
 use orangins\lib\helpers\JavelinHtml;
+use orangins\lib\view\phui\PHUIIconView;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorFileComposeAction

@@ -13,6 +13,7 @@ use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEdito
 use orangins\modules\transactions\error\PhabricatorApplicationTransactionValidationError;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use Exception;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorAuthSSHKeyEditor

@@ -69,7 +69,7 @@ abstract class PhabricatorPeopleProfileAction
      * @throws \Exception
      * @author 陈妙威
      */
-    final protected function newNavigation(
+    final protected function buildNavigation(
         PhabricatorUser $user,
         $item_identifier) {
 

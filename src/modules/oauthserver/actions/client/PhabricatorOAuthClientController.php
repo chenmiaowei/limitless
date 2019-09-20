@@ -6,6 +6,7 @@ use orangins\lib\view\layout\AphrontSideNavFilterView;
 use orangins\modules\oauthserver\actions\PhabricatorOAuthServerController;
 use orangins\modules\oauthserver\query\PhabricatorOAuthServerClientSearchEngine;
 use PhutilURI;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorOAuthClientController
@@ -55,7 +56,7 @@ abstract class PhabricatorOAuthClientController extends PhabricatorOAuthServerCo
      */
     public function willProcessRequest(array $data)
     {
-        $this->setClientPHID(idx($data, 'phid'));
+        $this->setClientPHID(ArrayHelper::getValue($data, 'phid'));
     }
 
     /**

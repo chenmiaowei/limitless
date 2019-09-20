@@ -6,6 +6,7 @@ use Exception;
 use orangins\lib\infrastructure\daemon\workers\exception\PhabricatorWorkerPermanentFailureException;
 use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use orangins\modules\people\models\PhabricatorUser;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorRebuildIndexesWorker
@@ -53,7 +54,7 @@ final class PhabricatorRebuildIndexesWorker extends PhabricatorWorker
         $viewer = PhabricatorUser::getOmnipotentUser();
 
         $data = $this->getTaskData();
-        $query_class = idx($data, 'queryClass');
+        $query_class = ArrayHelper::getValue($data, 'queryClass');
 
         try {
             $query = newv($query_class, array());
