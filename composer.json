@@ -16,6 +16,7 @@
     "wiki": "https://coding.net/u/chenmiaowei",
     "source": "https://coding.net/u/chenmiaowei/p/limitless/git"
   },
+  "minimum-stability": "dev",
   "repositories": [
     {
       "type": "vcs",
