@@ -116,8 +116,7 @@ final class PhabricatorEmailPreferencesSettingsPanel
                 PhabricatorEmailTagsSetting::SETTINGKEY,
                 $mailtags);
 
-            return (new AphrontRedirectResponse())
-                ->setURI($this->getPanelURI('?saved=true'));
+            return (new AphrontRedirectResponse())->setURI($this->getPanelURI('?saved=true'));
         }
 
         $mailtags = $preferences->getSettingValue(

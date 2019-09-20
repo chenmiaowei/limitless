@@ -26,6 +26,7 @@ final class PhabricatorPeopleEmpowerAction
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      * @throws \yii\db\IntegrityException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()

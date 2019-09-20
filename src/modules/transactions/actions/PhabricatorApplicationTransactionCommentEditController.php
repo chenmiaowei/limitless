@@ -2,6 +2,16 @@
 
 namespace orangins\modules\transactions\actions;
 
+use orangins\lib\infrastructure\contentsource\PhabricatorContentSource;
+use orangins\lib\response\Aphront400Response;
+use orangins\lib\response\Aphront404Response;
+use orangins\lib\response\AphrontAjaxResponse;
+use orangins\lib\response\AphrontReloadResponse;
+use orangins\lib\view\form\AphrontFormView;
+use orangins\lib\view\form\control\PhabricatorRemarkupControl;
+use orangins\modules\phid\query\PhabricatorObjectQuery;
+use orangins\modules\transactions\editors\PhabricatorApplicationTransactionCommentEditor;
+
 /**
  * Class PhabricatorApplicationTransactionCommentEditController
  * @package orangins\modules\transactions\actions
@@ -12,8 +22,9 @@ final class PhabricatorApplicationTransactionCommentEditController
 {
 
     /**
-     * @return Aphront400Response|Aphront404Response
+     * @return Aphront400Response|Aphront404Response|AphrontAjaxResponse|AphrontReloadResponse|\orangins\lib\view\AphrontDialogView
      * @author 陈妙威
+     * @throws \Exception
      */
     public function run()
     {

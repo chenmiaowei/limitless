@@ -1,20 +1,43 @@
 <?php
+
 namespace orangins\modules\people\actions;
 
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
 use orangins\modules\metamta\models\PhabricatorMetaMTAMail;
 use orangins\modules\people\editors\PhabricatorUserEditor;
+use orangins\modules\people\models\PhabricatorUser;
 
+/**
+ * Class PhabricatorPeopleApproveAction
+ * @package orangins\modules\people\actions
+ * @author 陈妙威
+ */
 final class PhabricatorPeopleApproveAction
     extends PhabricatorPeopleAction
 {
 
+    /**
+     * @return AphrontRedirectResponse|\orangins\lib\view\AphrontDialogView|Aphront404Response
+     * @throws \AphrontObjectMissingQueryException
+     * @throws \AphrontQueryException
+     * @throws \PhutilInvalidStateException
+     * @throws \PhutilMethodNotImplementedException
+     * @throws \PhutilTypeExtraParametersException
+     * @throws \PhutilTypeMissingParametersException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\db\IntegrityException
+     * @throws \Exception
+     * @author 陈妙威
+     */
     public function run()
     {
         $request = $this->getRequest();
         $viewer = $request->getViewer();
 
+        /** @var PhabricatorUser $user */
         $user = PhabricatorUser::find()
             ->setViewer($viewer)
             ->withIDs(array($request->getURIData('id')))
@@ -27,8 +50,8 @@ final class PhabricatorPeopleApproveAction
 
         if ($user->getIsApproved()) {
             return $this->newDialog()
-                ->setTitle(\Yii::t("app",'Already Approved'))
-                ->appendChild(\Yii::t("app",'This user has already been approved.'))
+                ->setTitle(\Yii::t("app", 'Already Approved'))
+                ->appendChild(\Yii::t("app", 'This user has already been approved.'))
                 ->addCancelButton($done_uri);
         }
 
@@ -62,12 +85,12 @@ final class PhabricatorPeopleApproveAction
         }
 
         return $this->newDialog()
-            ->setTitle(\Yii::t("app",'Confirm Approval'))
+            ->setTitle(\Yii::t("app", 'Confirm Approval'))
             ->appendChild(
                 \Yii::t("app",
                     'Allow %s to access this Phabricator install?',
                     phutil_tag('strong', array(), $user->getUsername())))
             ->addCancelButton($done_uri)
-            ->addSubmitButton(\Yii::t("app",'Approve Account'));
+            ->addSubmitButton(\Yii::t("app", 'Approve Account'));
     }
 }

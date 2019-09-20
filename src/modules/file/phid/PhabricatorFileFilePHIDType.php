@@ -8,16 +8,12 @@
 
 namespace orangins\modules\file\phid;
 
-use orangins\lib\helpers\OranginsViewUtil;
 use orangins\modules\phid\PhabricatorPHIDType;
 use orangins\modules\config\application\PhabricatorConfigApplication;
-use orangins\modules\file\widgets\FilePHUIIconView;
 use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\phid\PhabricatorObjectHandle;
 use orangins\modules\phid\query\PhabricatorHandleQuery;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
-use orangins\modules\widgets\components\DotListAphrontView;
-use orangins\modules\widgets\grid\ListMediaWidget;
 use yii\db\Query;
 
 /**

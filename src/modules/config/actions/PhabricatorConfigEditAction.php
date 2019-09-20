@@ -34,17 +34,17 @@ final class PhabricatorConfigEditAction
     /**
      * @return AphrontRedirectResponse|\orangins\lib\view\page\PhabricatorStandardPageView
      * @throws \PhutilInvalidStateException
+     * @throws \PhutilJSONParserException
      * @throws \PhutilMethodNotImplementedException
      * @throws \PhutilTypeExtraParametersException
      * @throws \PhutilTypeMissingParametersException
      * @throws \ReflectionException
-
+     * @throws \Throwable
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
-     * @throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -126,7 +126,7 @@ final class PhabricatorConfigEditAction
                     $editor->applyTransactions($config_entry, array($xaction));
                     return (new AphrontRedirectResponse())->setURI($done_uri);
                 } catch (PhabricatorConfigValidationException $ex) {
-                    $e_value = \Yii::t("app",'Invalid');
+                    $e_value = \Yii::t("app", 'Invalid');
                     $errors[] = $ex->getMessage();
                 }
             }
@@ -161,13 +161,13 @@ final class PhabricatorConfigEditAction
                 'href' => $doc_href,
                 'target' => '_blank',
             ),
-            \Yii::t("app",'Learn more about locked and hidden options.'));
+            \Yii::t("app", 'Learn more about locked and hidden options.'));
 
         $status_items = array();
         $tag = null;
         if ($option->getHidden()) {
             $tag = (new PHUITagView())
-                ->setName(\Yii::t("app",'Hidden'))
+                ->setName(\Yii::t("app", 'Hidden'))
                 ->setColor(PHUITagView::COLOR_GREY)
                 ->setBorder(PHUITagView::BORDER_NONE)
                 ->setType(PHUITagView::TYPE_SHADE);
@@ -179,7 +179,7 @@ final class PhabricatorConfigEditAction
                 ->appendChild(array($message, ' ', $doc_link));
         } else if ($option->getLocked()) {
             $tag = (new PHUITagView())
-                ->setName(\Yii::t("app",'Locked'))
+                ->setName(\Yii::t("app", 'Locked'))
                 ->setColor(PHUITagView::COLOR_DANGER)
                 ->setBorder(PHUITagView::BORDER_NONE)
                 ->setType(PHUITagView::TYPE_SHADE);
@@ -207,7 +207,7 @@ final class PhabricatorConfigEditAction
             $form->appendChild(
                 (new AphrontFormMarkupControl())
                     ->addInputClass("p-2")
-                    ->setLabel(\Yii::t("app",'Description'))
+                    ->setLabel(\Yii::t("app", 'Description'))
                     ->setValue($description));
         }
 
@@ -230,21 +230,21 @@ final class PhabricatorConfigEditAction
             $form->appendChild(
                 (new AphrontFormSubmitControl())
                     ->addCancelButton($done_uri)
-                    ->setValue(\Yii::t("app",'Save Config Entry')));
+                    ->setValue(\Yii::t("app", 'Save Config Entry')));
         }
 
         $current_config = null;
         if (!$option->getHidden()) {
             $current_config = $this->renderDefaults($option, $config_entry);
             $current_config = $this->buildConfigBoxView(
-                \Yii::t("app",'Current Configuration'),
+                \Yii::t("app", 'Current Configuration'),
                 $current_config);
         }
 
         $examples = $this->renderExamples($option);
         if ($examples) {
             $examples = $this->buildConfigBoxView(
-                \Yii::t("app",'Examples'),
+                \Yii::t("app", 'Examples'),
                 $examples);
         }
 
@@ -302,7 +302,7 @@ final class PhabricatorConfigEditAction
      * @param PhabricatorConfigOption $option
      * @param AphrontRequest $request
      * @return array
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function readRequest(
@@ -334,7 +334,7 @@ final class PhabricatorConfigEditAction
                 }
 
                 return array(
-                    $errors ? \Yii::t("app",'Invalid') : null,
+                    $errors ? \Yii::t("app", 'Invalid') : null,
                     $errors,
                     $value,
                     $xaction,
@@ -395,7 +395,7 @@ final class PhabricatorConfigEditAction
      * @param PhabricatorConfigEntry $entry
      * @param $value
      * @return mixed
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function getDisplayValue(
@@ -428,7 +428,7 @@ final class PhabricatorConfigEditAction
      * @param $display_value
      * @param $e_value
      * @return mixed
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderControls(
@@ -446,10 +446,12 @@ final class PhabricatorConfigEditAction
         }
 
         if ($option->isCustomType()) {
-            $controls = $option->getCustomObject()->renderControls(
-                $option,
-                $display_value,
-                $e_value);
+            $controls = $option
+                ->getCustomObject()
+                ->renderControls(
+                    $option,
+                    $display_value,
+                    $e_value);
         } else {
             throw new Exception(
                 \Yii::t("app",
@@ -476,14 +478,14 @@ final class PhabricatorConfigEditAction
 
         $table = array();
         $table[] = JavelinHtml::phutil_tag('tr', array('class' => 'column-labels'), array(
-            JavelinHtml::phutil_tag('th', array(), \Yii::t("app",'Example')),
-            JavelinHtml::phutil_tag('th', array(), \Yii::t("app",'Value')),
+            JavelinHtml::phutil_tag('th', array(), \Yii::t("app", 'Example')),
+            JavelinHtml::phutil_tag('th', array(), \Yii::t("app", 'Value')),
         ));
         foreach ($examples as $example) {
             list($value, $description) = $example;
 
             if ($value === null) {
-                $value = JavelinHtml::phutil_tag('em', array(), \Yii::t("app",'(empty)'));
+                $value = JavelinHtml::phutil_tag('em', array(), \Yii::t("app", '(empty)'));
             } else {
                 if (is_array($value)) {
                     $value = implode("\n", $value);
@@ -511,6 +513,7 @@ final class PhabricatorConfigEditAction
      * @param PhabricatorConfigEntry $entry
      * @return string
      * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderDefaults(
@@ -523,8 +526,8 @@ final class PhabricatorConfigEditAction
 
         $table = array();
         $table[] = JavelinHtml::phutil_tag('tr', array('class' => 'column-labels'), array(
-            JavelinHtml::phutil_tag('th', array(), \Yii::t("app",'Source')),
-            JavelinHtml::phutil_tag('th', array(), \Yii::t("app",'Value')),
+            JavelinHtml::phutil_tag('th', array(), \Yii::t("app", 'Source')),
+            JavelinHtml::phutil_tag('th', array(), \Yii::t("app", 'Value')),
         ));
 
         $is_effective_value = true;
@@ -539,7 +542,7 @@ final class PhabricatorConfigEditAction
                 ));
 
             if (!array_key_exists($option->getKey(), $value)) {
-                $value = JavelinHtml::phutil_tag('em', array(), \Yii::t("app",'(No Value Configured)'));
+                $value = JavelinHtml::phutil_tag('em', array(), \Yii::t("app", '(No Value Configured)'));
             } else {
                 $value = $this->getDisplayValue(
                     $option,

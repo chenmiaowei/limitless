@@ -24,12 +24,12 @@ final class PhabricatorEditEngineConfigurationSaveController
      * @throws \PhutilTypeExtraParametersException
      * @throws \PhutilTypeMissingParametersException
      * @throws \ReflectionException
-
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidConfigException*@throws \Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -68,8 +68,7 @@ final class PhabricatorEditEngineConfigurationSaveController
 
             $editor->applyTransactions($config, array());
 
-            return (new AphrontRedirectResponse())
-                ->setURI($config->getURI());
+            return (new AphrontRedirectResponse())->setURI($config->getURI());
         }
 
         // TODO: Explain what this means in more detail once the implications are

@@ -2,33 +2,16 @@
 
 namespace orangins\modules\tag\actions;
 
-use orangins\lib\helpers\OranginsViewUtil;
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
-use orangins\lib\time\PhabricatorTime;
-use orangins\lib\view\control\AphrontTableView;
 use orangins\lib\view\layout\PhabricatorActionView;
-use orangins\lib\view\phui\PHUIHeaderView;
-use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\lib\view\phui\PHUIPageHeaderView;
-use orangins\lib\view\phui\PHUIPropertyListView;
-use orangins\lib\view\phui\PHUITabGroupView;
-use orangins\lib\view\phui\PHUITabView;
-use orangins\lib\view\phui\PHUITagView;
 use orangins\lib\view\phui\PHUITwoColumnView;
-use orangins\modules\file\document\PhabricatorDocumentRef;
-use orangins\modules\file\document\render\PhabricatorFileDocumentRenderingEngine;
-use orangins\modules\file\editors\PhabricatorFileEditEngine;
-use orangins\modules\file\format\PhabricatorFileStorageFormat;
-use orangins\modules\file\models\PhabricatorFile;
-use orangins\modules\file\models\PhabricatorFileChunk;
-use orangins\modules\file\models\PhabricatorFileTransaction;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use orangins\modules\tag\editors\PhabricatorTagEditEngine;
 use orangins\modules\tag\models\PhabricatorTag;
 use orangins\modules\tag\models\PhabricatorTagTransaction;
-use PhutilNumber;
 use Exception;
 
 /**
@@ -51,10 +34,10 @@ final class PhabricatorTagViewAction extends PhabricatorTagAction
     /**
      * @return Aphront404Response|AphrontRedirectResponse|\orangins\lib\view\page\PhabricatorStandardPageView
      * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @throws \PhutilMethodNotImplementedException
+     * @throws \ReflectionException
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     public function run()
@@ -121,8 +104,8 @@ final class PhabricatorTagViewAction extends PhabricatorTagAction
     /**
      * @param PhabricatorTag $tag
      * @return array
-     * @throws Exception
      * @throws \ReflectionException
+     * @throws \Throwable
      * @author 陈妙威
      */
     private function buildTransactionView(PhabricatorTag $tag)

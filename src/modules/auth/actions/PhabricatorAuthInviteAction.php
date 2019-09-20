@@ -2,18 +2,39 @@
 
 namespace orangins\modules\auth\actions;
 
+use orangins\lib\response\AphrontRedirectResponse;
+use orangins\modules\auth\constants\PhabricatorCookies;
 use orangins\modules\auth\engine\PhabricatorAuthInviteEngine;
 use orangins\modules\auth\exception\PhabricatorAuthInviteDialogException;
+use orangins\modules\auth\exception\PhabricatorAuthInviteRegisteredException;
 
+/**
+ * Class PhabricatorAuthInviteAction
+ * @package orangins\modules\auth\actions
+ * @author 陈妙威
+ */
 final class PhabricatorAuthInviteAction
     extends PhabricatorAuthAction
 {
 
+    /**
+     * @return bool
+     * @author 陈妙威
+     */
     public function shouldRequireLogin()
     {
         return false;
     }
 
+    /**
+     * @return AphrontRedirectResponse|\orangins\lib\view\AphrontDialogView
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
+     * @author 陈妙威
+     */
     public function run()
     {
         $request = $this->getRequest();

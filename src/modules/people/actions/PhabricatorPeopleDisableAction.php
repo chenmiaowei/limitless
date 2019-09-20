@@ -41,6 +41,7 @@ final class PhabricatorPeopleDisableAction
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException*@throws \Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()

@@ -314,7 +314,7 @@ final class PhabricatorFilesConfigOptions
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
 
-            $this->newOption('qiniu-s3.endpoint', 'string', 'http://qiniu-fuliyun.okchexian.com/')
+            $this->newOption('qiniu-s3.endpoint', 'string', 'https://qiniu-fuliyun.okchexian.com/')
                 ->setLocked(true)
                 ->setHidden(true)
                 ->setSummary(\Yii::t('app', 'Secret Access Key.'))

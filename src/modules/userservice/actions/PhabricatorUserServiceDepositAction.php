@@ -34,6 +34,7 @@ class PhabricatorUserServiceDepositAction extends PhabricatorUserServiceAction
      * @throws \ReflectionException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -84,7 +85,6 @@ class PhabricatorUserServiceDepositAction extends PhabricatorUserServiceAction
                         return (new AphrontRedirectResponse())->setURI($request->getStr('redirect_uri'));
                     } catch (\Exception $e) {
                         $dashboard->killTransaction();
-
                         $errors[] = "充值失败";
                     }
                 }

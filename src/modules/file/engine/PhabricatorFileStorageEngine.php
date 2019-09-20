@@ -210,6 +210,13 @@ abstract class PhabricatorFileStorageEngine extends OranginsObject
     abstract public function deleteFile($handle);
 
 
+    /**
+     * @author 陈妙威
+     */
+    public function getCDNURI($handle)
+    {
+        return null;
+    }
 
     /* -(  Loading Storage Engines  )-------------------------------------------- */
 

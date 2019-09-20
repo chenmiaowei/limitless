@@ -2,12 +2,17 @@
 
 namespace orangins\modules\auth\actions;
 
+use orangins\lib\infrastructure\util\PhabricatorHash;
+use orangins\lib\response\AphrontRedirectResponse;
+use orangins\modules\auth\constants\PhabricatorCookies;
+use orangins\modules\auth\models\PhabricatorAuthSession;
+
 final class PhabricatorAuthTerminateSessionAction
     extends PhabricatorAuthAction
 {
 
     /**
-     * @return \orangins\lib\view\AphrontDialogView
+     * @return AphrontRedirectResponse|\orangins\lib\view\AphrontDialogView
      * @throws \Exception
      * @author 陈妙威
      */

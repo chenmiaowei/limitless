@@ -9,6 +9,7 @@ use orangins\lib\request\AphrontRequest;
 use orangins\modules\dashboard\editors\PhabricatorDashboardPanelTransactionEditor;
 use orangins\modules\dashboard\interfaces\PhabricatorDashboardPanelContainerInterface;
 use orangins\modules\dashboard\paneltype\PhabricatorDashboardPanelType;
+use orangins\modules\dashboard\paneltype\PhabricatorDashboardTabsPanelType;
 use orangins\modules\dashboard\phid\PhabricatorDashboardPanelPHIDType;
 use orangins\modules\dashboard\query\PhabricatorDashboardPanelQuery;
 use orangins\modules\people\db\ActiveRecordAuthorTrait;
@@ -272,7 +273,7 @@ class PhabricatorDashboardPanel extends ActiveRecordPHID
     }
 
     /**
-     * @return PhabricatorDashboardPanelType
+     * @return PhabricatorDashboardTabsPanelType
      * @author 陈妙威
      */
     public function getImplementation()

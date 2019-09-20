@@ -21,6 +21,7 @@ final class PhabricatorSettingsListAction
     /**
      * @return AphrontRedirectResponse
      * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -44,8 +45,8 @@ final class PhabricatorSettingsListAction
     /**
      * @return \orangins\lib\view\phui\PHUICrumbsView
      * @throws \PhutilInvalidStateException
+     * @throws \PhutilMethodNotImplementedException
      * @throws \ReflectionException
-     * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */

@@ -69,8 +69,7 @@ final class PhabricatorEditEngineConfigurationDefaultCreateController
 
             $editor->applyTransactions($config, $xactions);
 
-            return (new AphrontRedirectResponse())
-                ->setURI($cancel_uri);
+            return (new AphrontRedirectResponse())->setURI($cancel_uri);
         }
 
         if ($config->getIsDefault()) {

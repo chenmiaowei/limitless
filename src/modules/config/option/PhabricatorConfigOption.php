@@ -4,6 +4,7 @@ namespace orangins\modules\config\option;
 
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\markup\view\PHUIRemarkupView;
+use orangins\modules\config\customer\PhabricatorConfigOptionType;
 use orangins\modules\people\models\PhabricatorUser;
 use \PhutilInvalidStateException;
 use orangins\modules\config\type\PhabricatorConfigType;
@@ -406,6 +407,7 @@ final class PhabricatorConfigOption extends OranginsObject
 
     /**
      * @throws Exception
+     * @return PhabricatorConfigOptionType
      * @author 陈妙威
      */
     public function getCustomObject()

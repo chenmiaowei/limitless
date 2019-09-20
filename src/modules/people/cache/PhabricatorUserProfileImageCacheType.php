@@ -124,6 +124,7 @@ final class PhabricatorUserProfileImageCacheType extends PhabricatorUserCacheTyp
             $file_phids[$user->getPHID()] = $file->getPHID();
         }
 
+        /** @var PhabricatorFile[] $files */
         if ($file_phids) {
             $files = PhabricatorFile::find()
                 ->setViewer($viewer)

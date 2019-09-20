@@ -7,6 +7,7 @@ use Exception;
 use FutureIterator;
 use HTTPSFuture;
 use orangins\lib\env\PhabricatorEnv;
+use PhutilOpaqueEnvelope;
 use PhutilURI;
 use PhutilUTF8StringTruncator;
 use yii\helpers\ArrayHelper;
@@ -178,8 +179,10 @@ final class PhabricatorWebServerSetupCheck extends PhabricatorSetupCheck
                     'This usually means you have edited a file and left whitespace ' .
                     'characters before the opening %s tag, or after a closing %s tag. ' .
                     'Remove any leading whitespace, and prefer to omit closing tags.',
-                    phutil_tag('tt', array(), '<?php'),
-                    phutil_tag('tt', array(), '?>'));
+                    [
+                        phutil_tag('tt', array(), '<?php'),
+                        phutil_tag('tt', array(), '?>')
+                    ]);
             } else {
                 $short = (new PhutilUTF8StringTruncator())
                     ->setMaximumGlyphs(1024)
@@ -193,7 +196,9 @@ final class PhabricatorWebServerSetupCheck extends PhabricatorSetupCheck
                     '%s' .
                     "\n\n" .
                     'Something is misconfigured or otherwise mangling responses.',
-                    phutil_tag('pre', array(), $short));
+                    [
+                        phutil_tag('pre', array(), $short)
+                    ]);
             }
 
             $this->newIssue('webserver.mangle')
@@ -218,10 +223,12 @@ final class PhabricatorWebServerSetupCheck extends PhabricatorSetupCheck
                 'Your webserver may not be configured to forward HTTP basic ' .
                 'authentication. If you plan to use basic authentication (for ' .
                 'example, to access repositories) you should reconfigure it.',
-                $expect_user,
-                $expect_pass,
-                $actual_user,
-                $actual_pass);
+                [
+                    $expect_user,
+                    $expect_pass,
+                    $actual_user,
+                    $actual_pass
+                ]);
 
             $this->newIssue('webserver.basic-auth')
                 ->setName(\Yii::t("app", 'HTTP Basic Auth Not Configured'))
@@ -246,9 +253,11 @@ final class PhabricatorWebServerSetupCheck extends PhabricatorSetupCheck
                 'names in repositories, among other issues.' .
                 "\n\n" .
                 '(This problem can be caused by a missing "B" in your RewriteRule.)',
-                $send_path,
-                $expect_path,
-                $actual_path);
+               [
+                   $send_path,
+                   $expect_path,
+                   $actual_path
+               ]);
 
             $this->newIssue('webserver.rewrites')
                 ->setName(\Yii::t("app", 'HTTP Path Rewriting Incorrect'))
@@ -276,10 +285,12 @@ final class PhabricatorWebServerSetupCheck extends PhabricatorSetupCheck
                 'Phabricator will not work until this issue is corrected.' .
                 "\n\n" .
                 '(This problem can be caused by a missing "QSA" in your RewriteRule.)',
-                $expect_key,
-                $expect_value,
-                $actual_key,
-                $actual_value);
+                [
+                    $expect_key,
+                    $expect_value,
+                    $actual_key,
+                    $actual_value
+                ]);
 
             $this->newIssue('webserver.parameters')
                 ->setName(\Yii::t("app", 'HTTP Parameters Not Transmitting'))

@@ -3,12 +3,34 @@
 namespace orangins\modules\conpherence\actions;
 
 use Exception;
+use orangins\lib\response\Aphront404Response;
+use orangins\lib\response\AphrontAjaxResponse;
+use orangins\lib\response\AphrontRedirectResponse;
+use orangins\lib\view\AphrontDialogView;
+use orangins\lib\view\form\AphrontFormView;
+use orangins\lib\view\form\control\AphrontFormTokenizerControl;
+use orangins\lib\view\phui\PHUIInfoView;
+use orangins\modules\people\models\PhabricatorUser;
+use orangins\modules\people\typeahead\PhabricatorPeopleDatasource;
+use orangins\modules\policy\capability\PhabricatorPolicyCapability;
+use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use yii\helpers\ArrayHelper;
 
+/**
+ * Class ConpherenceUpdateAction
+ * @package orangins\modules\conpherence\actions
+ * @author 陈妙威
+ */
 final class ConpherenceUpdateAction
     extends ConpherenceAction
 {
 
+    /**
+     * @return mixed
+     * @throws \PhutilMethodNotImplementedException
+     * @throws Exception
+     * @author 陈妙威
+     */
     public function run()
     {
         $request = $this->getRequest();
@@ -200,6 +222,11 @@ final class ConpherenceUpdateAction
 
     }
 
+    /**
+     * @param ConpherenceThread $conpherence
+     * @return mixed
+     * @author 陈妙威
+     */
     private function renderAddPersonDialog(
         ConpherenceThread $conpherence)
     {
@@ -228,6 +255,12 @@ final class ConpherenceUpdateAction
         return $view;
     }
 
+    /**
+     * @param ConpherenceThread $conpherence
+     * @return Aphront404Response
+     * @throws Exception
+     * @author 陈妙威
+     */
     private function renderRemovePersonDialog(
         ConpherenceThread $conpherence)
     {
@@ -310,6 +343,15 @@ final class ConpherenceUpdateAction
         return $dialog;
     }
 
+    /**
+     * @param $action
+     * @param $conpherence_id
+     * @param $latest_transaction_id
+     * @return array
+     * @throws \PhutilMethodNotImplementedException
+     * @throws \ReflectionException
+     * @author 陈妙威
+     */
     private function loadAndRenderUpdates(
         $action,
         $conpherence_id,
@@ -416,6 +458,12 @@ final class ConpherenceUpdateAction
         return $content;
     }
 
+    /**
+     * @param PhabricatorUser $user
+     * @param ConpherenceParticipant $participant
+     * @return array
+     * @author 陈妙威
+     */
     protected function getSoundForParticipant(
         PhabricatorUser $user,
         ConpherenceParticipant $participant)

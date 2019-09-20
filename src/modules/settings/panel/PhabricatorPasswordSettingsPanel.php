@@ -20,8 +20,8 @@ use orangins\modules\auth\engine\PhabricatorAuthSessionEngine;
 use orangins\modules\auth\models\PhabricatorAuthPassword;
 use orangins\modules\auth\password\PhabricatorAuthPasswordException;
 use orangins\modules\auth\provider\PhabricatorPasswordAuthProvider;
+use orangins\modules\auth\systemaction\PhabricatorAuthChangePasswordAction;
 use orangins\modules\settings\panelgroup\PhabricatorSettingsAuthenticationPanelGroup;
-use orangins\modules\settings\systemaction\PhabricatorAuthChangePasswordAction;
 use orangins\modules\system\engine\PhabricatorSystemActionEngine;
 use PhutilOpaqueEnvelope;
 

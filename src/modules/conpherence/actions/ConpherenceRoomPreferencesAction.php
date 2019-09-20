@@ -6,7 +6,6 @@ use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
 use orangins\lib\view\form\control\AphrontFormRadioButtonControl;
 use orangins\modules\conpherence\models\ConpherenceThread;
-use orangins\modules\settings\setting\PhabricatorConpherenceNotificationsSetting;
 use yii\helpers\ArrayHelper;
 
 /**

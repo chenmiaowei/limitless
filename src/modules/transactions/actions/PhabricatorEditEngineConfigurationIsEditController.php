@@ -69,8 +69,7 @@ final class PhabricatorEditEngineConfigurationIsEditController
 
             $editor->applyTransactions($config, $xactions);
 
-            return (new AphrontRedirectResponse())
-                ->setURI($cancel_uri);
+            return (new AphrontRedirectResponse())->setURI($cancel_uri);
         }
 
         if ($config->getIsEdit()) {

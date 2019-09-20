@@ -20,6 +20,11 @@ use orangins\modules\settings\models\PhabricatorUserPreferences;
 use yii\db\Query;
 use yii\helpers\Url;
 
+/**
+ * Class PhabricatorUserPreferencesPHIDType
+ * @package orangins\modules\settings\phid
+ * @author 陈妙威
+ */
 class PhabricatorUserPreferencesPHIDType extends PhabricatorPHIDType
 {
     /**
@@ -103,6 +108,13 @@ class PhabricatorUserPreferencesPHIDType extends PhabricatorPHIDType
         }
     }
 
+    /**
+     * @param PhabricatorObjectQuery $query
+     * @param array $phids
+     * @return \orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery|\orangins\modules\settings\query\PhabricatorUserPreferencesQuery
+     * @throws \yii\base\InvalidConfigException
+     * @author 陈妙威
+     */
     protected function buildQueryForObjects(
         PhabricatorObjectQuery $query,
         array $phids)

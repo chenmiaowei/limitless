@@ -854,11 +854,18 @@ class PhabricatorFile extends ActiveRecordPHID
                 'phid' => $this->phid,
             ]));
         } else {
-            return PhabricatorEnv::getCDNURI(Url::to(["/file/data/{$request_kind}",
-                'instance' => strlen($instance) ? '@' . $instance : null,
-                'key' => $this->getSecretKey(),
-                'phid' => $this->phid,
-            ]));
+            $engine = $this->instantiateStorageEngine();
+            $CDNURI = $engine->getCDNURI($this->getStorageHandle());
+            if($CDNURI) {
+                return $CDNURI;
+            } else {
+                $path = Url::to(["/file/data/{$request_kind}",
+                    'instance' => strlen($instance) ? '@' . $instance : null,
+                    'key' => $this->getSecretKey(),
+                    'phid' => $this->phid,
+                ]);
+                return PhabricatorEnv::getCDNURI($path);
+            }
         }
     }
 

@@ -26,6 +26,7 @@ final class PhabricatorConduitTokenTerminateController
      * @throws \ReflectionException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()

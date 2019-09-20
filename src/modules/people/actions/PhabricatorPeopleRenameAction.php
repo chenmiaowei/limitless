@@ -24,19 +24,15 @@ final class PhabricatorPeopleRenameAction
 {
 
     /**
-     * @return Aphront404Response|AphrontDialogView
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \AphrontConnectionLostQueryException
-     * @throws \AphrontDeadlockQueryException
-     * @throws \AphrontInvalidCredentialsQueryException
-     * @throws \AphrontLockTimeoutQueryException
-     * @throws \AphrontSchemaQueryException
+     * @return Aphront404Response|AphrontRedirectResponse|AphrontDialogView
+     * @throws \AphrontObjectMissingQueryException
+     * @throws \AphrontQueryException
      * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws \PhutilMethodNotImplementedException
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      * @throws \yii\db\IntegrityException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()

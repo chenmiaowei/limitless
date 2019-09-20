@@ -2,6 +2,7 @@
 
 namespace orangins\modules\oauthserver\panel;
 
+use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsViewUtil;
 use orangins\lib\PhabricatorApplication;
 use orangins\lib\request\AphrontRequest;
@@ -14,7 +15,6 @@ use orangins\lib\view\phui\PHUIHeaderView;
 use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\modules\oauthserver\application\PhabricatorOAuthServerApplication;
 use orangins\modules\oauthserver\models\PhabricatorOAuthClientAuthorization;
-use orangins\modules\oauthserver\query\PhabricatorOAuthClientAuthorizationQuery;
 use orangins\modules\settings\panel\PhabricatorSettingsPanel;
 use orangins\modules\settings\panelgroup\PhabricatorSettingsLogsPanelGroup;
 
@@ -55,7 +55,7 @@ final class PhabricatorOAuthServerAuthorizationsSettingsPanel
     }
 
     /**
-     * @return \orangins\modules\settings\panel\const|string
+     * @return string
      * @author 陈妙威
      */
     public function getPanelGroupKey()
@@ -65,7 +65,7 @@ final class PhabricatorOAuthServerAuthorizationsSettingsPanel
 
     /**
      * @return bool
-     * @throws \ReflectionException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function isEnabled()
@@ -146,7 +146,7 @@ final class PhabricatorOAuthServerAuthorizationsSettingsPanel
                 $rowc[] = null;
             }
 
-            $button = javelin_tag(
+            $button = JavelinHtml::phutil_tag(
                 'a',
                 array(
                     'href' => $this->getPanelURI('?revoke=' . $authorization->getID()),

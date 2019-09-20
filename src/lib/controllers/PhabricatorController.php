@@ -605,10 +605,10 @@ class PhabricatorController extends Controller
             // MFA. If we don't do this, they can get stuck in a state where they
             // can't add MFA until they sign, and can't sign until they add MFA.
             // See T13024 and PHI223.
-            $result = $action->requireLegalpadSignatures();
-            if ($result !== null) {
-                return $this->processActionResponse($result);
-            }
+//            $result = $action->requireLegalpadSignatures();
+//            if ($result !== null) {
+//                return $this->processActionResponse($result);
+//            }
 
             // Check if the user needs to configure MFA.
             $need_mfa = $action->shouldRequireMultiFactorEnrollment();

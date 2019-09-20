@@ -2,6 +2,7 @@
 
 namespace orangins\modules\file\favicon;
 
+use AphrontDuplicateKeyQueryException;
 use orangins\lib\OranginsObject;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\infrastructure\util\PhabricatorHash;
@@ -368,11 +369,9 @@ final class PhabricatorFaviconRef extends OranginsObject
 
     /**
      * @param PhabricatorFile $template_file
-     * @return null
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @return PhabricatorFile
      * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     private function loadCachedFile(PhabricatorFile $template_file)

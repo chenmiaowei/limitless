@@ -4,7 +4,6 @@ namespace orangins\modules\people\phid;
 
 use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;;
 use orangins\lib\helpers\OranginsUtf8;
-use orangins\modules\people\query\PhabricatorPeopleQuery;
 use orangins\modules\phid\PhabricatorPHIDType;
 use orangins\modules\people\application\PhabricatorPeopleApplication;
 use orangins\modules\people\models\PhabricatorUser;

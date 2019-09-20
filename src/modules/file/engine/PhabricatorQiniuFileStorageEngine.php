@@ -172,6 +172,23 @@ final class PhabricatorQiniuFileStorageEngine
         return $body;
     }
 
+    /**
+     * @param $handle
+     * @return null|string
+     * @throws \Exception
+     * @author 陈妙威
+     */
+    public function getCDNURI($handle)
+    {
+        $obsClient = $this->newS3API();
+
+        $endpoint = PhabricatorEnv::getEnvConfig('qiniu-s3.endpoint');
+
+        $privateDownloadUrl = $obsClient->privateDownloadUrl($endpoint . $handle);
+
+        return $privateDownloadUrl;
+    }
+
 
     /**
      * Delete a blob from Amazon S3.

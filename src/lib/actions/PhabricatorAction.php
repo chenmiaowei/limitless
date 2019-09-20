@@ -368,81 +368,81 @@ class PhabricatorAction extends Action
      * @throws Exception
      * @author 陈妙威
      */
-    public function requireLegalpadSignatures()
-    {
-        if (!$this->shouldRequireLogin()) {
-            return null;
-        }
-
-        if ($this->shouldAllowLegallyNonCompliantUsers()) {
-            return null;
-        }
-
-        $viewer = $this->getViewer();
-
-        if (!$viewer->hasSession()) {
-            return null;
-        }
-
-        $session = $viewer->getSession();
-        if ($session->getIsPartial()) {
-            // If the user hasn't made it through MFA yet, require they survive
-            // MFA first.
-            return null;
-        }
-
-        if ($session->getSignedLegalpadDocuments()) {
-            return null;
-        }
-
-        if (!$viewer->isLoggedIn()) {
-            return null;
-        }
-
-        $must_sign_docs = array();
-        $sign_docs = array();
-
-//        $legalpad_class = 'PhabricatorLegalpadApplication';
-//        $legalpad_installed = PhabricatorApplication::isClassInstalledForViewer(
-//            $legalpad_class,
-//            $viewer);
-//        if ($legalpad_installed) {
-//            $sign_docs = (new LegalpadDocumentQuery())
-//                ->setViewer($viewer)
-//                ->withSignatureRequired(1)
-//                ->needViewerSignatures(true)
-//                ->setOrder('oldest')
-//                ->execute();
-//
-//            foreach ($sign_docs as $sign_doc) {
-//                if (!$sign_doc->getUserSignature($viewer->getPHID())) {
-//                    $must_sign_docs[] = $sign_doc;
-//                }
-//            }
+//    public function requireLegalpadSignatures()
+//    {
+//        if (!$this->shouldRequireLogin()) {
+//            return null;
 //        }
-
-        if (!$must_sign_docs) {
-            // If nothing needs to be signed (either because there are no documents
-            // which require a signature, or because the user has already signed
-            // all of them) mark the session as good and continue.
-            $engine = (new PhabricatorAuthSessionEngine())
-                ->signLegalpadDocuments($viewer, $sign_docs);
-
-            return null;
-        }
-
-        $request = $this->getRequest();
-        $request->setURIMap(
-            array(
-                'id' => OranginsUtil::head($must_sign_docs)->getID(),
-            ));
-
-        $application = PhabricatorApplication::getByClass($legalpad_class);
-        $this->setCurrentApplication($application);
-
-        $controller = new LegalpadDocumentSignController();
-        return $this->delegateToController($controller);
-    }
+//
+//        if ($this->shouldAllowLegallyNonCompliantUsers()) {
+//            return null;
+//        }
+//
+//        $viewer = $this->getViewer();
+//
+//        if (!$viewer->hasSession()) {
+//            return null;
+//        }
+//
+//        $session = $viewer->getSession();
+//        if ($session->getIsPartial()) {
+//            // If the user hasn't made it through MFA yet, require they survive
+//            // MFA first.
+//            return null;
+//        }
+//
+//        if ($session->getSignedLegalpadDocuments()) {
+//            return null;
+//        }
+//
+//        if (!$viewer->isLoggedIn()) {
+//            return null;
+//        }
+//
+//        $must_sign_docs = array();
+//        $sign_docs = array();
+//
+////        $legalpad_class = 'PhabricatorLegalpadApplication';
+////        $legalpad_installed = PhabricatorApplication::isClassInstalledForViewer(
+////            $legalpad_class,
+////            $viewer);
+////        if ($legalpad_installed) {
+////            $sign_docs = (new LegalpadDocumentQuery())
+////                ->setViewer($viewer)
+////                ->withSignatureRequired(1)
+////                ->needViewerSignatures(true)
+////                ->setOrder('oldest')
+////                ->execute();
+////
+////            foreach ($sign_docs as $sign_doc) {
+////                if (!$sign_doc->getUserSignature($viewer->getPHID())) {
+////                    $must_sign_docs[] = $sign_doc;
+////                }
+////            }
+////        }
+//
+//        if (!$must_sign_docs) {
+//            // If nothing needs to be signed (either because there are no documents
+//            // which require a signature, or because the user has already signed
+//            // all of them) mark the session as good and continue.
+//            $engine = (new PhabricatorAuthSessionEngine())
+//                ->signLegalpadDocuments($viewer, $sign_docs);
+//
+//            return null;
+//        }
+//
+//        $request = $this->getRequest();
+//        $request->setURIMap(
+//            array(
+//                'id' => OranginsUtil::head($must_sign_docs)->getID(),
+//            ));
+//
+//        $application = PhabricatorApplication::getByClass($legalpad_class);
+//        $this->setCurrentApplication($application);
+//
+//        $controller = new LegalpadDocumentSignController();
+//        return $this->delegateToController($controller);
+//    }
 
     /**
      * @return null

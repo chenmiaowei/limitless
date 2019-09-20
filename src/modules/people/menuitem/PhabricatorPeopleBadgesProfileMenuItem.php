@@ -26,7 +26,7 @@ final class PhabricatorPeopleBadgesProfileMenuItem
      */
     public function getMenuItemTypeName()
     {
-        return \Yii::t("app",'Badges');
+        return \Yii::t("app", 'Badges');
     }
 
     /**
@@ -35,7 +35,7 @@ final class PhabricatorPeopleBadgesProfileMenuItem
      */
     private function getDefaultName()
     {
-        return \Yii::t("app",'Badges');
+        return \Yii::t("app", 'Badges');
     }
 
     /**
@@ -77,7 +77,7 @@ final class PhabricatorPeopleBadgesProfileMenuItem
         return array(
             (new PhabricatorTextEditField())
                 ->setKey('name')
-                ->setLabel(\Yii::t("app",'Name'))
+                ->setLabel(\Yii::t("app", 'Name'))
                 ->setPlaceholder($this->getDefaultName())
                 ->setValue($config->getMenuItemProperty('name')),
         );

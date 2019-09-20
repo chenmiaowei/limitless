@@ -2,7 +2,6 @@
 namespace orangins\modules\people\phid;
 
 
-use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;;
 use orangins\modules\people\application\PhabricatorPeopleApplication;
 use orangins\modules\people\models\PhabricatorExternalAccount;
 use orangins\modules\people\models\PhabricatorUser;

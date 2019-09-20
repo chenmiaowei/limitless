@@ -2,6 +2,11 @@
 
 namespace orangins\modules\typeahead\datasource;
 
+use orangins\modules\phid\PhabricatorObjectHandle;
+use orangins\modules\phid\query\PhabricatorHandleQuery;
+use orangins\modules\phid\query\PhabricatorObjectQuery;
+use orangins\modules\typeahead\model\PhabricatorTypeaheadResult;
+
 /**
  * Class PhabricatorTypeaheadMonogramDatasource
  * @package orangins\modules\typeahead\datasource
@@ -51,6 +56,10 @@ final class PhabricatorTypeaheadMonogramDatasource extends PhabricatorTypeaheadD
 
     /**
      * @return array|mixed
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     public function loadResults()
@@ -69,6 +78,8 @@ final class PhabricatorTypeaheadMonogramDatasource extends PhabricatorTypeaheadD
                 ->setViewer($viewer)
                 ->withPHIDs(mpull($objects, 'getPHID'))
                 ->execute();
+
+            /** @var PhabricatorObjectHandle $handle */
             $handle = head($handles);
             if ($handle) {
                 $results[] = (new PhabricatorTypeaheadResult())

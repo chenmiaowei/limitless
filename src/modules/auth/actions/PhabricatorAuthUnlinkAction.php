@@ -2,15 +2,39 @@
 
 namespace orangins\modules\auth\actions;
 
+use orangins\lib\response\AphrontDialogResponse;
+use orangins\lib\response\AphrontRedirectResponse;
+use orangins\lib\view\AphrontDialogView;
+use orangins\modules\auth\constants\PhabricatorCookies;
+use orangins\modules\auth\engine\PhabricatorAuthSessionEngine;
 use orangins\modules\auth\provider\PhabricatorAuthProvider;
 use orangins\modules\people\models\PhabricatorExternalAccount;
 
+/**
+ * Class PhabricatorAuthUnlinkAction
+ * @package orangins\modules\auth\actions
+ * @author 陈妙威
+ */
 final class PhabricatorAuthUnlinkAction
     extends PhabricatorAuthAction
 {
 
+    /**
+     * @var
+     */
     private $providerKey;
 
+    /**
+     * @return AphrontDialogResponse|AphrontRedirectResponse
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \Throwable
+     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\StaleObjectException
+     * @author 陈妙威
+     */
     public function run()
     {
         $request = $this->getRequest();
@@ -22,11 +46,12 @@ final class PhabricatorAuthUnlinkAction
         // Check that this account link actually exists. We don't require the
         // provider to exist because we want users to be able to delete links to
         // dead accounts if they want.
-        $account = (new PhabricatorExternalAccount())->loadOneWhere(
-            'accountType = %s AND accountDomain = %s AND userPHID = %s',
-            $type,
-            $domain,
-            $viewer->getPHID());
+        /** @var PhabricatorExternalAccount $account */
+        $account = PhabricatorExternalAccount::find()->andWhere([
+            'account_type' => $type,
+            'account_domain' => $domain,
+            'user_phid' => $viewer->getPHID()
+        ])->one();
         if (!$account) {
             return $this->renderNoAccountErrorDialog();
         }
@@ -43,10 +68,8 @@ final class PhabricatorAuthUnlinkAction
         // Check that this account isn't the last account which can be used to
         // login. We prevent you from removing the last account.
         if ($account->isUsableForLogin()) {
-            $other_accounts = (new PhabricatorExternalAccount())->loadAllWhere(
-                'userPHID = %s',
-                $viewer->getPHID());
-
+            /** @var PhabricatorExternalAccount $other_accounts */
+            $other_accounts = PhabricatorExternalAccount::find()->andWhere(['user_phid' =>  $viewer->getPHID()])->all();
             $valid_accounts = 0;
             foreach ($other_accounts as $other_account) {
                 if ($other_account->isUsableForLogin()) {
@@ -72,11 +95,20 @@ final class PhabricatorAuthUnlinkAction
         return $this->renderConfirmDialog();
     }
 
+    /**
+     * @return string
+     * @author 陈妙威
+     */
     private function getDoneURI()
     {
         return '/settings/panel/external/';
     }
 
+    /**
+     * @return AphrontDialogResponse
+     * @throws \Exception
+     * @author 陈妙威
+     */
     private function renderNoAccountErrorDialog()
     {
         $dialog = (new AphrontDialogView())
@@ -90,6 +122,12 @@ final class PhabricatorAuthUnlinkAction
         return (new AphrontDialogResponse())->setDialog($dialog);
     }
 
+    /**
+     * @param PhabricatorAuthProvider $provider
+     * @return AphrontDialogResponse
+     * @throws \Exception
+     * @author 陈妙威
+     */
     private function renderNotUnlinkableErrorDialog(
         PhabricatorAuthProvider $provider)
     {
@@ -107,6 +145,11 @@ final class PhabricatorAuthUnlinkAction
         return (new AphrontDialogResponse())->setDialog($dialog);
     }
 
+    /**
+     * @return AphrontDialogResponse
+     * @throws \Exception
+     * @author 陈妙威
+     */
     private function renderLastUsableAccountErrorDialog()
     {
         $dialog = (new AphrontDialogView())
@@ -123,6 +166,13 @@ final class PhabricatorAuthUnlinkAction
         return (new AphrontDialogResponse())->setDialog($dialog);
     }
 
+    /**
+     * @return AphrontDialogResponse
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \Exception
+     * @author 陈妙威
+     */
     private function renderConfirmDialog()
     {
         $provider_key = $this->providerKey;

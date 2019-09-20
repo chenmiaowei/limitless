@@ -32,16 +32,12 @@ final class PhabricatorPeopleNewAction
 
     /**
      * @return Aphront404Response|AphrontRedirectResponse|\orangins\lib\view\page\PhabricatorStandardPageView
-     * @throws Exception
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \AphrontConnectionLostQueryException
-     * @throws \AphrontDeadlockQueryException
-     * @throws \AphrontInvalidCredentialsQueryException
-     * @throws \AphrontLockTimeoutQueryException
-     * @throws \AphrontQueryException
-     * @throws \AphrontSchemaQueryException
      * @throws \PhutilInvalidStateException
+     * @throws \PhutilMethodNotImplementedException
      * @throws \ReflectionException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     public function run()

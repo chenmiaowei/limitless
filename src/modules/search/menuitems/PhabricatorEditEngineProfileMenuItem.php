@@ -216,6 +216,7 @@ final class PhabricatorEditEngineProfileMenuItem extends PhabricatorProfileMenuI
      * @param array $xactions
      * @return array
      * @throws \PhutilInvalidStateException
+     * @throws \PhutilJSONParserException
      * @throws \ReflectionException
      * @throws \yii\base\InvalidConfigException
      * @author 陈妙威

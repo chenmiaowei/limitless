@@ -10,7 +10,6 @@
 namespace orangins\modules\userservice\actions;
 
 
-use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
 use orangins\lib\view\form\control\AphrontFormDatePickerControl;
@@ -19,7 +18,6 @@ use orangins\modules\userservice\capability\UserServiceFinanceCapability;
 use orangins\modules\userservice\editors\PhabricatorUserServiceEditor;
 use orangins\modules\userservice\models\PhabricatorUserService;
 use orangins\modules\userservice\models\PhabricatorUserServiceTransaction;
-use orangins\modules\userservice\xaction\PhabricatorUserServiceAmountTransaction;
 use orangins\modules\userservice\xaction\PhabricatorUserServiceExpireTransaction;
 use orangins\modules\userservice\xaction\PhabricatorUserServiceTimesTransaction;
 use yii\helpers\ArrayHelper;
@@ -37,6 +35,7 @@ class PhabricatorUserServiceRenewAction extends PhabricatorUserServiceAction
      * @throws \ReflectionException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()

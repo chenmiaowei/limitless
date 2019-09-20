@@ -22,9 +22,11 @@ final class PhabricatorSearchDefaultAction extends PhabricatorAction
 
     /**
      * @return AphrontResponse|\orangins\lib\view\AphrontDialogView
+     * @throws \AphrontQueryException
      * @throws \yii\base\Exception
-     * @throws \ReflectionException
-
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\IntegrityException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()

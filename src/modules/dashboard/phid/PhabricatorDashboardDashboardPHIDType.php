@@ -9,6 +9,7 @@ use orangins\modules\phid\PhabricatorObjectHandle;
 use orangins\modules\phid\query\PhabricatorHandleQuery;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use yii\db\Query;
+use yii\helpers\Url;
 
 /**
  * Class OranginsPeopleUserPHIDType
@@ -99,7 +100,7 @@ final class PhabricatorDashboardDashboardPHIDType extends PhabricatorPHIDType
             $id = $dashboard->getID();
 
             $handle->setName($dashboard->getName());
-            $handle->setURI("/dashboard/view/{$id}/");
+            $handle->setURI(Url::to(["/dashboard/index/view", "id" => $id]));
         }
     }
 

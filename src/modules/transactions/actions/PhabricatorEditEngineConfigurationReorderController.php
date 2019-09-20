@@ -33,7 +33,6 @@ final class PhabricatorEditEngineConfigurationReorderController
      * @throws \PhutilTypeExtraParametersException
      * @throws \PhutilTypeMissingParametersException
      * @throws \ReflectionException
-
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
@@ -95,8 +94,7 @@ final class PhabricatorEditEngineConfigurationReorderController
 
             $editor->applyTransactions($config, $xactions);
 
-            return (new AphrontRedirectResponse())
-                ->setURI($cancel_uri);
+            return (new AphrontRedirectResponse())->setURI($cancel_uri);
         }
 
         $engine = $config->getEngine();
@@ -153,7 +151,7 @@ final class PhabricatorEditEngineConfigurationReorderController
             ));
 
         $note = (new PHUIInfoView())
-            ->appendChild(\Yii::t("app",'Drag and drop fields to reorder them.'))
+            ->appendChild(\Yii::t("app", 'Drag and drop fields to reorder them.'))
             ->setSeverity(PHUIInfoView::SEVERITY_NOTICE);
 
         $input = phutil_tag(
@@ -166,12 +164,12 @@ final class PhabricatorEditEngineConfigurationReorderController
             ));
 
         return $this->newDialog()
-            ->setTitle(\Yii::t("app",'Reorder Fields'))
+            ->setTitle(\Yii::t("app", 'Reorder Fields'))
             ->setWidth(AphrontDialogView::WIDTH_FORM)
             ->appendChild($note)
             ->appendChild($list)
             ->appendChild($input)
-            ->addSubmitButton(\Yii::t("app",'Save Changes'))
+            ->addSubmitButton(\Yii::t("app", 'Save Changes'))
             ->addCancelButton($cancel_uri);
     }
 

@@ -93,8 +93,7 @@ final class PhabricatorEditEngineConfigurationSubtypeController
 
             $editor->applyTransactions($config, $xactions);
 
-            return (new AphrontRedirectResponse())
-                ->setURI($cancel_uri);
+            return (new AphrontRedirectResponse())->setURI($cancel_uri);
         }
 
         $fields = $engine->getFieldsForConfig($config);

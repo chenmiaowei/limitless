@@ -206,6 +206,7 @@ final class PhabricatorLinkProfileMenuItem extends PhabricatorProfileMenuItem
      * @param $value
      * @param array $xactions
      * @return array
+     * @throws \PhutilJSONParserException
      * @author 陈妙威
      */
     public function validateTransactions(

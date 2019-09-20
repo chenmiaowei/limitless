@@ -30,6 +30,7 @@ final class PhabricatorConduitTokenEditController
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\IntegrityException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()

@@ -11,7 +11,6 @@ use orangins\modules\transactions\editfield\PhabricatorDatasourceEditField;
 use orangins\modules\transactions\editfield\PhabricatorTextEditField;
 use Yii;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Url;
 
 /**
  * 主菜单添加仪表盘

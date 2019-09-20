@@ -243,7 +243,7 @@ final class PhabricatorPeopleProfilePictureController
             $file = PhabricatorFile::loadBuiltin($builtin, $viewer);
             $images[$file->getPHID()] = array(
                 'uri' => $file->getBestURI(),
-                'tip' => \Yii::t("app", 'Builtin Image'),
+                'tip' => $builtin,
             );
         }
 
@@ -270,7 +270,7 @@ final class PhabricatorPeopleProfilePictureController
             $provider = PhabricatorAuthProvider::getEnabledProviderByKey(
                 $account->getProviderKey());
             if ($provider) {
-                $tip = \Yii::t("app", 'Picture From %s', $provider->getProviderName());
+                $tip = \Yii::t("app", 'Picture From {0}', [$provider->getProviderName()]);
             } else {
                 $tip = \Yii::t("app", 'Picture From External Account');
             }

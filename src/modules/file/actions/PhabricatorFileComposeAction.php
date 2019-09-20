@@ -3,6 +3,8 @@
 namespace orangins\modules\file\actions;
 
 use orangins\lib\helpers\JavelinHtml;
+use orangins\lib\response\AphrontAjaxResponse;
+use orangins\lib\response\AphrontRedirectResponse;
 use orangins\lib\view\phui\PHUIIconView;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
 use yii\helpers\ArrayHelper;
@@ -17,7 +19,7 @@ final class PhabricatorFileComposeAction
 {
 
     /**
-     * @return \orangins\lib\view\AphrontDialogView
+     * @return AphrontRedirectResponse|\orangins\lib\view\AphrontDialogView
      * @throws \ReflectionException
      * @author 陈妙威
      */

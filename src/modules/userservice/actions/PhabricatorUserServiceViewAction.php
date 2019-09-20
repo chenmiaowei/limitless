@@ -14,8 +14,8 @@ use orangins\modules\tag\actions\PhabricatorTagAction;
 use orangins\modules\userservice\editors\PhabricatorUserServiceEditEngine;
 use orangins\modules\userservice\models\PhabricatorUserService;
 use orangins\modules\userservice\models\PhabricatorUserServiceTransaction;
-use orangins\modules\userservice\phid\PhabricatorUserServiceType;
 use Exception;
+use orangins\modules\userservice\servicetype\PhabricatorUserServiceType;
 
 /**
  * Class PhabricatorUserServiceViewAction
@@ -36,11 +36,11 @@ final class PhabricatorUserServiceViewAction extends PhabricatorTagAction
 
     /**
      * @return Aphront404Response|AphrontRedirectResponse|\orangins\lib\view\page\PhabricatorStandardPageView
-     * @throws Exception
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
      * @throws \PhutilInvalidStateException
      * @throws \PhutilMethodNotImplementedException
+     * @throws \ReflectionException
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
      */
     public function run()
     {
@@ -153,7 +153,8 @@ final class PhabricatorUserServiceViewAction extends PhabricatorTagAction
      * @param PhabricatorUserService $file
      * @return array
      * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     private function buildTransactionView(PhabricatorUserService $file)

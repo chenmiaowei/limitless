@@ -63,8 +63,8 @@ final class PhabricatorAuthNewAction extends PhabricatorAuthProviderConfigAction
             }
 
             if (!$errors) {
-                return (new AphrontRedirectResponse())->setURI(
-                    $this->getApplicationURI('config/edit', [
+                return (new AphrontRedirectResponse())
+                    ->setURI($this->getApplicationURI('config/edit', [
                         'className' => $provider_string
                     ]));
             }

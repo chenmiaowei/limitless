@@ -137,8 +137,7 @@ final class PhabricatorEditEngineConfigurationSortController
                 $order++;
             }
 
-            return (new AphrontRedirectResponse())
-                ->setURI($cancel_uri);
+            return (new AphrontRedirectResponse())->setURI($cancel_uri);
         }
 
         $list_id = JavelinHtml::generateUniqueNodeId();

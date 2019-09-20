@@ -66,6 +66,7 @@ final class PhabricatorDashboardPanelTabsController
         $request = $this->getRequest();
         $viewer = $this->getViewer();
 
+        /** @var PhabricatorDashboardPanel $panel */
         $panel = PhabricatorDashboardPanel::find()
             ->setViewer($viewer)
             ->withIDs(array($request->getURIData('id')))

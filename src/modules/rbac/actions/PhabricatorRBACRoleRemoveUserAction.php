@@ -12,13 +12,9 @@ namespace orangins\modules\rbac\actions;
 
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
-use orangins\lib\view\form\control\AphrontFormTokenizerControl;
-use orangins\modules\rbac\editors\PhabricatorRBACRoleEditEngine;
 use orangins\modules\rbac\editors\PhabricatorRBACRoleEditor;
 use orangins\modules\rbac\models\PhabricatorRBACRoleTransaction;
 use orangins\modules\rbac\models\RbacRole;
-use orangins\modules\rbac\typeahead\PhabricatorRBACCapabilityDatasource;
-use orangins\modules\rbac\xaction\PhabricatorRBACRoleCapabilitiesTransaction;
 use orangins\modules\rbac\xaction\PhabricatorRBACRoleUsersTransaction;
 
 /**

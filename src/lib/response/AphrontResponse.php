@@ -240,6 +240,8 @@ class AphrontResponse extends OranginsObject
 
             $default = "'self' {$base_uri}";
         }
+        $endpoint = PhabricatorEnv::getEnvConfig('qiniu-s3.endpoint');
+        $default .= " {$endpoint}";
 
         $csp[] = "default-src {$default}";
 

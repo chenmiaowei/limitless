@@ -88,7 +88,8 @@ final class PhabricatorPeoplePictureProfileMenuItem
         $user = $config->getProfileObject();
         $picture = $user->getProfileImageURI();
 
-        $item = $this->newItemView()
+        $item = $this
+            ->newItemView()
             ->setDisabled($user->getIsDisabled());
 
         $item->newProfileImage($picture);

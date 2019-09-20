@@ -33,13 +33,13 @@ final class PhabricatorEditEngineConfigurationDefaultsController
      * @throws \PhutilTypeExtraParametersException
      * @throws \PhutilTypeMissingParametersException
      * @throws \ReflectionException
-
      * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidConfigException*@throws \Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -117,8 +117,7 @@ final class PhabricatorEditEngineConfigurationDefaultsController
 
             $editor->applyTransactions($config, $xactions);
 
-            return (new AphrontRedirectResponse())
-                ->setURI($cancel_uri);
+            return (new AphrontRedirectResponse())->setURI($cancel_uri);
         }
 
         $title = \Yii::t("app",'Edit Form Defaults');

@@ -30,13 +30,13 @@ final class PhabricatorEditEngineConfigurationLockController
      * @throws \PhutilTypeExtraParametersException
      * @throws \PhutilTypeMissingParametersException
      * @throws \ReflectionException
-
      * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
      * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidConfigException*@throws \Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -87,14 +87,13 @@ final class PhabricatorEditEngineConfigurationLockController
 
             $editor->applyTransactions($config, $xactions);
 
-            return (new AphrontRedirectResponse())
-                ->setURI($cancel_uri);
+            return (new AphrontRedirectResponse())->setURI($cancel_uri);
         }
 
         $engine = $config->getEngine();
         $fields = $engine->getFieldsForConfig($config);
 
-        $help = \Yii::t("app",<<<EOTEXT
+        $help = \Yii::t("app", <<<EOTEXT
 **Locked** fields are visible in the form, but their values can not be changed
 by the user.
 
@@ -116,9 +115,9 @@ EOTEXT
         $lock_hidden = PhabricatorEditEngineConfiguration::LOCK_HIDDEN;
 
         $map = array(
-            $lock_visible => \Yii::t("app",'Visible'),
-            $lock_locked => \Yii::t("app","\xF0\x9F\x94\x92 Locked"),
-            $lock_hidden => \Yii::t("app","\xE2\x9C\x98 Hidden"),
+            $lock_visible => \Yii::t("app", 'Visible'),
+            $lock_locked => \Yii::t("app", "\xF0\x9F\x94\x92 Locked"),
+            $lock_hidden => \Yii::t("app", "\xE2\x9C\x98 Hidden"),
         );
 
         foreach ($fields as $field) {
@@ -154,10 +153,10 @@ EOTEXT
         }
 
         return $this->newDialog()
-            ->setTitle(\Yii::t("app",'Lock / Hide Fields'))
+            ->setTitle(\Yii::t("app", 'Lock / Hide Fields'))
             ->setWidth(AphrontDialogView::WIDTH_FORM)
             ->appendForm($form)
-            ->addSubmitButton(\Yii::t("app",'Save Changes'))
+            ->addSubmitButton(\Yii::t("app", 'Save Changes'))
             ->addCancelButton($cancel_uri);
     }
 

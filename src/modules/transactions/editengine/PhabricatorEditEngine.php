@@ -1747,8 +1747,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     protected function newEditResponse(AphrontRequest $request, $object, $xactions)
     {
         $uri = $this->getEffectiveObjectEditDoneURI($object);
-        return (new AphrontRedirectResponse())
-            ->setURI($uri);
+        return (new AphrontRedirectResponse())->setURI($uri);
     }
 
     /**
@@ -2587,8 +2586,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
                 ->setIsPreview($is_preview)
                 ->setPreviewContent($preview_content);
         } else {
-            return (new AphrontRedirectResponse())
-                ->setURI($view_uri);
+            return (new AphrontRedirectResponse())->setURI($view_uri);
         }
     }
 

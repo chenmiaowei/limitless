@@ -2,9 +2,16 @@
 
 namespace orangins\modules\settings\panel;
 
+use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\PhabricatorApplication;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\response\AphrontRedirectResponse;
+use orangins\lib\view\form\AphrontFormView;
+use orangins\lib\view\form\control\AphrontFormSelectControl;
+use orangins\lib\view\form\control\AphrontFormSubmitControl;
+use orangins\lib\view\phui\PHUIBoxView;
+use orangins\lib\view\phui\PHUIButtonView;
+use orangins\lib\view\phui\PHUIInfoView;
 use orangins\modules\notification\client\PhabricatorNotificationServerRef;
 use orangins\modules\settings\panelgroup\PhabricatorSettingsApplicationsPanelGroup;
 use orangins\modules\settings\setting\PhabricatorNotificationsSetting;
@@ -20,8 +27,7 @@ final class PhabricatorNotificationsSettingsPanel
 
     /**
      * @return bool
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function isEnabled()
@@ -50,11 +56,11 @@ final class PhabricatorNotificationsSettingsPanel
      */
     public function getPanelName()
     {
-        return \Yii::t("app",'Notifications');
+        return \Yii::t("app", 'Notifications');
     }
 
     /**
-     * @return const|string
+     * @return string
      * @author 陈妙威
      */
     public function getPanelGroupKey()
@@ -64,9 +70,10 @@ final class PhabricatorNotificationsSettingsPanel
 
     /**
      * @param AphrontRequest $request
-     * @return array|AphrontRedirectResponse|wild
+     * @return array|AphrontRedirectResponse
      * @throws \ReflectionException
      * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function processRequest(AphrontRequest $request)
@@ -88,10 +95,10 @@ final class PhabricatorNotificationsSettingsPanel
                 ->setURI($this->getPanelURI('?saved=true'));
         }
 
-        $title = \Yii::t("app",'Notifications');
-        $control_id = celerity_generate_unique_node_id();
-        $status_id = celerity_generate_unique_node_id();
-        $browser_status_id = celerity_generate_unique_node_id();
+        $title = \Yii::t("app", 'Notifications');
+        $control_id = JavelinHtml::generateUniqueNodeId();
+        $status_id = JavelinHtml::generateUniqueNodeId();
+        $browser_status_id = JavelinHtml::generateUniqueNodeId();
         $cancel_ask = \Yii::t("app",
             'The dialog asking for permission to send desktop notifications was ' .
             'closed without granting permission. Only application notifications ' .
@@ -109,32 +116,32 @@ final class PhabricatorNotificationsSettingsPanel
             'span',
             array(),
             array(
-                \Yii::t("app",'This browser has not yet granted permission to send desktop ' .
+                \Yii::t("app", 'This browser has not yet granted permission to send desktop ' .
                     'notifications for this Phabricator instance.'),
                 phutil_tag('br'),
                 phutil_tag('br'),
-                javelin_tag(
+                JavelinHtml::phutil_tag(
                     'button',
                     array(
                         'sigil' => 'desktop-notifications-permission-button',
                         'class' => 'green',
                     ),
-                    \Yii::t("app",'Grant Permission')),
+                    \Yii::t("app", 'Grant Permission')),
             ));
         $granted_status = phutil_tag(
             'span',
             array(),
-            \Yii::t("app",'This browser has been granted permission to send desktop ' .
+            \Yii::t("app", 'This browser has been granted permission to send desktop ' .
                 'notifications for this Phabricator instance.'));
         $denied_status = phutil_tag(
             'span',
             array(),
-            \Yii::t("app",'This browser has denied permission to send desktop notifications ' .
+            \Yii::t("app", 'This browser has denied permission to send desktop notifications ' .
                 'for this Phabricator instance. Consult your browser settings / ' .
                 'documentation to figure out how to clear this setting, do so, ' .
                 'and then re-visit this page to grant permission.'));
 
-        $message_id = celerity_generate_unique_node_id();
+        $message_id = JavelinHtml::generateUniqueNodeId();
 
         $message_container = phutil_tag(
             'span',
@@ -146,7 +153,7 @@ final class PhabricatorNotificationsSettingsPanel
         if ($request->getBool('saved')) {
             $saved_box = (new PHUIInfoView())
                 ->setSeverity(PHUIInfoView::SEVERITY_NOTICE)
-                ->appendChild(\Yii::t("app",'Changes saved.'));
+                ->appendChild(\Yii::t("app", 'Changes saved.'));
         }
 
         $status_box = (new PHUIInfoView())
@@ -195,19 +202,19 @@ final class PhabricatorNotificationsSettingsPanel
                         $control_config))
             ->appendChild(
                 (new AphrontFormSubmitControl())
-                    ->setValue(\Yii::t("app",'Save Preference')));
+                    ->setValue(\Yii::t("app", 'Save Preference')));
 
         $button = (new PHUIButtonView())
             ->setTag('a')
             ->setIcon('fa-send-o')
             ->setWorkflow(true)
-            ->setText(\Yii::t("app",'Send Test Notification'))
+            ->setText(\Yii::t("app", 'Send Test Notification'))
             ->setHref('/notification/test/')
-            ->setColor(PHUIButtonView::GREY);
+            ->setColor(PHUIButtonView::COLOR_GREY);
 
         $form_content = array($saved_box, $status_box, $form);
         $form_box = $this->newBox(
-            \Yii::t("app",'Notifications'), $form_content, array($button));
+            \Yii::t("app", 'Notifications'), $form_content, array($button));
 
         $browser_status_box = (new PHUIInfoView())
             ->setID($browser_status_id)

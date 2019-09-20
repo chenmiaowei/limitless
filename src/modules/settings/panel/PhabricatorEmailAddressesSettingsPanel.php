@@ -54,7 +54,7 @@ final class PhabricatorEmailAddressesSettingsPanel
     }
 
     /**
-     * @return const|string
+     * @return string
      * @author 陈妙威
      */
     public function getPanelGroupKey()
@@ -78,13 +78,8 @@ final class PhabricatorEmailAddressesSettingsPanel
     /**
      * @param AphrontRequest $request
      * @return mixed
-     * @throws AphrontDuplicateKeyQueryException
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \AphrontConnectionLostQueryException
-     * @throws \AphrontDeadlockQueryException
-     * @throws \AphrontInvalidCredentialsQueryException
-     * @throws \AphrontLockTimeoutQueryException
-     * @throws \AphrontSchemaQueryException
+     * @throws \AphrontObjectMissingQueryException
+     * @throws \AphrontQueryException
      * @throws \PhutilInvalidStateException
      * @throws \ReflectionException
      * @throws \Throwable
@@ -231,12 +226,8 @@ final class PhabricatorEmailAddressesSettingsPanel
      * @param PhutilURI $uri
      * @param $new
      * @return mixed
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \AphrontConnectionLostQueryException
-     * @throws \AphrontDeadlockQueryException
-     * @throws \AphrontInvalidCredentialsQueryException
-     * @throws \AphrontLockTimeoutQueryException
-     * @throws \AphrontSchemaQueryException
+     * @throws \AphrontObjectMissingQueryException
+     * @throws \AphrontQueryException
      * @throws \PhutilInvalidStateException
      * @throws \ReflectionException
      * @throws \orangins\modules\system\exception\PhabricatorSystemActionRateLimitException
@@ -244,7 +235,7 @@ final class PhabricatorEmailAddressesSettingsPanel
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      * @throws \yii\db\IntegrityException
-     * @throws \AphrontQueryException
+     * @throws \Exception
      * @author 陈妙威
      */
     private function returnNewAddressResponse(
@@ -487,19 +478,14 @@ final class PhabricatorEmailAddressesSettingsPanel
      * @param PhutilURI $uri
      * @param $email_id
      * @return Aphront404Response|AphrontDialogResponse|AphrontRedirectResponse
-     * @throws AphrontDuplicateKeyQueryException
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \AphrontConnectionLostQueryException
-     * @throws \AphrontDeadlockQueryException
-     * @throws \AphrontInvalidCredentialsQueryException
-     * @throws \AphrontLockTimeoutQueryException
-     * @throws \AphrontSchemaQueryException
+     * @throws \AphrontObjectMissingQueryException
+     * @throws \AphrontQueryException
      * @throws \PhutilInvalidStateException
      * @throws \ReflectionException
-     * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      * @throws \yii\db\IntegrityException
+     * @throws \Exception
      * @author 陈妙威
      */
     private function returnPrimaryAddressResponse(

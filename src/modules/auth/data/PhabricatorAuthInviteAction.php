@@ -152,12 +152,12 @@ final class PhabricatorAuthInviteAction extends OranginsObject
     public function getShortNameForIssue($issue)
     {
         $map = array(
-            self::ISSUE_PARSE => \Yii::t("app",'Not a Valid Email Address'),
-            self::ISSUE_DUPLICATE => \Yii::t("app",'Address Duplicated in Input'),
-            self::ISSUE_UNVERIFIED => \Yii::t("app",'Unverified User Email'),
-            self::ISSUE_VERIFIED => \Yii::t("app",'Verified User Email'),
-            self::ISSUE_INVITED => \Yii::t("app",'Previously Invited'),
-            self::ISSUE_ACCEPTED => \Yii::t("app",'Already Accepted Invite'),
+            self::ISSUE_PARSE => \Yii::t("app", 'Not a Valid Email Address'),
+            self::ISSUE_DUPLICATE => \Yii::t("app", 'Address Duplicated in Input'),
+            self::ISSUE_UNVERIFIED => \Yii::t("app", 'Unverified User Email'),
+            self::ISSUE_VERIFIED => \Yii::t("app", 'Verified User Email'),
+            self::ISSUE_INVITED => \Yii::t("app", 'Previously Invited'),
+            self::ISSUE_ACCEPTED => \Yii::t("app", 'Already Accepted Invite'),
         );
 
         return ArrayHelper::getValue($map, $issue);
@@ -171,9 +171,9 @@ final class PhabricatorAuthInviteAction extends OranginsObject
     public function getShortNameForAction($action)
     {
         $map = array(
-            self::ACTION_SEND => \Yii::t("app",'Will Send Invite'),
-            self::ACTION_ERROR => \Yii::t("app",'Address Error'),
-            self::ACTION_IGNORE => \Yii::t("app",'Will Ignore Address'),
+            self::ACTION_SEND => \Yii::t("app", 'Will Send Invite'),
+            self::ACTION_ERROR => \Yii::t("app", 'Address Error'),
+            self::ACTION_IGNORE => \Yii::t("app", 'Will Ignore Address'),
         );
 
         return ArrayHelper::getValue($map, $action);
@@ -246,10 +246,8 @@ final class PhabricatorAuthInviteAction extends OranginsObject
 
         // Identify addresses which are already in the system.
         $addresses = mpull($results, 'getEmailAddress');
-        $email_objects = (new PhabricatorUserEmail())->loadAllWhere(
-            'address IN (%Ls)',
-            $addresses);
-
+        /** @var PhabricatorUserEmail[] $email_objects */
+        $email_objects = PhabricatorUserEmail::find()->andWhere(['IN', 'address', $addresses])->all();
         $email_map = array();
         foreach ($email_objects as $email_object) {
             $address_key = phutil_utf8_strtolower($email_object->getAddress());
@@ -326,11 +324,11 @@ final class PhabricatorAuthInviteAction extends OranginsObject
     public function sendInvite(PhabricatorUser $actor, $template)
     {
         if (!$this->willSend()) {
-            throw new Exception(\Yii::t("app",'Invite action is not a send action!'));
+            throw new Exception(\Yii::t("app", 'Invite action is not a send action!'));
         }
 
         if (!preg_match('/{\$INVITE_URI}/', $template)) {
-            throw new Exception(\Yii::t("app",'Invite template does not include invite URI!'));
+            throw new Exception(\Yii::t("app", 'Invite template does not include invite URI!'));
         }
 
         PhabricatorWorker::scheduleTask(

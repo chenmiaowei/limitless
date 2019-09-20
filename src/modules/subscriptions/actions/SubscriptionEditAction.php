@@ -144,8 +144,8 @@ class SubscriptionEditAction extends SubscriptionAction
      * @param $message
      * @param $uri
      * @return mixed
+     * @throws \Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     private function buildErrorResponse($title, $message, $uri) {
         $viewer = $this->controller->getViewer();
