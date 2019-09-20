@@ -123,9 +123,9 @@ final class PhabricatorGlobalUploadTargetView extends AphrontView
 
     /**
      * @return null|string
-     * @throws \yii\base\Exception
-     * @throws \ReflectionException
      * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function render()
@@ -137,11 +137,9 @@ final class PhabricatorGlobalUploadTargetView extends AphrontView
 
         $instructions_id = 'phabricator-global-drag-and-drop-upload-instructions';
 
-//        require_celerity_resource('global-drag-and-drop-css');
-
         $hint_text = $this->getHintText();
         if (!strlen($hint_text)) {
-            $hint_text = "\xE2\x87\xAA " . \Yii::t("app",'Drop Files to Upload');
+            $hint_text = "\xE2\x87\xAA " . \Yii::t("app", 'Drop Files to Upload');
         }
 
         // Use the configured default view policy. Drag and drop uploads use
@@ -155,12 +153,14 @@ final class PhabricatorGlobalUploadTargetView extends AphrontView
         }
 
         $submit_uri = $this->getSubmitURI();
-        $done_uri = '/file/query/authored/';
+        $done_uri = Url::to(['/file/index/query', [
+            "queryKey" => "all"
+        ]]);
 
         JavelinHtml::initBehavior(new JavelinGlobalDragAndDropAsset(), array(
             'ifSupported' => $this->showIfSupportedID,
             'instructions' => $instructions_id,
-            'uploadURI' => Url::to(['/file/index/dropupload/']),
+            'uploadURI' => Url::to(['/file/index/dropupload']),
             'submitURI' => $submit_uri,
             'browseURI' => $done_uri,
             'viewPolicy' => $view_policy,
@@ -168,9 +168,9 @@ final class PhabricatorGlobalUploadTargetView extends AphrontView
         ));
 
         return JavelinHtml::tag('div', $hint_text, array(
-                'id' => $instructions_id,
-                'class' => 'phabricator-global-upload-instructions',
-                'style' => 'display: none;',
-            ));
+            'id' => $instructions_id,
+            'class' => 'phabricator-global-upload-instructions',
+            'style' => 'display: none;',
+        ));
     }
 }

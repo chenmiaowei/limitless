@@ -32,6 +32,7 @@ final class PhabricatorFileDropUploadAction extends PhabricatorFileAction
      * @throws \orangins\modules\conduit\protocol\exception\ConduitException
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     public function run()
@@ -40,7 +41,6 @@ final class PhabricatorFileDropUploadAction extends PhabricatorFileAction
         $viewer = $request->getViewer();
 
         // NOTE: Throws if valid CSRF token is not present in the request.
-        $request->validateCSRF();
 
         $name = $request->getStr('name');
         $file_phid = $request->getStr('phid');
@@ -88,7 +88,8 @@ final class PhabricatorFileDropUploadAction extends PhabricatorFileAction
 
         // Read the raw request data. We're either doing a chunk upload or a
         // vanilla upload, so we need it.
-        $data = PhabricatorStartup::getRawInput();
+//        $data = PhabricatorStartup::getRawInput();
+        $data = \Yii::$app->request->getRawBody();
 
         $is_chunk_upload = $request->getBool('uploadchunk');
         if ($is_chunk_upload) {
@@ -131,6 +132,7 @@ final class PhabricatorFileDropUploadAction extends PhabricatorFileAction
      * @param $file_phid
      * @return mixed
      * @throws \yii\base\InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     private function loadFile($file_phid)
@@ -147,5 +149,4 @@ final class PhabricatorFileDropUploadAction extends PhabricatorFileAction
 
         return $file;
     }
-
 }

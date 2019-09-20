@@ -381,6 +381,28 @@ class PhabricatorFile extends ActiveRecordPHID
     }
 
     /**
+     * @param $data
+     * @param array $params
+     * @return mixed|null|PhabricatorFile
+     * @throws ActiveRecordException
+     * @throws FilesystemException
+     * @throws PhabricatorFileStorageConfigurationException
+     * @throws PhutilAggregateException
+     * @throws \AphrontQueryException
+     * @throws \PhutilInvalidStateException
+     * @throws \PhutilTypeExtraParametersException
+     * @throws \PhutilTypeMissingParametersException
+     * @throws \ReflectionException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\UnknownPropertyException
+     * @throws \yii\db\IntegrityException
+     * @author 陈妙威
+     */
+    public static function newFromXHRUpload($data, array $params = array()) {
+        return self::newFromFileData($data, $params);
+    }
+
+    /**
      * @param $spec
      * @return mixed
      * @throws Exception
@@ -2229,6 +2251,19 @@ class PhabricatorFile extends ActiveRecordPHID
             ->save();
 
         return $this;
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     * @author 陈妙威
+     */
+    public function getDragAndDropDictionary() {
+        return array(
+            'id'   => $this->getID(),
+            'phid' => $this->getPHID(),
+            'uri'  => $this->getBestURI(),
+        );
     }
 
 
