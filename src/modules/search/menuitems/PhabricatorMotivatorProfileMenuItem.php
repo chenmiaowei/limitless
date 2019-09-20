@@ -61,7 +61,7 @@ final class PhabricatorMotivatorProfileMenuItem
         $options = $this->getOptions();
         $name = ArrayHelper::getValue($options, $config->getMenuItemProperty('source'));
         if ($name !== null) {
-            return \Yii::t("app", 'Motivator: %s', $name);
+            return \Yii::t("app", 'Motivator: {0}', [$name]);
         } else {
             return \Yii::t("app", 'Motivator');
         }
