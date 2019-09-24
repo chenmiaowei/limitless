@@ -47,6 +47,10 @@ class PhabricatorUserService extends ActiveRecordPHID
     /**
      *
      */
+    const STATUS_STOPPED = 'STOPPED';
+    /**
+     *
+     */
     const STATUS_DISABLE = 'DISABLE';
 
     /**

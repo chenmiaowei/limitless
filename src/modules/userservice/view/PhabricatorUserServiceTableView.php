@@ -178,6 +178,32 @@ final class PhabricatorUserServiceTableView extends AphrontView
                             , 'id' => $task->getID()
                             , 'redirect_uri' => \Yii::$app->request->url
                         ])),
+
+
+                    $task->status === PhabricatorUserService::STATUS_STOPPED ?
+                        (new PHUIButtonView())
+                            ->setTag("a")
+                            ->setText("启用")
+                            ->setColor(PHUITagView::COLOR_DANGER_800)
+                            ->setWorkflow(true)
+                            ->setSize("btn-xs")
+                            ->setHref(Url::to(['/userservice/index/start'
+                                , 'id' => $task->getID()
+                                , 'redirect_uri' => \Yii::$app->request->url
+                            ]))
+                        :
+                        (new PHUIButtonView())
+                            ->setTag("a")
+                            ->setText("停用")
+                            ->setColor(PHUITagView::COLOR_DANGER_800)
+                            ->setWorkflow(true)
+                            ->setSize("btn-xs")
+                            ->setHref(Url::to(['/userservice/index/stop'
+                                , 'id' => $task->getID()
+                                , 'redirect_uri' => \Yii::$app->request->url
+                            ]))
+                    ,
+
                     (new PHUIButtonView())
                         ->setTag("a")
                         ->setText("禁用")
@@ -188,7 +214,6 @@ final class PhabricatorUserServiceTableView extends AphrontView
                             , 'id' => $task->getID()
                             , 'redirect_uri' => \Yii::$app->request->url
                         ])),
-
                 ])
             );
         }

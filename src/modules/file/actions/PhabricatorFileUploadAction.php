@@ -17,6 +17,7 @@ use orangins\modules\file\view\PhabricatorGlobalUploadTargetView;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\models\PhabricatorPolicy;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * Class PhabricatorFileUploadAction
@@ -126,7 +127,7 @@ final class PhabricatorFileUploadAction extends PhabricatorFileAction
             ->appendChild(
                 (new AphrontFormSubmitControl())
                     ->setValue(\Yii::t("app",'Upload'))
-                    ->addCancelButton('/file/'))
+                    ->addCancelButton(Url::to(['/file/index/query'])))
             ->appendChild($instructions);
 
         $crumbs = $this->buildApplicationCrumbs();

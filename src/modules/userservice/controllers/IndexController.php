@@ -11,16 +11,14 @@ namespace orangins\modules\userservice\controllers;
 
 use orangins\lib\controllers\PhabricatorController;
 use orangins\modules\userservice\actions\ManiphestBulkEditController;
-use orangins\modules\userservice\actions\PhabricatorUserServiceConfirmAction;
 use orangins\modules\userservice\actions\PhabricatorUserServiceCreateAction;
 use orangins\modules\userservice\actions\PhabricatorUserServiceDepositAction;
 use orangins\modules\userservice\actions\PhabricatorUserServiceDisableAction;
-use orangins\modules\userservice\actions\PhabricatorUserServiceDistributionAction;
 use orangins\modules\userservice\actions\PhabricatorUserServiceEditAction;
 use orangins\modules\userservice\actions\PhabricatorUserServiceListAction;
-use orangins\modules\userservice\actions\PhabricatorUserServicePublishTypeAction;
 use orangins\modules\userservice\actions\PhabricatorUserServiceRenewAction;
-use orangins\modules\userservice\actions\PhabricatorUserServiceSettleAction;
+use orangins\modules\userservice\actions\PhabricatorUserServiceStartAction;
+use orangins\modules\userservice\actions\PhabricatorUserServiceStopAction;
 use orangins\modules\userservice\actions\PhabricatorUserServiceViewAction;
 
 /**
@@ -45,6 +43,8 @@ class IndexController extends PhabricatorController
             'renew' => PhabricatorUserServiceRenewAction::class,
             'disable' => PhabricatorUserServiceDisableAction::class,
             'bulk' => ManiphestBulkEditController::class,
+            'stop' => PhabricatorUserServiceStopAction::class,
+            'start' => PhabricatorUserServiceStartAction::class,
         ];
     }
 }
