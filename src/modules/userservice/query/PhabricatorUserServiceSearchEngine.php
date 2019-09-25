@@ -61,7 +61,7 @@ final class PhabricatorUserServiceSearchEngine extends PhabricatorApplicationSea
      */
     public function newQuery()
     {
-        $query = PhabricatorUserService::find()->andWhere(['status' => PhabricatorUserService::STATUS_ACTIVE]);
+        $query = PhabricatorUserService::find()->andWhere(['!=', 'status', PhabricatorUserService::STATUS_DISABLE]);
         return $query;
     }
 

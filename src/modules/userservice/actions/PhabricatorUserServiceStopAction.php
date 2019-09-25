@@ -60,7 +60,7 @@ class PhabricatorUserServiceStopAction extends PhabricatorUserServiceAction
             $xactions = array();
             $xactions[] = (new PhabricatorUserServiceTransaction)
                 ->setTransactionType(PhabricatorUserServiceStatusTransaction::TRANSACTIONTYPE)
-                ->setNewValue(PhabricatorUserService::STATUS_DISABLE);
+                ->setNewValue(PhabricatorUserService::STATUS_STOPPED);
 
             (new PhabricatorUserServiceEditor())
                 ->setActor($request->getViewer())
@@ -73,7 +73,7 @@ class PhabricatorUserServiceStopAction extends PhabricatorUserServiceAction
         return $this->newDialog()
             ->addClass("wmin-600")
             ->setTitle($title)
-            ->appendChild(Yii::t("app", "您确定删除当前服务？"))
+            ->appendChild(Yii::t("app", "您确定停用当前服务？"))
             ->addSubmitButton(\Yii::t("app", "Submit"))
             ->addCancelButton(\Yii::t("app", "Cancel"));
     }
