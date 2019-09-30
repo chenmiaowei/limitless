@@ -286,6 +286,56 @@ final class PhabricatorFilesConfigOptions
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
 
+
+            $this->newOption('aliyun-s3.bucket', 'string', 'kl-web')
+                ->setSummary(\Yii::t('app', 'Huawei S3 bucket.'))
+                ->setDescription(
+                    \Yii::t('app',
+                        "Set this to a valid Huawei S3 bucket to store files there. You " .
+                        "must also configure S3 access keys in the 'Huawei Web Services' " .
+                        "group.")),
+
+            $this->newOption('aliyun-s3.access.key.id', 'string', 'qLyWc9kJk0m499Sy')
+                ->setSummary(\Yii::t('app', 'ccess Key Id.'))
+                ->setLocked(true)
+                ->setHidden(true)
+                ->setDescription(
+                    \Yii::t('app',
+                        "Set this to a valid Huawei S3 bucket to store files there. You " .
+                        "must also configure S3 access keys in the 'Huawei Web Services' " .
+                        "group.")),
+
+            $this->newOption('aliyun-s3.secret.access.key', 'string', '7KmWX4Pp75RZgJhhEyhvttmzxbFwrh')
+                ->setLocked(true)
+                ->setHidden(true)
+                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setDescription(
+                    \Yii::t('app',
+                        "Set this to a valid Huawei S3 bucket to store files there. You " .
+                        "must also configure S3 access keys in the 'Huawei Web Services' " .
+                        "group.")),
+
+            $this->newOption('aliyun-s3.internal.endpoint', 'string', 'oss-cn-beijing-internal.aliyuncs.com')
+                ->setLocked(true)
+                ->setHidden(true)
+                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setDescription(
+                    \Yii::t('app',
+                        "Set this to a valid Huawei S3 bucket to store files there. You " .
+                        "must also configure S3 access keys in the 'Huawei Web Services' " .
+                        "group.")),
+
+            $this->newOption('aliyun-s3.endpoint', 'string', 'oss-cn-beijing.aliyuncs.com')
+                ->setLocked(true)
+                ->setHidden(true)
+                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setDescription(
+                    \Yii::t('app',
+                        "Set this to a valid Huawei S3 bucket to store files there. You " .
+                        "must also configure S3 access keys in the 'Huawei Web Services' " .
+                        "group.")),
+
+
             $this->newOption('qiniu-s3.bucket', 'string', 'ok-fuliyun')
                 ->setSummary(\Yii::t('app', 'Huawei S3 bucket.'))
                 ->setDescription(

@@ -953,6 +953,7 @@ phutil_register_library_map(array(
     'orangins\\modules\\file\\edge\\PhabricatorFileHasObjectEdgeType' => 'modules/file/edge/PhabricatorFileHasObjectEdgeType.php',
     'orangins\\modules\\file\\editors\\PhabricatorFileEditEngine' => 'modules/file/editors/PhabricatorFileEditEngine.php',
     'orangins\\modules\\file\\editors\\PhabricatorFileEditor' => 'modules/file/editors/PhabricatorFileEditor.php',
+    'orangins\\modules\\file\\engine\\PhabricatorAliyunFileStorageEngine' => 'modules/file/engine/PhabricatorAliyunFileStorageEngine.php',
     'orangins\\modules\\file\\engine\\PhabricatorChunkedFileStorageEngine' => 'modules/file/engine/PhabricatorChunkedFileStorageEngine.php',
     'orangins\\modules\\file\\engine\\PhabricatorFileChunkIterator' => 'modules/file/engine/PhabricatorFileChunkIterator.php',
     'orangins\\modules\\file\\engine\\PhabricatorFileStorageEngine' => 'modules/file/engine/PhabricatorFileStorageEngine.php',
@@ -2737,6 +2738,7 @@ phutil_register_library_map(array(
     'orangins\\modules\\file\\edge\\PhabricatorFileHasObjectEdgeType' => 'orangins\\lib\\infrastructure\\edges\\type\\PhabricatorEdgeType',
     'orangins\\modules\\file\\editors\\PhabricatorFileEditEngine' => 'orangins\\modules\\transactions\\editengine\\PhabricatorEditEngine',
     'orangins\\modules\\file\\editors\\PhabricatorFileEditor' => 'orangins\\modules\\transactions\\editors\\PhabricatorApplicationTransactionEditor',
+    'orangins\\modules\\file\\engine\\PhabricatorAliyunFileStorageEngine' => 'orangins\\modules\\file\\engine\\PhabricatorFileStorageEngine',
     'orangins\\modules\\file\\engine\\PhabricatorChunkedFileStorageEngine' => 'orangins\\modules\\file\\engine\\PhabricatorFileStorageEngine',
     'orangins\\modules\\file\\engine\\PhabricatorFileChunkIterator' => array(
       'orangins\\lib\\OranginsObject',
