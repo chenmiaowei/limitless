@@ -37,7 +37,7 @@ final class PhabricatorAliyunFileStorageEngine
      */
     public function getEnginePriority()
     {
-        return 4;
+        return 100;
     }
 
     /**
