@@ -5,6 +5,7 @@ namespace orangins\lib\infrastructure\daemon\workers\storage;
 use orangins\lib\infrastructure\daemon\workers\query\PhabricatorWorkerArchiveTaskQuery;
 use Exception;
 use Throwable;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "worker_archivetask".
@@ -40,17 +41,6 @@ final class PhabricatorWorkerArchiveTask extends PhabricatorWorkerTask
 
 
     /**
-     * @var
-     */
-    protected $result;
-
-    /**
-     * @var
-     */
-    protected $duration;
-
-
-    /**
      * {@inheritdoc}
      */
     public static function tableName()
@@ -58,6 +48,16 @@ final class PhabricatorWorkerArchiveTask extends PhabricatorWorkerTask
         return 'worker_archivetask';
     }
 
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    public function rules()
+    {
+        return ArrayHelper::merge(parent::rules(), [
+            [['result', 'duration'], 'integer'],
+        ]);
+    }
 
     /**
      * @param bool $runValidation
