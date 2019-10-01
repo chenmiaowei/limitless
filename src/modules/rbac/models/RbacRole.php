@@ -99,7 +99,7 @@ class RbacRole extends ActiveRecordPHID
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorRBACRoleQuery
+     * @return PhabricatorRBACRoleQuery
      * @author 陈妙威
      */
     public static function find()

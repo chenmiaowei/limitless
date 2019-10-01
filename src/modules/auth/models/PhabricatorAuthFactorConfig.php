@@ -151,7 +151,7 @@ class PhabricatorAuthFactorConfig extends \orangins\lib\db\ActiveRecord
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorAuthFactorConfigQuery
+     * @return PhabricatorAuthFactorConfigQuery
      * @author 陈妙威
      */
     public static function find()

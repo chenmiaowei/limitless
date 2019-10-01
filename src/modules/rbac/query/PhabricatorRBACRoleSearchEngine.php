@@ -49,7 +49,7 @@ final class PhabricatorRBACRoleSearchEngine extends PhabricatorApplicationSearch
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|\orangins\modules\rbac\models\PhabricatorRBACRoleQuery
+     * @return \orangins\modules\rbac\models\PhabricatorRBACRoleQuery
      * @author 陈妙威
      */
     public function newQuery()
@@ -89,7 +89,7 @@ final class PhabricatorRBACRoleSearchEngine extends PhabricatorApplicationSearch
 
     /**
      * @param array $map
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|\orangins\modules\rbac\models\PhabricatorRBACRoleQuery
+     * @return \orangins\modules\rbac\models\PhabricatorRBACRoleQuery
      * @author 陈妙威
      */
     protected function buildQueryFromParameters(array $map)

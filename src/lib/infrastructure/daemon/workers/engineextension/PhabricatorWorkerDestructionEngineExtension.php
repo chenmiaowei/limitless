@@ -2,10 +2,13 @@
 
 namespace orangins\lib\infrastructure\daemon\workers\engineextension;
 
+use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerActiveTask;
 use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerArchiveTask;
 use orangins\modules\system\engine\PhabricatorDestructionEngine;
 use orangins\modules\system\engine\PhabricatorDestructionEngineExtension;
+use Throwable;
+use Yii;
 
 /**
  * Class PhabricatorWorkerDestructionEngineExtension
@@ -27,15 +30,15 @@ final class PhabricatorWorkerDestructionEngineExtension
      */
     public function getExtensionName()
     {
-        return \Yii::t("app",'Worker Tasks');
+        return Yii::t("app",'Worker Tasks');
     }
 
     /**
      * @param PhabricatorDestructionEngine $engine
-     * @param $object
+     * @param ActiveRecordPHID $object
      * @return mixed|void
+     * @throws Throwable
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function destroyObject(
         PhabricatorDestructionEngine $engine,

@@ -99,7 +99,7 @@ final class PhabricatorMetaMTAMailPHIDType extends PhabricatorPHIDType
     /**
      * @param PhabricatorObjectQuery $query
      * @param array $phids
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|\orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery|\orangins\modules\metamta\query\PhabricatorMetaMTAMailQuery
+     * @return \orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery|\orangins\modules\metamta\query\PhabricatorMetaMTAMailQuery
      * @author 陈妙威
      */
     protected function buildQueryForObjects(

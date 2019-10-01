@@ -90,7 +90,7 @@ final class PhabricatorRBACRoleEditEngine extends PhabricatorEditEngine
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|\orangins\modules\rbac\models\PhabricatorRBACRoleQuery
+     * @return \orangins\modules\rbac\models\PhabricatorRBACRoleQuery
      * @author 陈妙威
      */
     protected function newObjectQuery()

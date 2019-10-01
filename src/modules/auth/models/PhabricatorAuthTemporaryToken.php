@@ -71,7 +71,7 @@ class PhabricatorAuthTemporaryToken extends \orangins\lib\db\ActiveRecord
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorAuthTemporaryTokenQuery
+     * @return PhabricatorAuthTemporaryTokenQuery
      * @author 陈妙威
      */
     public static function find()

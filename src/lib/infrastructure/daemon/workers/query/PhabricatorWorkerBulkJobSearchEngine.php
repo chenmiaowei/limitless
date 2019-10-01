@@ -42,7 +42,7 @@ final class PhabricatorWorkerBulkJobSearchEngine
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorWorkerBulkJobQuery
+     * @return PhabricatorWorkerBulkJobQuery
      * @author 陈妙威
      */
     public function newQuery()
@@ -61,7 +61,7 @@ final class PhabricatorWorkerBulkJobSearchEngine
 
     /**
      * @param array $map
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorWorkerBulkJobQuery
+     * @return PhabricatorWorkerBulkJobQuery
      * @author 陈妙威
      */
     protected function buildQueryFromParameters(array $map)

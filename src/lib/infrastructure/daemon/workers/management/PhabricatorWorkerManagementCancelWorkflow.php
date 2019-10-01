@@ -2,10 +2,14 @@
 
 namespace orangins\lib\infrastructure\daemon\workers\management;
 
+use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerActiveTask;
 use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerArchiveTask;
 use orangins\lib\time\PhabricatorTime;
 use PhutilArgumentParser;
+use PhutilArgumentSpecificationException;
+use PhutilArgumentUsageException;
 use PhutilConsole;
+use Yii;
 
 /**
  * Class PhabricatorWorkerManagementCancelWorkflow
@@ -26,7 +30,7 @@ final class PhabricatorWorkerManagementCancelWorkflow
             ->setName('cancel')
             ->setExamples('**cancel** --id __id__')
             ->setSynopsis(
-                \Yii::t("app",
+                Yii::t("app",
                     'Cancel selected tasks. The work these tasks represent will never ' .
                     'be performed.'))
             ->setArguments($this->getTaskSelectionArguments());
@@ -35,13 +39,16 @@ final class PhabricatorWorkerManagementCancelWorkflow
     /**
      * @param PhutilArgumentParser $args
      * @return int|void
-     * @throws \PhutilArgumentSpecificationException
-     * @throws \PhutilArgumentUsageException
+     * @throws PhutilArgumentSpecificationException
+     * @throws PhutilArgumentUsageException
+     * @throws \Throwable
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)
     {
         $console = PhutilConsole::getConsole();
+
+        /** @var PhabricatorWorkerActiveTask[] $tasks */
         $tasks = $this->loadTasks($args);
 
         foreach ($tasks as $task) {
@@ -49,8 +56,8 @@ final class PhabricatorWorkerManagementCancelWorkflow
             if (!$can_cancel) {
                 $console->writeOut(
                     "**<bg:yellow> %s </bg>** %s\n",
-                    \Yii::t("app", 'ARCHIVED'),
-                    \Yii::t("app",
+                    Yii::t("app", 'ARCHIVED'),
+                    Yii::t("app",
                         '{0} is already archived, and can not be cancelled.',
                         [
                             $this->describeTask($task)
@@ -68,8 +75,8 @@ final class PhabricatorWorkerManagementCancelWorkflow
 
             $console->writeOut(
                 "**<bg:green> %s </bg>** %s\n",
-                \Yii::t("app", 'CANCELLED'),
-                \Yii::t("app",
+                Yii::t("app", 'CANCELLED'),
+                Yii::t("app",
                     '{0} was cancelled.',
                     [
                         $this->describeTask($task)

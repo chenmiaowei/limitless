@@ -436,7 +436,7 @@ final class PhabricatorWorkerTrigger
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorWorkerTriggerQuery
+     * @return PhabricatorWorkerTriggerQuery
      * @author 陈妙威
      */
     public static function find()

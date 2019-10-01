@@ -71,7 +71,7 @@ class PhabricatorAuthSSHKey extends \orangins\lib\db\ActiveRecord
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorAuthSSHKeyQuery
+     * @return PhabricatorAuthSSHKeyQuery
      * @author 陈妙威
      */
     public static function find()

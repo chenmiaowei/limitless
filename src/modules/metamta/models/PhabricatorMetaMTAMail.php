@@ -2350,7 +2350,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
 
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorMetaMTAMailQuery
+     * @return PhabricatorMetaMTAMailQuery
      * @author 陈妙威
      */
     public static function find()

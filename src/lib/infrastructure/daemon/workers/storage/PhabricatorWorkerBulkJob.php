@@ -617,7 +617,7 @@ final class PhabricatorWorkerBulkJob
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorWorkerBulkJobQuery
+     * @return PhabricatorWorkerBulkJobQuery
      * @author 陈妙威
      */
     public static function find()

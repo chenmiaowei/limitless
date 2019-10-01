@@ -8,6 +8,8 @@ use orangins\lib\infrastructure\daemon\workers\exception\PhabricatorWorkerYieldE
 use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use orangins\lib\infrastructure\daemon\workers\query\PhabricatorWorkerActiveTaskQuery;
 use orangins\lib\infrastructure\daemon\workers\query\PhabricatorWorkerLeaseQuery;
+use orangins\lib\infrastructure\query\PhabricatorQuery;
+use Throwable;
 use Yii;
 use Exception;
 use yii\helpers\ArrayHelper;
@@ -90,9 +92,6 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
      * @param null $attributeNames
      * @return bool
      * @throws Exception
-     * @throws \AphrontQueryException
-     * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
      * @author 陈妙威
      */
     public function save($runValidation = true, $attributeNames = null)
@@ -105,8 +104,7 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
      * @param bool $runValidation
      * @param null $attributes
      * @return bool
-     * @throws \Throwable
-     * @throws \yii\db\Exception
+     * @throws Throwable
      * @author 陈妙威
      */
     public function insert($runValidation = true, $attributes = null)
@@ -119,9 +117,7 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
 
     /**
      * @return bool
-     * @throws \AphrontQueryException
-     * @throws \yii\db\IntegrityException
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function forceSaveWithoutLease()
@@ -171,8 +167,7 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
     /**
      * @return PhabricatorWorkerActiveTask|mixed
      * @throws Exception
-     * @throws \AphrontQueryException
-     * @throws \Throwable
+     * @throws Throwable
      * @author 陈妙威
      */
     public function executeTask()
@@ -191,7 +186,7 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
             if ($maximum_failures !== null) {
                 if ($this->failure_count > $maximum_failures) {
                     throw new PhabricatorWorkerPermanentFailureException(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Task {0} has exceeded the maximum number of failures ({1}}).',
                             [
                                 $this->id,
@@ -232,7 +227,7 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
             $this->setLeaseDuration($retry);
 
             $result = $this;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             Yii::error($ex);
 
             $this->setExecutionException($ex);
@@ -291,17 +286,19 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
      * @param $duration
      * @return mixed
      * @throws Exception
+     * @throws Throwable
      * @author 陈妙威
      */
     public function archiveTask($result, $duration)
     {
         if ($this->getID() === null) {
             throw new Exception(
-                \Yii::t("app", "Attempting to archive a task which hasn't been saved!"));
+                Yii::t("app", "Attempting to archive a task which hasn't been saved!"));
         }
 
         $this->checkLease();
 
+        /** @var PhabricatorWorkerArchiveTask $archive */
         $archive = (new PhabricatorWorkerArchiveTask())
             ->setID($this->getID())
             ->setTaskClass($this->getTaskClass())
@@ -310,7 +307,10 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
             ->setFailureCount($this->getFailureCount())
             ->setDataID($this->getDataID())
             ->setPriority($this->getPriority())
-            ->setObjectPHID($this->getObjectPHID())
+            ->setObjectPHID($this->getObjectPHID());
+
+
+        $archive
             ->setResult($result)
             ->setDuration($duration);
 
@@ -320,7 +320,7 @@ final class PhabricatorWorkerActiveTask extends PhabricatorWorkerTask
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorWorkerActiveTaskQuery
+     * @return PhabricatorQuery|PhabricatorWorkerActiveTaskQuery
      * @author 陈妙威
      */
     public static function find()

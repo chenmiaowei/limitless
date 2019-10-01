@@ -2,6 +2,7 @@
 
 namespace orangins\lib\infrastructure\daemon\workers;
 
+use AphrontQueryException;
 use orangins\lib\infrastructure\contentsource\PhabricatorContentSource;
 use orangins\lib\infrastructure\daemon\contentsource\PhabricatorDaemonContentSource;
 use orangins\lib\infrastructure\daemon\workers\exception\PhabricatorWorkerPermanentFailureException;
@@ -11,13 +12,15 @@ use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerArchiveT
 use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerTask;
 use orangins\lib\OranginsObject;
 use orangins\lib\time\PhabricatorTime;
-use orangins\modules\feed\models\PhabricatorFeedStoryData;
 use orangins\modules\people\models\PhabricatorUser;
 use PhutilClassMapQuery;
 use PhutilConsole;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
 use PhutilTypeSpec;
 use Exception;
 use Yii;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -203,7 +206,7 @@ abstract class PhabricatorWorker extends OranginsObject
         $data = $this->getTaskData();
         if (!is_array($data)) {
             throw new PhabricatorWorkerPermanentFailureException(
-                \Yii::t("app", 'Expected task data to be a dictionary.'));
+                Yii::t("app", 'Expected task data to be a dictionary.'));
         }
         return ArrayHelper::getValue($data, $key, $default);
     }
@@ -221,12 +224,10 @@ abstract class PhabricatorWorker extends OranginsObject
      * @param $data
      * @param array $options
      * @return storage\PhabricatorWorkerTask
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws AphrontQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws IntegrityException
      * @throws Exception
      * @author 陈妙威
      */
@@ -250,6 +251,7 @@ abstract class PhabricatorWorker extends OranginsObject
         }
         $object_phid = ArrayHelper::getValue($options, 'objectPHID');
 
+        /** @var PhabricatorWorkerActiveTask $task */
         $task = (new PhabricatorWorkerActiveTask())
             ->setTaskClass($task_class)
             ->setData(phutil_json_encode($data))
@@ -279,7 +281,7 @@ abstract class PhabricatorWorker extends OranginsObject
                         break;
                     } catch (PhabricatorWorkerYieldException $ex) {
                         Yii::error(
-                            \Yii::t("app",
+                            Yii::t("app",
                                 'In-process task "{0}" yielded for {1} seconds, sleeping...',
                                 [
                                     $task_class,
@@ -300,7 +302,7 @@ abstract class PhabricatorWorker extends OranginsObject
                     $task->saveTransaction();
                     return $archived;
                 } catch (Exception $e) {
-                    \Yii::error($e);
+                    Yii::error($e);
                     $task->killTransaction();
                     return $task;
                 }
@@ -326,6 +328,7 @@ abstract class PhabricatorWorker extends OranginsObject
      * Set this flag to execute scheduled tasks synchronously, in the same
      * process. This is useful for debugging, and otherwise dramatically worse
      * in every way imaginable.
+     * @param $all
      */
     public static function setRunAllTasksInProcess($all)
     {
@@ -386,12 +389,12 @@ abstract class PhabricatorWorker extends OranginsObject
      *
      * @param array $defaults
      * @return void
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws \yii\base\Exception
      * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws IntegrityException
      */
     final public function flushTaskQueue($defaults = array())
     {

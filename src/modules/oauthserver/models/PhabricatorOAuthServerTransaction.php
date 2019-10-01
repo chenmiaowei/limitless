@@ -106,7 +106,7 @@ final class PhabricatorOAuthServerTransaction
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorOAuthServerTransactionQuery
+     * @return PhabricatorOAuthServerTransactionQuery
      * @author 陈妙威
      */
     public static function find()

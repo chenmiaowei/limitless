@@ -4,6 +4,7 @@ namespace orangins\lib\infrastructure\daemon\workers\storage;
 
 use orangins\lib\infrastructure\daemon\workers\query\PhabricatorWorkerArchiveTaskQuery;
 use Exception;
+use Throwable;
 
 /**
  * This is the model class for table "worker_archivetask".
@@ -38,8 +39,14 @@ final class PhabricatorWorkerArchiveTask extends PhabricatorWorkerTask
     const RESULT_CANCELLED = 2;
 
 
+    /**
+     * @var
+     */
     protected $result;
 
+    /**
+     * @var
+     */
     protected $duration;
 
 
@@ -57,7 +64,7 @@ final class PhabricatorWorkerArchiveTask extends PhabricatorWorkerTask
      * @param null $attributeNames
      * @return mixed
      * @throws Exception
-     * @throws \Throwable
+     * @throws Throwable
      * @throws \yii\db\Exception
      * @author 陈妙威
      */
@@ -86,10 +93,7 @@ final class PhabricatorWorkerArchiveTask extends PhabricatorWorkerTask
 
     /**
      * @return mixed
-     * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
      * @author 陈妙威
      */
     public function delete()
@@ -107,16 +111,15 @@ final class PhabricatorWorkerArchiveTask extends PhabricatorWorkerTask
     }
 
     /**
-     * @return mixed
-     * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\db\StaleObjectException
+     * @return PhabricatorWorkerActiveTask
+     * @throws Throwable
      * @author 陈妙威
      */
     public function unarchiveTask()
     {
         $this->openTransaction();
+
+        /** @var PhabricatorWorkerActiveTask $active */
         $active = (new PhabricatorWorkerActiveTask())
             ->setID($this->getID())
             ->setTaskClass($this->getTaskClass())
@@ -173,7 +176,7 @@ final class PhabricatorWorkerArchiveTask extends PhabricatorWorkerTask
 
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorWorkerArchiveTaskQuery
+     * @return PhabricatorWorkerArchiveTaskQuery
      * @author 陈妙威
      */
     public static function find()

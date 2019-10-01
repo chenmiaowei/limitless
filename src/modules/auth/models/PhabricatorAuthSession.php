@@ -207,7 +207,7 @@ class PhabricatorAuthSession extends ActiveRecord
 
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorAuthSessionQuery
+     * @return PhabricatorAuthSessionQuery
      * @author 陈妙威
      */
     public static function find()

@@ -414,7 +414,7 @@ class PhabricatorOAuthServerClient extends ActiveRecordPHID
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorOAuthServerClientQuery
+     * @return PhabricatorOAuthServerClientQuery
      * @author 陈妙威
      */
     public static function find()

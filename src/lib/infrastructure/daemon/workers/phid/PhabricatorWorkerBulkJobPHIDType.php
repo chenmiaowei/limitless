@@ -51,7 +51,7 @@ final class PhabricatorWorkerBulkJobPHIDType extends PhabricatorPHIDType
     /**
      * @param PhabricatorObjectQuery $query
      * @param array $phids
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|\orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery|\orangins\lib\infrastructure\daemon\workers\query\PhabricatorWorkerBulkJobQuery
+     * @return \orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery|\orangins\lib\infrastructure\daemon\workers\query\PhabricatorWorkerBulkJobQuery
      * @author 陈妙威
      */
     protected function buildQueryForObjects(

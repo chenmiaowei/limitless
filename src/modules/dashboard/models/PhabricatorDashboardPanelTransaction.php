@@ -63,7 +63,7 @@ final class PhabricatorDashboardPanelTransaction
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorDashboardPanelTransactionQuery
+     * @return PhabricatorDashboardPanelTransactionQuery
      * @author 陈妙威
      */
     public static function find()

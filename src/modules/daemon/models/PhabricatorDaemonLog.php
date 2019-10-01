@@ -93,7 +93,7 @@ class PhabricatorDaemonLog extends ActiveRecord
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorDaemonLogQuery
+     * @return PhabricatorDaemonLogQuery
      * @author 陈妙威
      */
     public static function find()

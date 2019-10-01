@@ -57,7 +57,7 @@ final class PhabricatorDashboardSearchEngine extends PhabricatorApplicationSearc
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorDashboardQuery
+     * @return PhabricatorDashboardQuery
      * @author 陈妙威
      */
     public function newQuery()
@@ -151,7 +151,7 @@ final class PhabricatorDashboardSearchEngine extends PhabricatorApplicationSearc
 
     /**
      * @param array $map
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|PhabricatorDashboardQuery
+     * @return PhabricatorDashboardQuery
      * @author 陈妙威
      */
     protected function buildQueryFromParameters(array $map)

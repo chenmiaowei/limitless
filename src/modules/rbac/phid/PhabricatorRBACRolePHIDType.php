@@ -42,7 +42,7 @@ class PhabricatorRBACRolePHIDType extends PhabricatorPHIDType
      * @param $query
      * @param array $phids
      * @author 陈妙威
-     * @return \orangins\lib\infrastructure\query\PhabricatorQuery|\orangins\modules\rbac\models\PhabricatorRBACRoleQuery
+     * @return \orangins\modules\rbac\models\PhabricatorRBACRoleQuery
      */
     public function buildQuery($query, array $phids)
     {

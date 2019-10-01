@@ -5,6 +5,7 @@ namespace orangins\lib\infrastructure\daemon\workers\management;
 use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerArchiveTask;
 use PhutilArgumentParser;
 use PhutilConsole;
+use Yii;
 
 /**
  * Class PhabricatorWorkerManagementRetryWorkflow
@@ -25,7 +26,7 @@ final class PhabricatorWorkerManagementRetryWorkflow
             ->setName('retry')
             ->setExamples('**retry** --id __id__')
             ->setSynopsis(
-                \Yii::t("app",
+                Yii::t("app",
                     'Retry selected tasks which previously failed permanently or ' .
                     'were cancelled. Only archived, unsuccessful tasks can be ' .
                     'retried.'))
@@ -37,19 +38,25 @@ final class PhabricatorWorkerManagementRetryWorkflow
      * @return int|void
      * @throws \PhutilArgumentSpecificationException
      * @throws \PhutilArgumentUsageException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     * @throws \yii\db\StaleObjectException
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)
     {
         $console = PhutilConsole::getConsole();
+
+        /** @var PhabricatorWorkerArchiveTask[] $tasks */
         $tasks = $this->loadTasks($args);
 
         foreach ($tasks as $task) {
             if (!$task->isArchived()) {
                 $console->writeOut(
                     "**<bg:yellow> %s </bg>** %s\n",
-                    \Yii::t("app", 'ACTIVE'),
-                    \Yii::t("app",
+                    Yii::t("app", 'ACTIVE'),
+                    Yii::t("app",
                         '{0} is already in the active task queue.',
                         [
                             $this->describeTask($task)
@@ -61,8 +68,8 @@ final class PhabricatorWorkerManagementRetryWorkflow
             if ($task->getResult() == $result_success) {
                 $console->writeOut(
                     "**<bg:yellow> %s </bg>** %s\n",
-                    \Yii::t("app", 'SUCCEEDED'),
-                    \Yii::t("app",
+                    Yii::t("app", 'SUCCEEDED'),
+                    Yii::t("app",
                         '{0} has already succeeded, and can not be retried.',
                         [
                             $this->describeTask($task)
@@ -74,8 +81,8 @@ final class PhabricatorWorkerManagementRetryWorkflow
 
             $console->writeOut(
                 "**<bg:green> %s </bg>** %s\n",
-                \Yii::t("app", 'QUEUED'),
-                \Yii::t("app",
+                Yii::t("app", 'QUEUED'),
+                Yii::t("app",
                     '{0} was queued for retry.',
                     [
                         $this->describeTask($task)
