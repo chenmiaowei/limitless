@@ -10,6 +10,7 @@
 namespace orangins\modules\widgets\controllers;
 
 use orangins\lib\controllers\PhabricatorController;
+use orangins\modules\widgets\actions\PhabricatorWidgetsCKEditorAction;
 use orangins\modules\widgets\actions\PhabricatorWidgetsUEditorAction;
 
 /**
@@ -26,6 +27,7 @@ class IndexController extends PhabricatorController
     {
         return [
             'ueditor' => PhabricatorWidgetsUEditorAction::class,
+            'ckeditor' => PhabricatorWidgetsCKEditorAction::class,
         ];
     }
 }

@@ -6,6 +6,7 @@ use orangins\lib\response\AphrontAjaxResponse;
 use orangins\lib\view\form\AphrontFormView;
 use orangins\lib\view\form\control\PHUIFormFileAjaxControl;
 use orangins\modules\file\models\PhabricatorFile;
+use orangins\modules\widgets\form\control\PhabricatorCKEditorControl;
 
 /**
  * Class PhabricatorFileUploadDialogAction
@@ -56,8 +57,8 @@ final class PhabricatorFileUploadAjaxAction
 
                 return (new AphrontAjaxResponse())->setContent($content);
             } else {
-                $e_file = \Yii::t("app",'Required');
-                $errors[] = \Yii::t("app",'You must choose a file to upload.');
+                $e_file = \Yii::t("app", 'Required');
+                $errors[] = \Yii::t("app", 'You must choose a file to upload.');
             }
         }
 
@@ -71,16 +72,19 @@ final class PhabricatorFileUploadAjaxAction
             ->appendChild(
                 (new PHUIFormFileAjaxControl())
                     ->setName('filePHIDs')
-                    ->setLabel(\Yii::t("app",'Upload File'))
+                    ->setLabel(\Yii::t("app", 'Upload File'))
                     ->setAllowMultiple($allow_multiple)
-                    ->setError($e_file));
+                    ->setError($e_file))
+            ->appendChild(
+                (new PhabricatorCKEditorControl())
+                    ->setName('content')
+                    ->setLabel(\Yii::t("app", 'Content')));
 
         return $this->newDialog()
-            ->setTitle(\Yii::t("app",'File'))
+            ->setTitle(\Yii::t("app", 'File'))
             ->setErrors($errors)
             ->appendForm($form)
-            ->addSubmitButton(\Yii::t("app",'Upload'))
+            ->addSubmitButton(\Yii::t("app", 'Upload'))
             ->addCancelButton('/');
     }
-
 }

@@ -103,8 +103,7 @@ final class PHUIFormFileAjaxControl
             JavelinHtml::phutil_tag("h5", ['class' => 'card-title mb-3'], \Yii::t("app", $uploadButtonText)),
         ];
 
-        if($default_value) {
-            $phabricatorFile = PhabricatorFile::findModelByPHID($default_value);
+        if($default_value && ($phabricatorFile = PhabricatorFile::findModelByPHID($default_value))) {
             $content = [
                 JavelinHtml::phutil_tag("img", ['class' => 'w-100', 'src' => $phabricatorFile->getViewURI()])
             ];

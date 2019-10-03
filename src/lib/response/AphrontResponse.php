@@ -61,7 +61,7 @@ class AphrontResponse extends OranginsObject
     /**
      * @var
      */
-    protected $frameable;
+    protected $frameable = true;
 
     /**
      * @param AphrontRequest $request
@@ -195,9 +195,9 @@ class AphrontResponse extends OranginsObject
         }
 
         $csp = $this->newContentSecurityPolicyHeader();
-        if ($csp !== null) {
-            $headers[] = array('Content-Security-Policy', $csp);
-        }
+//        if ($csp !== null) {
+//            $headers[] = array('Content-Security-Policy', $csp);
+//        }
 
         $headers[] = array('Referrer-Policy', 'no-referrer');
 
@@ -279,7 +279,7 @@ class AphrontResponse extends OranginsObject
         // the user is convinced to click a element on the page, which really
         // clicks a dangerous button hidden under a picture of a cat.
         if ($this->frameable) {
-            $csp[] = "frame-ancestors 'self'";
+            $csp[] = "frame-ancestors $default";
         } else {
             $csp[] = "frame-ancestors 'none'";
         }

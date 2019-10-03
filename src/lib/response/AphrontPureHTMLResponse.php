@@ -10,6 +10,8 @@
 namespace orangins\lib\response;
 
 
+use yii\web\Response;
+
 class AphrontPureHTMLResponse extends AphrontHTMLResponse
 {
     /**
@@ -35,6 +37,6 @@ class AphrontPureHTMLResponse extends AphrontHTMLResponse
      */
     public function buildResponseString()
     {
-        return $this->content;
+        return json_encode($this->content);
     }
 }
