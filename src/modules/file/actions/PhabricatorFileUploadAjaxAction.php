@@ -4,7 +4,7 @@ namespace orangins\modules\file\actions;
 
 use orangins\lib\response\AphrontAjaxResponse;
 use orangins\lib\view\form\AphrontFormView;
-use orangins\lib\view\form\control\PHUIFormFileControl;
+use orangins\lib\view\form\control\PHUIFormFileAjaxControl;
 use orangins\modules\file\models\PhabricatorFile;
 
 /**
@@ -12,7 +12,7 @@ use orangins\modules\file\models\PhabricatorFile;
  * @package orangins\modules\file\actions
  * @author 陈妙威
  */
-final class PhabricatorFileUploadDialogAction
+final class PhabricatorFileUploadAjaxAction
     extends PhabricatorFileAction
 {
 
@@ -69,7 +69,7 @@ final class PhabricatorFileUploadDialogAction
 
         $form = (new AphrontFormView())
             ->appendChild(
-                (new PHUIFormFileControl())
+                (new PHUIFormFileAjaxControl())
                     ->setName('filePHIDs')
                     ->setLabel(\Yii::t("app",'Upload File'))
                     ->setAllowMultiple($allow_multiple)

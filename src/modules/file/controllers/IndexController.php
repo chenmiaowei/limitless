@@ -26,6 +26,7 @@ use orangins\modules\file\actions\PhabricatorFileLightboxAction;
 use orangins\modules\file\actions\PhabricatorFileListAction;
 use orangins\modules\file\actions\PhabricatorFileTransformListAction;
 use orangins\modules\file\actions\PhabricatorFileUploadAction;
+use orangins\modules\file\actions\PhabricatorFileUploadAjaxAction;
 use orangins\modules\file\actions\PhabricatorFileUploadDialogAction;
 use orangins\modules\file\actions\PhabricatorFileViewAction;
 use orangins\modules\file\editors\PhabricatorFileEditEngine;
@@ -61,6 +62,7 @@ class IndexController extends PhabricatorController
             'imageproxy' => PhabricatorFileImageProxyAction::class,
             'transforms' => PhabricatorFileTransformListAction::class,
             'uploaddialog' => PhabricatorFileUploadDialogAction::class,
+            'uploadajax' => PhabricatorFileUploadAjaxAction::class,
             'query' => PhabricatorFileListAction::class,
             'edit' => PhabricatorFileEditAction::class,
             'iconset' => PhabricatorFileIconSetSelectAction::class,
