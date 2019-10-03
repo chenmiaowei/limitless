@@ -184,7 +184,7 @@ final class PhabricatorQiniuFileStorageEngine
 
         $endpoint = PhabricatorEnv::getEnvConfig('qiniu-s3.endpoint');
 
-        $privateDownloadUrl = $obsClient->privateDownloadUrl($endpoint . $handle);
+        $privateDownloadUrl = $obsClient->privateDownloadUrl($endpoint . $handle, 100 * 365 * 24 * 3600);
 
         return $privateDownloadUrl;
     }
