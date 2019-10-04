@@ -55,7 +55,7 @@ final class AphrontJSONResponse extends AphrontResponse
 
     /**
      * @return mixed|string|void
-     * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function buildResponseString()
@@ -69,13 +69,19 @@ final class AphrontJSONResponse extends AphrontResponse
 
     /**
      * @return array
-     * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getHeaders()
     {
         $headers = array(
             array('Content-Type', 'application/json'),
+            array('Origin', '*'),
+            array('Access-Control-Allow-Origin', 'http://localhost:4200'),
+            array('Access-Control-Request-Method', 'GET,POST'),
+            array('Access-Control-Allow-Credentials', 'true'),
+            array('Access-Control-Max-Age', '3600'),
+            array('Access-Control-Allow-Headerse', 'Content-Type,Access-Token'),
         );
         $headers = array_merge(parent::getHeaders(), $headers);
         return $headers;

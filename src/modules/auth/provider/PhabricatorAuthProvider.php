@@ -457,7 +457,7 @@ abstract class PhabricatorAuthProvider extends OranginsObject
      * @throws \AphrontQueryException
      * @throws \Throwable
      */
-    protected function loadOrCreateAccount($account_id)
+    public function loadOrCreateAccount($account_id)
     {
         if (!strlen($account_id)) {
             throw new Exception(\Yii::t("app", 'Empty account ID!'));
