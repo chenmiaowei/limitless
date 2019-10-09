@@ -59,7 +59,26 @@ JX.behavior('phui-file-upload-ajax', function (config) {
         hiddenInput.value = file.getPHID();
 
         var content = JX.DOM.find(container, 'div', 'file-upload-ajax-content');
-        JX.DOM.setContent(content, JX.$N("img", {src: file.getURI(), style: {width: '100%'}}));
+
+        if(file.getRawFileObject() && file.getRawFileObject().type) {
+            if(file.getRawFileObject().type.indexOf('image') > -1 ){
+                JX.DOM.setContent(content, JX.$N("img", {src: file.getURI(), style: {width: '100%'}}));
+            } else if(file.getRawFileObject().type.indexOf('sheet') > -1) {
+                JX.DOM.setContent(content, JX.$N("i", {className: "icon-file-spreadsheet2 icon-2x text-success p-3 mt-3"}));
+                JX.DOM.appendContent(content, JX.$N("h5", {className: "card-title mb-3"},  file.getName()));
+            } else if(file.getRawFileObject().type.indexOf('csv') > -1) {
+                JX.DOM.setContent(content, JX.$N("i", {className: "icon-file-xml icon-2x text-success p-3 mt-3"}));
+                JX.DOM.appendContent(content, JX.$N("h5", {className: "card-title mb-3"},  file.getName()));
+            } else if(file.getRawFileObject().type.indexOf('document') > -1) {
+                JX.DOM.setContent(content, JX.$N("i", {className: "icon-file-presentation icon-2x text-success p-3 mt-3"}));
+                JX.DOM.appendContent(content, JX.$N("h5", {className: "card-title mb-3"},  file.getName()));
+            } else {
+                JX.DOM.setContent(content, JX.$N("i", {className: "icon-file-text icon-2x text-success p-3 mt-3"}));
+                JX.DOM.appendContent(content, JX.$N("h5", {className: "card-title mb-3"},  file.getName()));
+            }
+        } else {
+            JX.DOM.setContent(content, JX.$N("img", {src: file.getURI(), style: {width: '100%'}}));
+        }
     }
 
     JX.DOM.listen(input, 'change', null, startUpload);
