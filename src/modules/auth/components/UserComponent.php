@@ -52,6 +52,7 @@ class UserComponent extends User
         $request = Yii::$app->getRequest();
         $phsid = $request->getCookie(PhabricatorCookies::COOKIE_SESSION);
         $access_token = $request->getStr("access_token");
+        $access_token = $access_token ? $access_token : $request->getHeaders()->get("Access-Token");
 
         if ($access_token) {
             $token = PhabricatorOAuthServerAccessToken::find()->andWhere(['token' => $access_token])->one();

@@ -2,6 +2,7 @@
 
 namespace orangins\modules\conduit\protocol;
 
+use orangins\lib\infrastructure\contentsource\PhabricatorConduitContentSource;
 use orangins\lib\infrastructure\contentsource\PhabricatorContentSource;
 use orangins\lib\OranginsObject;
 use orangins\modules\oauthserver\models\PhabricatorOAuthServerAccessToken;

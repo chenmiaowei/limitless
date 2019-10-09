@@ -47,9 +47,8 @@ final class PhabricatorFileEditField
     /**
      * @param AphrontFormView $form
      * @return PhabricatorEditField
+     * @throws \PhutilInvalidStateException
      * @throws \PhutilMethodNotImplementedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     public function appendToForm(AphrontFormView $form)
