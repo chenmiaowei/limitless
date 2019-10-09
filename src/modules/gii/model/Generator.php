@@ -276,7 +276,6 @@ class Generator extends \yii\gii\Generator
         $this->queryNs = $this->applicationDir . "\\" . $this->applicationName . "\\" . 'query';
 
 
-
         $files = [];
         $db = $this->getDbConnection();
         foreach ($this->getTableNames() as $tableName) {
@@ -311,7 +310,7 @@ SQL;
 
             $names = ArrayHelper::getColumn($tableSchema->columns, 'name');
 
-            if($this->tablePrefix) {
+            if ($this->tablePrefix) {
                 $tableName = str_replace($this->tablePrefix, "", $tableName);
             }
             $params = [
@@ -327,11 +326,10 @@ SQL;
             ];
 
 
-
-            if(!in_array("phid", $names)) {
-                $this->baseClass =  "orangins\lib\db\ActiveRecord";
+            if (!in_array("phid", $names)) {
+                $this->baseClass = "orangins\lib\db\ActiveRecord";
             } else {
-                $this->baseClass =  "orangins\lib\db\ActiveRecordPHID";
+                $this->baseClass = "orangins\lib\db\ActiveRecordPHID";
             }
             $files[] = new CodeFile(
                 Yii::getAlias('@' . str_replace('\\', '/', $this->ns)) . '/' . $modelClassName . '.php',
@@ -457,14 +455,14 @@ SQL;
                     $this->render('model_transaction.php', $params)
                 );
                 $files[] = new CodeFile(
-                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "xaction" . '/' . $modelClassName) . 'TransactionType.php',
+                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "xaction" . '/' . str_replace('_', '', $tableName) . '/' . $modelClassName) . 'TransactionType.php',
                     $this->render('transaction_xaction_type.php', $params)
                 );
 
                 foreach ($requireColumns as $requireColumn) {
                     $params['column'] = $requireColumn;
                     $files[] = new CodeFile(
-                        Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "xaction" . '/' ) . $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', Inflector::camel2words($requireColumn->name))). 'TransactionType.php',
+                        Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "xaction" . '/' . str_replace('_', '', $tableName) . '/') . $modelClassName . str_replace("Phid", "PHID", str_replace(" ", '', Inflector::camel2words($requireColumn->name))) . 'TransactionType.php',
                         $this->render('transaction_xaction.php', $params)
                     );
                 }

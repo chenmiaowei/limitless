@@ -48,7 +48,7 @@ use orangins\lib\view\phui\PHUIPageHeaderView;
 use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
 use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>Transaction;
 <?php foreach ($requireColumns as $requireColumn): ?>
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\<?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', Inflector::camel2words($requireColumn->name))) ?>TransactionType;
+use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', Inflector::camel2words($requireColumn->name))) ?>TransactionType;
 <?php endforeach; ?>
 use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\editors\<?= $modelClassName ?>Editor;
 use Yii;

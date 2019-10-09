@@ -28,7 +28,7 @@ namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\m
 
 use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\phid\<?= $modelClassName ?>PHIDType;
 use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\query\<?= $modelClassName ?>TransactionQuery;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\<?= $modelClassName ?>TransactionType;
+use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace("_", '', $tableName) ?>\<?= $modelClassName ?>TransactionType;
 use orangins\modules\transactions\models\PhabricatorModularTransaction;
 
 /**
