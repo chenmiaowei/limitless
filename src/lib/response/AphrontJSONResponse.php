@@ -77,8 +77,8 @@ final class AphrontJSONResponse extends AphrontResponse
         $headers = array(
             array('Content-Type', 'application/json'),
             array('Origin', '*'),
-            array('Access-Control-Allow-Origin', 'http://localhost:4200'),
-            array('Access-Control-Request-Method', 'GET,POST'),
+            array('Access-Control-Allow-Origin', $this->getRequest()->getHeaders()->get('Origin')),
+            array('Access-Control-Request-Method', 'GET,POST,OPTION'),
             array('Access-Control-Allow-Credentials', 'true'),
             array('Access-Control-Max-Age', '3600'),
             array('Access-Control-Allow-Headerse', 'Content-Type,Access-Token'),
