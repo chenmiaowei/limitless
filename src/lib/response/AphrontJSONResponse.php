@@ -81,7 +81,7 @@ final class AphrontJSONResponse extends AphrontResponse
             array('Access-Control-Request-Method', 'GET,POST,OPTION'),
             array('Access-Control-Allow-Credentials', 'true'),
             array('Access-Control-Max-Age', '3600'),
-            array('Access-Control-Allow-Headerse', 'Content-Type,Access-Token'),
+            array('Access-Control-Allow-Headers', 'Content-Type,Access-Token'),
         );
         $headers = array_merge(parent::getHeaders(), $headers);
         return $headers;
