@@ -58,7 +58,7 @@ use Yii;
  * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions
  * @author 陈妙威
  */
-class <?= $modelClassName ?>EditAction extends PhabricatorProductAction
+class <?= $modelClassName ?>EditAction extends <?= $modelClassName ?>Action
 {
     /**
      * @return mixed
