@@ -107,13 +107,13 @@ class <?= $modelClassName ?>EditAction extends <?= $modelClassName ?>Action
 <?php if($k++ <= 10 && strpos($column->name, 'phid') === false): ?>
             ->appendChild(
                 (new AphrontFormTextControl())
-                    ->setLabel(Yii::t("app",'<?= $column->comment ? $column->comment : $column->name ?>'))
+                    ->setLabel(Yii::t("app",'<?= Inflector::camel2words($column->name) ?>'))
                     ->setValue($model-><?= $column->name ?>)
                     ->setName('<?= $column->name ?>'))
 <?php else: ?>
             //->appendChild(
             //    (new AphrontFormTextControl())
-            //        ->setLabel(Yii::t("app",'<?= $column->comment ? $column->comment : $column->name ?>'))
+            //        ->setLabel(Yii::t("app",'<?= Inflector::camel2words($column->name) ?>'))
             //        ->setValue($model-><?= $column->name ?>)
             //        ->setName('<?= $column->name ?>'))
 <?php endif ?>
