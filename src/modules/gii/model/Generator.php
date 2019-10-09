@@ -377,13 +377,13 @@ SQL;
                 );
 
                 $files[] = new CodeFile(
-                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . $modelClassName) . 'Action.php',
+                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . str_replace('_', '', $tableName) . '/' . $modelClassName) . 'Action.php',
                     $this->render('action_base.php', $params)
                 );
 
                 if (!$this->enableTransaction) {
                     $files[] = new CodeFile(
-                        Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . $modelClassName) . 'EditAction.php',
+                        Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . str_replace('_', '', $tableName) . '/' . $modelClassName) . 'EditAction.php',
                         $this->render('action_edit.php', $params)
                     );
                 } else {
@@ -397,24 +397,24 @@ SQL;
                     }
                     $params['requireColumns'] = $requireColumns;
                     $files[] = new CodeFile(
-                        Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . $modelClassName) . 'EditAction.php',
+                        Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . str_replace('_', '', $tableName) . '/' . $modelClassName) . 'EditAction.php',
                         $this->render('action_edit_transaction.php', $params)
                     );
                 }
 
 
                 $files[] = new CodeFile(
-                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . $modelClassName) . 'DeleteAction.php',
+                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . str_replace('_', '', $tableName) . '/' . $modelClassName) . 'DeleteAction.php',
                     $this->render('action_delete.php', $params)
                 );
 
                 $files[] = new CodeFile(
-                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . $modelClassName) . 'ListAction.php',
+                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . str_replace('_', '', $tableName) . '/' . $modelClassName) . 'ListAction.php',
                     $this->render('action_list.php', $params)
                 );
 
                 $files[] = new CodeFile(
-                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . $modelClassName) . 'ViewAction.php',
+                    Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "actions" . '/' . str_replace('_', '', $tableName) . '/' . $modelClassName) . 'ViewAction.php',
                     $this->render('action_view.php', $params)
                 );
 

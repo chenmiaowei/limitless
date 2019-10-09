@@ -33,7 +33,7 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions;
+namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
 
 use <?= $modelFullClassName ?>;
 use orangins\lib\response\Aphront404Response;

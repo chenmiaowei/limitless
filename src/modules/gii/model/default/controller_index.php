@@ -36,10 +36,10 @@ echo "<?php\n";
 namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\controllers;
 
 use orangins\lib\controllers\PhabricatorController;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= $modelClassName ?>ListAction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= $modelClassName ?>EditAction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= $modelClassName ?>ViewAction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= $modelClassName ?>DeleteAction;
+use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>ListAction;
+use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>EditAction;
+use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>ViewAction;
+use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>DeleteAction;
 
 /**
  * Class IndexController
