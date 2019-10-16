@@ -96,7 +96,7 @@ class <?= $modelClassName ?>EditAction extends <?= $modelClassName ?>Action
         if (!$model) $model = new <?= $modelClassName ?>();
 
 <?php foreach ($requireColumns as $requireColumn): ?>
-        $attt<?= ucfirst(preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
+        $attr<?= ucfirst(preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
         return strtoupper($matches[2]);
     }, $requireColumn->name)) ?> = $request->getStr('<?= $requireColumn->name ?>', $model->getAttribute('<?= $requireColumn->name ?>'));
 <?php endforeach; ?>
@@ -106,7 +106,7 @@ class <?= $modelClassName ?>EditAction extends <?= $modelClassName ?>Action
 <?php foreach ($requireColumns as $requireColumn): ?>
             $xactions[] = (new <?= $modelClassName ?>Transaction())
                 ->setTransactionType(<?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', Inflector::camel2words($requireColumn->name))) ?>TransactionType::TRANSACTIONTYPE)
-                ->setNewValue($attt<?= ucfirst(preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
+                ->setNewValue($attr<?= ucfirst(preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
         return strtoupper($matches[2]);
     }, $requireColumn->name)) ?>);
 <?php endforeach; ?>
@@ -129,7 +129,7 @@ class <?= $modelClassName ?>EditAction extends <?= $modelClassName ?>Action
             ->appendChild(
                 (new AphrontFormTextControl())
                     ->setLabel(Yii::t('app', '<?= Inflector::camel2words($requireColumn->name) ?>'))
-                    ->setValue($attt<?= ucfirst(preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
+                    ->setValue($attr<?= ucfirst(preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
         return strtoupper($matches[2]);
     }, $requireColumn->name)) ?>)
                     ->setName('<?= $requireColumn->name ?>'))
