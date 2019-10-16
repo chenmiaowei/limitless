@@ -38,6 +38,8 @@ class ResourceAsset extends AssetBundle
         'global/js/plugins/ui/moment/moment.min.js',
         'global/js/plugins/forms/styling/uniform.min.js',
         'global/js/plugins/forms/styling/switch.min.js',
+        'global/js/plugins/extensions/jquery_ui/core.min.js',
+        'global/js/plugins/extensions/jquery_ui/effects.min.js',
         'global/js/plugins/extensions/jquery_ui/interactions.min.js',
         'global/js/plugins/forms/select2/js/select2.full.min.js',
         'global/js/plugins/forms/select2/js/select2.custom.js',
