@@ -2,8 +2,10 @@
 
 namespace orangins\lib\view\phui;
 
+use orangins\lib\response\AphrontResponse;
 use orangins\lib\view\AphrontTagView;
 use Exception;
+use Yii;
 
 /**
  * Class PHUIListView
@@ -144,7 +146,7 @@ final class PHUIListView extends AphrontTagView
         }
 
         if (!$this->getItem($key)) {
-            throw new Exception(\Yii::t("app", "No such key '{0}' to add menu item after!", [
+            throw new Exception(Yii::t("app", "No such key '{0}' to add menu item after!", [
                 $key
             ]));
         }
@@ -202,7 +204,7 @@ final class PHUIListView extends AphrontTagView
 
         $other = $this->getItem($key);
         if ($other->getType() != PHUIListItemView::TYPE_LABEL) {
-            throw new Exception(\Yii::t("app", "Menu item '{0}' is not a label!", [
+            throw new Exception(Yii::t("app", "Menu item '{0}' is not a label!", [
                 $key
             ]));
         }
@@ -233,7 +235,7 @@ final class PHUIListView extends AphrontTagView
     private function requireKey($key)
     {
         if (!$this->getItem($key)) {
-            throw new Exception(\Yii::t("app", "No menu item with key '{0}' exists!", [
+            throw new Exception(Yii::t("app", "No menu item with key '{0}' exists!", [
                 $key
             ]));
         }
@@ -289,7 +291,7 @@ final class PHUIListView extends AphrontTagView
             if ($key !== null) {
                 if (isset($key_map[$key])) {
                     throw new Exception(
-                        \Yii::t("app", "Menu contains duplicate items with key '{0}'!", [
+                        Yii::t("app", "Menu contains duplicate items with key '{0}'!", [
                             $key
                         ]));
                 }
@@ -336,7 +338,7 @@ final class PHUIListView extends AphrontTagView
     }
 
     /**
-     * @return array|\orangins\lib\response\AphrontResponse|string
+     * @return array|AphrontResponse|string
      * @author 陈妙威
      */
     protected function getTagContent()

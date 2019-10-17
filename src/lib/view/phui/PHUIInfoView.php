@@ -166,6 +166,7 @@ final class PHUIInfoView extends AphrontTagView
             return $this->icon;
         }
 
+        $icon = null;
         switch ($this->getSeverity()) {
             case self::SEVERITY_ERROR:
                 $icon = 'fa-exclamation-circle';
@@ -223,7 +224,7 @@ final class PHUIInfoView extends AphrontTagView
 
     /**
      * @return array
-     * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     protected function getTagContent()

@@ -7,7 +7,7 @@ use orangins\lib\events\WillRenderPropertyEvent;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\layout\PhabricatorActionListView;
 use orangins\lib\view\AphrontView;
-use PhutilEventEngine;
+use orangins\lib\view\widget\AphrontKeyboardShortcutsAvailableView;
 use PhutilSafeHTML;
 use Yii;
 use Exception;
@@ -254,6 +254,7 @@ final class PHUIPropertyListView extends AphrontView
      * @return mixed
      * @throws \PhutilInvalidStateException
      * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -396,8 +397,8 @@ final class PHUIPropertyListView extends AphrontView
     /**
      * @param array $part
      * @return mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     private function renderSectionPart(array $part)
     {

@@ -2,10 +2,14 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontView;
 use orangins\lib\view\control\AphrontCursorPagerView;
 use orangins\modules\transactions\assets\JavelinShowOrderTransactionAsset;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
 
 /**
  * Class PHUITimelineView
@@ -165,9 +169,9 @@ final class PHUITimelineView extends AphrontView
 
     /**
      * @return mixed|string
-     * @throws \yii\base\Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -197,7 +201,7 @@ final class PHUITimelineView extends AphrontView
                     array(
                         'class' => 'aural-only',
                     ),
-                    \Yii::t("app", 'Event Timeline')),
+                    Yii::t("app", 'Event Timeline')),
                 $events,
             ));
     }
@@ -205,7 +209,8 @@ final class PHUITimelineView extends AphrontView
     /**
      * @return array
      * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     public function buildEvents()
@@ -251,12 +256,12 @@ final class PHUITimelineView extends AphrontView
         if ($more && $this->getPager()) {
             switch ($hide_reason) {
                 case 'comment':
-                    $hide_help = \Yii::t("app",
+                    $hide_help = Yii::t("app",
                         'Changes from before your most recent comment are hidden.');
                     break;
                 case 'limit':
                 default:
-                    $hide_help = \Yii::t("app",
+                    $hide_help = Yii::t("app",
                         'There are a very large number of changes, so older changes are ' .
                         'hidden.');
                     break;
@@ -281,7 +286,7 @@ final class PHUITimelineView extends AphrontView
                             'mustcapture' => true,
                             'sigil' => 'show-older-link',
                         ),
-                        \Yii::t("app", 'Show Older Changes')),
+                        Yii::t("app", 'Show Older Changes')),
                 ));
 
             if ($show) {
@@ -310,7 +315,7 @@ final class PHUITimelineView extends AphrontView
 
     /**
      * @return string
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public static function renderSpacer()
@@ -326,7 +331,7 @@ final class PHUITimelineView extends AphrontView
 
     /**
      * @return string
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public static function renderEnder()

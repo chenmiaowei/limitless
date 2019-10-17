@@ -9,10 +9,14 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
+use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use PhutilInvalidStateException;
 use orangins\modules\phid\PhabricatorObjectHandle;
 use orangins\modules\spaces\view\PHUISpacesNamespaceContextView;
+use PhutilSafeHTML;
+use ReflectionException;
 
 /**
  * Class PHUIHovercardView
@@ -167,12 +171,10 @@ class PHUIHovercardView extends AphrontTagView {
     }
 
     /**
-     * @return array|\PhutilSafeHTML
+     * @return array|PhutilSafeHTML
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent() {
@@ -273,7 +275,7 @@ class PHUIHovercardView extends AphrontTagView {
 
             if ($action['workflow']) {
                 $options['sigil'] = 'workflow';
-                $buttons[] = javelin_tag(
+                $buttons[] = JavelinHtml::phutil_tag(
                     'a',
                     $options,
                     $action['label']);

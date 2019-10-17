@@ -2,8 +2,10 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
+use Yii;
 
 /**
  * Class PHUIDocumentSummaryView
@@ -140,7 +142,7 @@ final class PHUIDocumentSummaryView extends AphrontTagView
 
     /**
      * @return array
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent()
@@ -181,7 +183,7 @@ final class PHUIDocumentSummaryView extends AphrontTagView
                 'class' => 'phui-document-read-more',
                 'href' => $this->href,
             ),
-            \Yii::t("app", 'Read more...'));
+            Yii::t("app", 'Read more...'));
 
         return array($header, $subtitle, $body, $read_more);
     }

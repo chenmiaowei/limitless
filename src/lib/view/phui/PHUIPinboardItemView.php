@@ -2,8 +2,11 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontView;
+use orangins\modules\spaces\view\PHUISpacesNamespaceContextView;
+use PhutilInvalidStateException;
 
 /**
  * Class PHUIPinboardItemView
@@ -128,8 +131,8 @@ final class PHUIPinboardItemView extends AphrontView
 
     /**
      * @return mixed|string
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()

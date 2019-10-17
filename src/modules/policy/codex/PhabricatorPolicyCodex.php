@@ -7,7 +7,6 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\policy\interfaces\PhabricatorPolicyInterface;
 use orangins\modules\policy\models\PhabricatorPolicy;
 use orangins\modules\policy\models\PhabricatorPolicyQuery;
-use orangins\modules\policy\rule\PhabricatorPolicyRule;
 use Exception;
 
 /**

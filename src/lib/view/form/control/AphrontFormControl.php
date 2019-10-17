@@ -407,8 +407,8 @@ abstract class AphrontFormControl extends AphrontView
 
     /**
      * @return null|string
+     * @throws \Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function render()
     {

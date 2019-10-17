@@ -4,6 +4,8 @@ namespace orangins\lib\view\phui;
 
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
+use orangins\modules\badges\constants\PhabricatorBadgesQuality;
+use orangins\modules\widgets\javelin\JavelinBadgeViewAsset;
 
 /**
  * Class PHUIBadgeView
@@ -148,6 +150,7 @@ final class PHUIBadgeView extends AphrontTagView
 
     /**
      * @return array
+     * @throws \ReflectionException
      * @author 陈妙威
      */
     protected function getTagAttributes()
@@ -155,7 +158,7 @@ final class PHUIBadgeView extends AphrontTagView
 //        require_celerity_resource('phui-badge-view-css');
         $id = JavelinHtml::generateUniqueNodeId();
 
-        Javelin::initBehavior('badge-view', array());
+        JavelinHtml::initBehavior(new JavelinBadgeViewAsset(), array());
 
         $classes = array();
         $classes[] = 'phui-badge-view';
@@ -178,7 +181,7 @@ final class PHUIBadgeView extends AphrontTagView
 
     /**
      * @return array|string
-     * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     protected function getTagContent()

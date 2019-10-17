@@ -5,6 +5,8 @@ namespace orangins\lib\view\phui;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use Exception;
+use PhutilInvalidStateException;
+use Yii;
 
 /**
  * Class PHUITabGroupView
@@ -61,7 +63,7 @@ final class PHUITabGroupView extends AphrontTagView
      * @param PHUITabView $tab
      * @return $this
      * @author 陈妙威
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @throws Exception
      */
     public function addTab(PHUITabView $tab)
@@ -71,10 +73,12 @@ final class PHUITabGroupView extends AphrontTagView
 
         if (isset($this->tabs[$key])) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Each tab in a tab group must have a unique key; attempting to add ' .
-                    'a second tab with a duplicate key ("%s").',
-                    $key));
+                    'a second tab with a duplicate key ("{0}").',
+                    [
+                        $key
+                    ]));
         }
 
         $this->tabs[$key] = $tab;
@@ -92,7 +96,7 @@ final class PHUITabGroupView extends AphrontTagView
     {
         if (empty($this->tabs[$key])) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Unable to select tab ("{0}") which does not exist.',
                     [
                         $key
@@ -124,8 +128,8 @@ final class PHUITabGroupView extends AphrontTagView
 
     /**
      * @return array
-     * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent()

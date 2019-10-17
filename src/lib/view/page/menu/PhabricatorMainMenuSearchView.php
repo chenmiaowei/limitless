@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\page\menu;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
@@ -14,6 +15,9 @@ use orangins\modules\search\query\PhabricatorSearchApplicationSearchEngine;
 use orangins\modules\search\typeahead\PhabricatorSearchDatasource;
 use orangins\modules\settings\setting\PhabricatorSearchScopeSetting;
 use orangins\lib\view\AphrontView;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -73,10 +77,9 @@ final class PhabricatorMainMenuSearchView extends AphrontView
 
     /**
      * @return mixed
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception*@throws \Exception
-     * @throws \Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -125,7 +128,7 @@ final class PhabricatorMainMenuSearchView extends AphrontView
                 'appScope' => PhabricatorSearchAction::SCOPE_CURRENT_APPLICATION,
                 'src' => $search_datasource->getDatasourceURI(),
                 'limit' => 10,
-                'placeholder' => \Yii::t("app", 'Search'),
+                'placeholder' => Yii::t("app", 'Search'),
                 'scopeUpdateURI' => Url::to(['/settings/index/adjust', 'key' => $scope_key]),
             ));
 
@@ -142,7 +145,7 @@ final class PhabricatorMainMenuSearchView extends AphrontView
             array(
                 'aural' => true,
             ),
-            \Yii::t("app", 'Search'));
+            Yii::t("app", 'Search'));
 
         $selector = $this->buildModeSelector($selector_id, $application_id);
 
@@ -181,9 +184,9 @@ final class PhabricatorMainMenuSearchView extends AphrontView
      * @param $selector_id
      * @param $application_id
      * @return array
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException*@throws \Exception
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException*@throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function buildModeSelector($selector_id, $application_id)
@@ -192,12 +195,12 @@ final class PhabricatorMainMenuSearchView extends AphrontView
 
         $items = array();
         $items[] = array(
-            'name' => \Yii::t("app", 'Search'),
+            'name' => Yii::t("app", 'Search'),
         );
 
         $items[] = array(
             'icon' => 'fa-globe',
-            'name' => \Yii::t("app", 'All Documents'),
+            'name' => Yii::t("app", 'All Documents'),
             'value' => 'all',
         );
 
@@ -218,7 +221,7 @@ final class PhabricatorMainMenuSearchView extends AphrontView
 //        );
 
         $items[] = array(
-            'name' => \Yii::t("app", 'Saved Queries'),
+            'name' => Yii::t("app", 'Saved Queries'),
         );
 
 
@@ -241,12 +244,12 @@ final class PhabricatorMainMenuSearchView extends AphrontView
         }
 
         $items[] = array(
-            'name' => \Yii::t("app", 'More Options'),
+            'name' => Yii::t("app", 'More Options'),
         );
 
         $items[] = array(
             'icon' => 'fa-search-plus',
-            'name' => \Yii::t("app", 'Advanced Search'),
+            'name' => Yii::t("app", 'Advanced Search'),
             'href' => Url::to(['/search/index/query', 'queryKey' => 'advanced']),
         );
 
@@ -276,7 +279,7 @@ final class PhabricatorMainMenuSearchView extends AphrontView
                 (new PHUIIconView())
                     ->addSigil('global-search-dropdown-icon')
                     ->setIcon($current_icon))
-            ->setAuralLabel(\Yii::t("app", 'Configure Global Search'))
+            ->setAuralLabel(Yii::t("app", 'Configure Global Search'))
             ->setDropdown(true);
 
         $input = JavelinHtml::phutil_tag(

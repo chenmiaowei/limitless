@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\layout;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontView;
 
@@ -46,27 +47,27 @@ final class PhabricatorAnchorView extends AphrontView
 
     /**
      * @return array|string
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function render()
     {
         $marker = null;
         if ($this->navigationMarker) {
-            $marker = JavelinHtml::tag('legend', '', array(
+            $marker = JavelinHtml::phutil_tag('legend', array(
                 'class' => 'phabricator-anchor-navigation-marker',
                 'sigil' => 'marker',
                 'meta' => array(
                     'anchor' => $this->anchorName,
                 ),
-            ));
+            ), '');
         }
 
-        $anchor = JavelinHtml::tag('a', '', array(
+        $anchor = JavelinHtml::phutil_tag('a', array(
             'name' => $this->anchorName,
             'id' => $this->anchorName,
             'class' => 'phabricator-anchor-view',
-        ));
+        ), '');
 
         return array($marker, $anchor);
     }

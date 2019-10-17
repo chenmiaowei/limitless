@@ -114,7 +114,7 @@ final class PHUIBigInfoView extends AphrontTagView
 
     /**
      * @return array
-     * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     protected function getTagContent()

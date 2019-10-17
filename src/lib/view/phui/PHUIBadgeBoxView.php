@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 
@@ -88,7 +89,7 @@ final class PHUIBadgeBoxView extends AphrontTagView
 
     /**
      * @return array
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent()

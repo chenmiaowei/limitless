@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\view\AphrontView;
@@ -113,8 +114,8 @@ final class PHUICrumbsView extends AphrontView
 
     /**
      * @return string
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function render()
     {

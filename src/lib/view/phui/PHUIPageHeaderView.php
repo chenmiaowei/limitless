@@ -13,16 +13,18 @@ use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\layout\PhabricatorActionListView;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
+use orangins\modules\policy\codex\PhabricatorPolicyCodex;
+use orangins\modules\policy\codex\PhabricatorPolicyCodexInterface;
 use orangins\modules\policy\constants\PhabricatorPolicyStrengthConstants;
 use orangins\modules\policy\models\PhabricatorPolicyQuery;
 use orangins\modules\spaces\interfaces\PhabricatorSpacesInterface;
 use orangins\modules\spaces\query\PhabricatorSpacesNamespaceQuery;
-use PhutilNumber;
 use orangins\lib\view\AphrontTagView;
 use orangins\modules\policy\interfaces\PhabricatorPolicyInterface;
 use orangins\modules\spaces\view\PHUISpacesNamespaceContextView;
 use orangins\lib\view\AphrontView;
 use Exception;
+use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -376,16 +378,16 @@ class PHUIPageHeaderView extends AphrontTagView
         $age = time() - $epoch;
         $age = floor($age / (60 * 60 * 24));
         if ($age < 1) {
-            $when = \Yii::t("app", 'Today');
+            $when = Yii::t("app", 'Today');
         } else if ($age == 1) {
-            $when = \Yii::t("app", 'Yesterday');
+            $when = Yii::t("app", 'Yesterday');
         } else {
-            $when = \Yii::t("app", '{0} Day(s) Ago', [
+            $when = Yii::t("app", '{0} Day(s) Ago', [
                 $age
             ]);
         }
 
-        $this->setStatus('fa-clock-o', AphrontView::COLOR_SUCCESS, \Yii::t("app", 'Updated {0}', [
+        $this->setStatus('fa-clock-o', AphrontView::COLOR_SUCCESS, Yii::t("app", 'Updated {0}', [
             $when
         ]));
         return $this;
@@ -458,6 +460,7 @@ class PHUIPageHeaderView extends AphrontTagView
      * @throws \PhutilInvalidStateException
      * @throws \yii\base\Exception
      * @throws \ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent()
@@ -466,7 +469,7 @@ class PHUIPageHeaderView extends AphrontTagView
         if ($this->actionList || $this->actionListID) {
             $action_button = (new PHUIButtonView())
                 ->setTag('a')
-                ->setText(\Yii::t("app", 'Actions'))
+                ->setText(Yii::t("app", 'Actions'))
                 ->setHref('#')
                 ->setIcon('fa-bars')
                 ->addClass('phui-mobile-menu');
@@ -628,7 +631,7 @@ class PHUIPageHeaderView extends AphrontTagView
                         $property_list[] = $property;
                         break;
                     default:
-                        throw new Exception(\Yii::t("app", 'Incorrect Property Passed'));
+                        throw new Exception(Yii::t("app", 'Incorrect Property Passed'));
                         break;
                 }
             }
@@ -707,6 +710,7 @@ class PHUIPageHeaderView extends AphrontTagView
      * @throws \PhutilInvalidStateException
      * @throws \yii\base\Exception
      * @throws \ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderPolicyProperty(PhabricatorPolicyInterface $object)

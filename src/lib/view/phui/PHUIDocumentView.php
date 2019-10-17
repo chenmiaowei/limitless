@@ -4,6 +4,9 @@ namespace orangins\lib\view\phui;
 
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
+use orangins\lib\view\layout\PHUICurtainView;
+use orangins\modules\widgets\javelin\JavelinRevealContentAsset;
+use Yii;
 
 /**
  * Class PHUIDocumentView
@@ -14,7 +17,7 @@ final class PHUIDocumentView extends AphrontTagView
 {
 
     /**
-     * @var
+     * @var PHUIHeaderView
      */
     private $header;
     /**
@@ -38,7 +41,7 @@ final class PHUIDocumentView extends AphrontTagView
      */
     private $foot;
     /**
-     * @var
+     * @var PHUICurtainView
      */
     private $curtain;
     /**
@@ -167,14 +170,14 @@ final class PHUIDocumentView extends AphrontTagView
 
     /**
      * @return array|string
-     * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     protected function getTagContent()
     {
 //        require_celerity_resource('phui-document-view-css');
 //        require_celerity_resource('phui-document-view-pro-css');
-        Javelin::initBehavior('phabricator-reveal-content');
+        JavelinHtml::initBehavior(new JavelinRevealContentAsset());
 
         $classes = array();
         $classes[] = 'phui-document-view';
@@ -193,7 +196,7 @@ final class PHUIDocumentView extends AphrontTagView
 
         $book = null;
         if ($this->bookname) {
-            $book = \Yii::t("app", '{0} ({1})', [
+            $book = Yii::t("app", '{0} ({1})', [
                 $this->bookname, $this->bookdescription
             ]);
         }

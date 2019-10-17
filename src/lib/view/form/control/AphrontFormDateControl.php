@@ -14,6 +14,8 @@ use orangins\modules\settings\setting\PhabricatorTimeFormatSetting;
 use orangins\modules\settings\setting\PhabricatorWeekStartDaySetting;
 use orangins\modules\typeahead\assets\JavelinTimeTypeaheadBehaviorAsset;
 use orangins\modules\widgets\javelin\JavelinFancyDatepickerBehaviorAsset;
+use PhutilInvalidStateException;
+use ReflectionException;
 
 /**
  * Class AphrontFormDateControl
@@ -136,8 +138,8 @@ final class AphrontFormDateControl extends AphrontFormControl
     /**
      * @param AphrontRequest $request
      * @return mixed|AphrontFormControl
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function readValueFromRequest(AphrontRequest $request)
@@ -202,8 +204,8 @@ final class AphrontFormDateControl extends AphrontFormControl
     /**
      * @param $epoch
      * @return AphrontFormControl
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function setValue($epoch)
@@ -239,8 +241,8 @@ final class AphrontFormDateControl extends AphrontFormControl
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function getDateInputValue()
@@ -259,8 +261,8 @@ final class AphrontFormDateControl extends AphrontFormControl
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function getTimeFormat()
@@ -272,8 +274,8 @@ final class AphrontFormDateControl extends AphrontFormControl
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function getDateFormat()
@@ -296,8 +298,8 @@ final class AphrontFormDateControl extends AphrontFormControl
      * @param $epoch
      * @param $fmt
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function formatTime($epoch, $fmt)
@@ -337,8 +339,8 @@ final class AphrontFormDateControl extends AphrontFormControl
 
     /**
      * @return mixed|string
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */
@@ -471,8 +473,8 @@ final class AphrontFormDateControl extends AphrontFormControl
 
     /**
      * @return DateTimeZone
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function getTimezone()
@@ -490,8 +492,8 @@ final class AphrontFormDateControl extends AphrontFormControl
 
     /**
      * @return null
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function getInitialValue()
@@ -529,8 +531,8 @@ final class AphrontFormDateControl extends AphrontFormControl
 
     /**
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function getTimeTypeaheadValues()

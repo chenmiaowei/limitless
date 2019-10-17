@@ -22,7 +22,10 @@ use orangins\modules\spaces\interfaces\PhabricatorSpacesInterface;
 use orangins\modules\spaces\query\PhabricatorSpacesNamespaceQuery;
 use orangins\modules\spaces\view\PHUISpacesNamespaceContextView;
 use orangins\lib\view\AphrontView;
-use PhutilNumber;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
+use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -351,16 +354,16 @@ class PHUIHeaderView extends AphrontTagView
         $age = time() - $epoch;
         $age = floor($age / (60 * 60 * 24));
         if ($age < 1) {
-            $when = \Yii::t("app",'Today');
+            $when = Yii::t("app", 'Today');
         } else if ($age == 1) {
-            $when = \Yii::t("app",'Yesterday');
+            $when = Yii::t("app", 'Yesterday');
         } else {
-            $when = \Yii::t("app",'{0} Day(s) Ago', [
+            $when = Yii::t("app", '{0} Day(s) Ago', [
                 $age
             ]);
         }
 
-        $this->setStatus('fa-clock-o', AphrontView::COLOR_SUCCESS, \Yii::t("app",'Updated {0}', [
+        $this->setStatus('fa-clock-o', AphrontView::COLOR_SUCCESS, Yii::t("app", 'Updated {0}', [
             $when
         ]));
         return $this;
@@ -399,7 +402,8 @@ class PHUIHeaderView extends AphrontTagView
      * @return array
      * @author 陈妙威
      */
-    protected function getTagAttributes() {
+    protected function getTagAttributes()
+    {
 //        require_celerity_resource('phui-header-view-css');
 
         $classes = array();
@@ -429,16 +433,18 @@ class PHUIHeaderView extends AphrontTagView
 
     /**
      * @return array|string
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws \Exception
      * @author 陈妙威
      */
-    protected function getTagContent() {
+    protected function getTagContent()
+    {
 
         if ($this->actionList || $this->actionListID) {
             $action_button = (new PHUIButtonView())
                 ->setTag('a')
-                ->setText(\Yii::t("app",'Actions'))
+                ->setText(Yii::t("app", 'Actions'))
                 ->setHref('#')
                 ->setIcon('fa-bars')
                 ->addClass('phui-mobile-menu');
@@ -465,7 +471,7 @@ class PHUIHeaderView extends AphrontTagView
                 'span',
                 array(
                     'class' => 'phui-header-image',
-                    'style' => 'background-image: url('.$this->image.')',
+                    'style' => 'background-image: url(' . $this->image . ')',
                 ));
 
             if ($image_href) {
@@ -476,7 +482,7 @@ class PHUIHeaderView extends AphrontTagView
                         array(
                             'class' => 'phui-header-image-edit',
                         ),
-                        \Yii::t("app",'Edit'));
+                        Yii::t("app", 'Edit'));
                 }
 
                 $image = JavelinHtml::phutil_tag(
@@ -537,8 +543,8 @@ class PHUIHeaderView extends AphrontTagView
             if ($this->actionItems) {
                 foreach ($this->actionItems as $item) {
                     $action_list[] = JavelinHtml::phutil_tag('li', array(
-                            'class' => 'list-inline-item',
-                        ),
+                        'class' => 'list-inline-item',
+                    ),
                         $item);
                 }
             }
@@ -605,7 +611,7 @@ class PHUIHeaderView extends AphrontTagView
                         $property_list[] = $property;
                         break;
                     default:
-                        throw new Exception(\Yii::t("app",'Incorrect Property Passed'));
+                        throw new Exception(Yii::t("app", 'Incorrect Property Passed'));
                         break;
                 }
             }
@@ -662,12 +668,14 @@ class PHUIHeaderView extends AphrontTagView
     /**
      * @param PhabricatorPolicyInterface $object
      * @return null|string
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws Exception
+     * @throws ReflectionException
+     * @throws \Exception
      * @author 陈妙威
      */
-    private function renderPolicyProperty(PhabricatorPolicyInterface $object) {
+    private function renderPolicyProperty(PhabricatorPolicyInterface $object)
+    {
         $viewer = $this->getUser();
 
         $policies = PhabricatorPolicyQuery::loadPolicies($viewer, $object);
@@ -759,7 +767,7 @@ class PHUIHeaderView extends AphrontTagView
         }
 
         $policy_name = array($policy->getShortName());
-        $policy_icon = $policy->getIcon().' bluegrey';
+        $policy_icon = $policy->getIcon() . ' bluegrey';
 
         if ($object instanceof PhabricatorPolicyCodexInterface) {
             $codex = PhabricatorPolicyCodex::newFromObject($object, $viewer);
@@ -797,7 +805,7 @@ class PHUIHeaderView extends AphrontTagView
             'a',
             array(
                 'class' => 'policy-link',
-                'href' => '/policy/explain/'.$phid.'/'.$view_capability.'/',
+                'href' => '/policy/explain/' . $phid . '/' . $view_capability . '/',
                 'sigil' => 'workflow',
             ),
             $policy_name);

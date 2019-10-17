@@ -5,8 +5,10 @@ namespace orangins\lib\view\phui;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\AphrontView;
+use orangins\modules\widgets\javelin\JavelinKeyboardPagerAsset;
 use PhutilInvalidStateException;
 use PhutilURI;
+use Yii;
 
 /**
  * Class PHUIPagerView
@@ -279,11 +281,11 @@ final class PHUIPagerView extends AphrontView
         $next_index = null;
 
         if ($min > 0) {
-            $links[] = array(0, \Yii::t("app", 'First'), null);
+            $links[] = array(0, Yii::t("app", 'First'), null);
         }
 
         if ($page > 0) {
-            $links[] = array($page - 1, \Yii::t("app", 'Prev'), null);
+            $links[] = array($page - 1, Yii::t("app", 'Prev'), null);
             $prev_index = $page - 1;
         }
 
@@ -292,12 +294,12 @@ final class PHUIPagerView extends AphrontView
         }
 
         if ($page < $last && $last > 0) {
-            $links[] = array($page + 1, \Yii::t("app", 'Next'), null);
+            $links[] = array($page + 1, Yii::t("app", 'Next'), null);
             $next_index = $page + 1;
         }
 
         if ($max < ($last - 1)) {
-            $links[] = array($last, \Yii::t("app", 'Last'), null);
+            $links[] = array($last, Yii::t("app", 'Last'), null);
         }
 
         $base_uri = $this->uri;
@@ -317,7 +319,7 @@ final class PHUIPagerView extends AphrontView
                         $display_index);
                 }
             }
-            Javelin::initBehavior('phabricator-keyboard-pager', $pager_links);
+            JavelinHtml::initBehavior(new JavelinKeyboardPagerAsset(), $pager_links);
         }
 
         // Convert tuples into rendered nodes.
@@ -329,7 +331,7 @@ final class PHUIPagerView extends AphrontView
             $rendered_links[] = (new PHUIButtonView())
                 ->setTag('a')
                 ->setHref($link)
-                ->setColor(PHUIButtonView::BACKGROUND_GREY)
+                ->setColor(PHUIButtonView::COLOR_GREY_800)
                 ->addClass('mml')
                 ->addClass($class)
                 ->setText($label);

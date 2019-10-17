@@ -4,6 +4,7 @@ namespace orangins\lib\view\phui;
 
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
+use orangins\lib\response\AphrontResponse;
 use PhutilSafeHTML;
 use orangins\lib\view\AphrontTagView;
 use orangins\lib\view\AphrontView;
@@ -243,9 +244,9 @@ final class PHUIObjectItemListView extends AphrontTagView
     }
 
     /**
-     * @return array|\orangins\lib\response\AphrontResponse|string
-     * @throws \yii\base\Exception
+     * @return array|AphrontResponse|string
      * @throws \PhutilInvalidStateException
+     * @throws \Exception
      * @author 陈妙威
      */
     protected function getTagContent()
@@ -279,9 +280,9 @@ final class PHUIObjectItemListView extends AphrontTagView
                 ->setSeverity(PHUIInfoView::SEVERITY_NODATA)
                 ->addClass("m-3")
                 ->appendChild($string);
-            $items = JavelinHtml::tag('li', $string, array(
+            $items = JavelinHtml::phutil_tag('li', array(
                 'class' => 'phui-oi-empty',
-            ));
+            ), $string);
 
         }
 

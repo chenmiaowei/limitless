@@ -1,37 +1,73 @@
 <?php
+
 namespace orangins\lib\view\phui;
 
 use orangins\lib\view\AphrontTagView;
 
-final class PHUIStatusListView extends AphrontTagView {
+/**
+ * Class PHUIStatusListView
+ * @package orangins\lib\view\phui
+ * @author 陈妙威
+ */
+final class PHUIStatusListView extends AphrontTagView
+{
 
-  private $items;
+    /**
+     * @var
+     */
+    private $items;
 
-  public function addItem(PHUIStatusItemView $item) {
-    $this->items[] = $item;
-    return $this;
-  }
+    /**
+     * @param PHUIStatusItemView $item
+     * @return $this
+     * @author 陈妙威
+     */
+    public function addItem(PHUIStatusItemView $item)
+    {
+        $this->items[] = $item;
+        return $this;
+    }
 
-  protected function canAppendChild() {
-    return false;
-  }
+    /**
+     * @return bool
+     * @author 陈妙威
+     */
+    protected function canAppendChild()
+    {
+        return false;
+    }
 
-  protected function getTagName() {
-    return 'table';
-  }
+    /**
+     * @return string
+     * @author 陈妙威
+     */
+    protected function getTagName()
+    {
+        return 'table';
+    }
 
-  protected function getTagAttributes() {
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    protected function getTagAttributes()
+    {
 //    require_celerity_resource('phui-status-list-view-css');
 
-    $classes = array();
-    $classes[] = 'phui-status-list-view';
+        $classes = array();
+        $classes[] = 'phui-status-list-view';
 
-    return array(
-      'class' => implode(' ', $classes),
-    );
-  }
+        return array(
+            'class' => implode(' ', $classes),
+        );
+    }
 
-  protected function getTagContent() {
-    return $this->items;
-  }
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    protected function getTagContent()
+    {
+        return $this->items;
+    }
 }

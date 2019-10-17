@@ -4,10 +4,13 @@ namespace orangins\lib\view\phui;
 
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
+use orangins\lib\response\AphrontResponse;
 use orangins\lib\view\AphrontTagView;
 use orangins\lib\view\layout\PhabricatorAnchorView;
 use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
 use orangins\modules\widgets\javelin\JavelinRevealContentAsset;
+use ReflectionException;
+use Yii;
 
 /**
  * Class PHUIObjectBoxView
@@ -18,12 +21,12 @@ final class PHUIObjectBoxView extends AphrontTagView
 {
     /**
      * 头部
-     * @var
+     * @var PHUIHeaderView
      */
     private $header;
     /**
      * 头部名称文字
-     * @var
+     * @var string
      */
     private $headerText;
 
@@ -289,7 +292,7 @@ final class PHUIObjectBoxView extends AphrontTagView
     public function setFormSaved($saved, $text = null)
     {
         if (!$text) {
-            $text = \Yii::t("app", 'Changes saved.');
+            $text = Yii::t("app", 'Changes saved.');
         }
         if ($saved) {
             $save = (new PHUIInfoView())
@@ -334,11 +337,11 @@ final class PHUIObjectBoxView extends AphrontTagView
     }
 
     /**
-     * @param $header
+     * @param PHUIHeaderView $header
      * @return $this
      * @author 陈妙威
      */
-    public function setHeader($header)
+    public function setHeader(PHUIHeaderView $header)
     {
         $this->header = $header;
         return $this;
@@ -476,9 +479,8 @@ final class PHUIObjectBoxView extends AphrontTagView
     }
 
     /**
-     * @return array|\orangins\lib\response\AphrontResponse|string
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @return array|AphrontResponse|string
+     * @throws ReflectionException
      * @throws \Exception
      * @author 陈妙威
      */
@@ -561,7 +563,7 @@ final class PHUIObjectBoxView extends AphrontTagView
             );
             $mobile_menu = (new PHUIButtonView())
                 ->setTag('a')
-                ->setText(\Yii::t("app", 'Actions'))
+                ->setText(Yii::t("app", 'Actions'))
                 ->setHref('#')
                 ->setIcon($icon)
                 ->addClass('phui-mobile-menu')

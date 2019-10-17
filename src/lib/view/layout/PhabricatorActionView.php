@@ -488,7 +488,7 @@ final class PhabricatorActionView extends AphrontView
     /**
      * @return mixed
      * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()

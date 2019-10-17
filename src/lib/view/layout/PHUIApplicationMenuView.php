@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\layout;
 
+use Exception;
 use orangins\lib\OranginsObject;
 use orangins\lib\view\phui\PHUICrumbsView;
 use orangins\lib\view\phui\PHUIListItemView;
@@ -161,8 +162,8 @@ final class PHUIApplicationMenuView extends OranginsObject
 
     /**
      * @return mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function buildListView()
     {

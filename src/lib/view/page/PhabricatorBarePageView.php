@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\page;
 
+use Exception;
 use orangins\lib\actions\PhabricatorAction;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\request\AphrontRequest;
@@ -9,6 +10,7 @@ use orangins\modules\celerity\CelerityAPI;
 use orangins\modules\file\favicon\PhabricatorFaviconRef;
 use orangins\modules\file\favicon\PhabricatorFaviconRefQuery;
 use orangins\modules\settings\setting\PhabricatorAccessibilitySetting;
+use ReflectionException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -125,7 +127,7 @@ class PhabricatorBarePageView extends AphrontPageView
     /**
      * @author 陈妙威
      * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      */
     protected function willRenderPage()
     {
@@ -138,9 +140,8 @@ class PhabricatorBarePageView extends AphrontPageView
 
     /**
      * @return string
-     * @throws \ReflectionException
-
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getHead()
@@ -228,7 +229,7 @@ class PhabricatorBarePageView extends AphrontPageView
      * @return array
      * @author 陈妙威
      * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      */
     private function newFavicons()
     {

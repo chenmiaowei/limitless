@@ -2,8 +2,10 @@
 
 namespace orangins\lib\view\form;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontView;
+use PhutilInvalidStateException;
 
 /**
  * This provides the layout of an AphrontFormView without actually providing
@@ -47,7 +49,7 @@ final class PHUIFormLayoutView extends AphrontView
     /**
      * @param $text
      * @return PHUIFormLayoutView
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function appendInstructions($text)
@@ -64,8 +66,8 @@ final class PHUIFormLayoutView extends AphrontView
     /**
      * @param $remarkup
      * @return PHUIFormLayoutView
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     public function appendRemarkupInstructions($remarkup)
@@ -79,8 +81,8 @@ final class PHUIFormLayoutView extends AphrontView
 
     /**
      * @return string
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function render()
     {
@@ -91,9 +93,9 @@ final class PHUIFormLayoutView extends AphrontView
             $classes[] = 'phui-form-full-width';
         }
 
-        return JavelinHtml::tag('div', $this->renderChildren(), array(
+        return JavelinHtml::phutil_tag('div', array(
                 'class' => implode(' ', $classes),
-            ));
+            ), $this->renderChildren());
 
     }
 }

@@ -13,6 +13,7 @@ use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\lib\view\phui\PHUIObjectItemListView;
 use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
 use Exception;
+use Yii;
 
 /**
  * Class AphrontDialogView
@@ -305,7 +306,7 @@ final class AphrontDialogView extends AphrontView implements AphrontResponseProd
     public function addSubmitButton($text = null)
     {
         if (!$text) {
-            $text = \Yii::t("app", 'Okay');
+            $text = Yii::t("app", 'Okay');
         }
 
         $this->submitButton = $text;
@@ -321,7 +322,7 @@ final class AphrontDialogView extends AphrontView implements AphrontResponseProd
     public function addCancelButton($uri, $text = null)
     {
         if (!$text) {
-            $text = \Yii::t("app", 'Cancel');
+            $text = Yii::t("app", 'Cancel');
         }
 
         $this->cancelURI = $uri;
@@ -587,7 +588,7 @@ final class AphrontDialogView extends AphrontView implements AphrontResponseProd
 
         if (!$this->hasViewer()) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'You must call {0} when rendering an {1}.',
                     [
                         'setViewer()',

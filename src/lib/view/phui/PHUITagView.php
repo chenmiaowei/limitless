@@ -13,9 +13,8 @@ use PhutilInvalidStateException;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use orangins\modules\widgets\javelin\JavelinHoverCardAsset;
-use orangins\lib\view\AphrontView;
+use Yii;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
 
 /**
  * Class PHUITagView
@@ -139,8 +138,8 @@ class PHUITagView extends AphrontTagView
      */
     public function setShade($shade)
     {
-        \Yii::error(
-            \Yii::t("app",'Deprecated call to setShade(), use setColor() instead.'));
+        Yii::error(
+            Yii::t("app",'Deprecated call to setShade(), use setColor() instead.'));
         $this->color = $shade;
         return $this;
     }
@@ -318,7 +317,7 @@ class PHUITagView extends AphrontTagView
     }
 
     /**
-     * @return array
+     * @return array|string
      * @throws PhutilInvalidStateException
      * @throws \yii\base\Exception
      * @throws \Exception
@@ -424,15 +423,15 @@ class PHUITagView extends AphrontTagView
     public static function getShadeMap()
     {
         return array(
-            self::COLOR_DANGER => \Yii::t("app",'Red'),
-            self::COLOR_ORANGE => \Yii::t("app",'Orange'),
-            self::COLOR_WARNING => \Yii::t("app",'Yellow'),
-            self::COLOR_BLUE => \Yii::t("app",'Blue'),
-            self::COLOR_INDIGO => \Yii::t("app",'Indigo'),
-            self::COLOR_VIOLET => \Yii::t("app",'Violet'),
-            self::COLOR_GREEN => \Yii::t("app",'Green'),
-            self::COLOR_GREY => \Yii::t("app",'Grey'),
-            self::COLOR_PINK => \Yii::t("app",'Pink'),
+            self::COLOR_DANGER => Yii::t("app",'Red'),
+            self::COLOR_ORANGE => Yii::t("app",'Orange'),
+            self::COLOR_WARNING => Yii::t("app",'Yellow'),
+            self::COLOR_BLUE => Yii::t("app",'Blue'),
+            self::COLOR_INDIGO => Yii::t("app",'Indigo'),
+            self::COLOR_VIOLET => Yii::t("app",'Violet'),
+            self::COLOR_GREEN => Yii::t("app",'Green'),
+            self::COLOR_GREY => Yii::t("app",'Grey'),
+            self::COLOR_PINK => Yii::t("app",'Pink'),
         );
     }
 
@@ -489,15 +488,15 @@ class PHUITagView extends AphrontTagView
     public static function getOutlineMap()
     {
         return array(
-            self::COLOR_DANGER => \Yii::t("app",'Red'),
-            self::COLOR_ORANGE => \Yii::t("app",'Orange'),
-            self::COLOR_WARNING => \Yii::t("app",'Yellow'),
-            self::COLOR_BLUE => \Yii::t("app",'Blue'),
-            self::COLOR_INDIGO => \Yii::t("app",'Indigo'),
-            self::COLOR_VIOLET => \Yii::t("app",'Violet'),
-            self::COLOR_GREEN => \Yii::t("app",'Green'),
-            self::COLOR_GREY => \Yii::t("app",'Grey'),
-            self::COLOR_PINK => \Yii::t("app",'Pink'),
+            self::COLOR_DANGER => Yii::t("app",'Red'),
+            self::COLOR_ORANGE => Yii::t("app",'Orange'),
+            self::COLOR_WARNING => Yii::t("app",'Yellow'),
+            self::COLOR_BLUE => Yii::t("app",'Blue'),
+            self::COLOR_INDIGO => Yii::t("app",'Indigo'),
+            self::COLOR_VIOLET => Yii::t("app",'Violet'),
+            self::COLOR_GREEN => Yii::t("app",'Green'),
+            self::COLOR_GREY => Yii::t("app",'Grey'),
+            self::COLOR_PINK => Yii::t("app",'Pink'),
         );
     }
 

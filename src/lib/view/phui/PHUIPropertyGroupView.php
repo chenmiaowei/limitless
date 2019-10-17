@@ -1,27 +1,57 @@
 <?php
+
 namespace orangins\lib\view\phui;
 
 use orangins\lib\view\AphrontTagView;
 
-final class PHUIPropertyGroupView extends AphrontTagView {
+/**
+ * Class PHUIPropertyGroupView
+ * @package orangins\lib\view\phui
+ * @author 陈妙威
+ */
+final class PHUIPropertyGroupView extends AphrontTagView
+{
 
-  private $items;
+    /**
+     * @var
+     */
+    private $items;
 
-  public function addPropertyList(PHUIPropertyListView $item) {
-    $this->items[] = $item;
-  }
+    /**
+     * @param PHUIPropertyListView $item
+     * @author 陈妙威
+     */
+    public function addPropertyList(PHUIPropertyListView $item)
+    {
+        $this->items[] = $item;
+    }
 
-  protected function canAppendChild() {
-    return false;
-  }
+    /**
+     * @return bool
+     * @author 陈妙威
+     */
+    protected function canAppendChild()
+    {
+        return false;
+    }
 
-  protected function getTagAttributes() {
-    return array(
-      'class' => 'phui-property-list-view',
-    );
-  }
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    protected function getTagAttributes()
+    {
+        return array(
+            'class' => 'phui-property-list-view',
+        );
+    }
 
-  protected function getTagContent() {
-    return $this->items;
-  }
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    protected function getTagContent()
+    {
+        return $this->items;
+    }
 }

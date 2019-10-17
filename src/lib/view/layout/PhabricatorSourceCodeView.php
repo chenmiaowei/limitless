@@ -2,9 +2,11 @@
 
 namespace orangins\lib\view\layout;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontView;
 use PhutilURI;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -179,8 +181,7 @@ final class PhabricatorSourceCodeView extends AphrontView
 
     /**
      * @return mixed|string
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -206,7 +207,7 @@ final class PhabricatorSourceCodeView extends AphrontView
                 array(
                     'class' => 'c',
                 ),
-                \Yii::t("app", '...'));
+                Yii::t("app", '...'));
         } else if ($this->truncatedFirstBytes) {
             $last_key = last_key($lines);
             $lines[$last_key] = JavelinHtml::hsprintf(
@@ -217,7 +218,7 @@ final class PhabricatorSourceCodeView extends AphrontView
                     array(
                         'class' => 'c',
                     ),
-                    \Yii::t("app", '...')));
+                    Yii::t("app", '...')));
         }
 
         $base_uri = (string)$this->uri;

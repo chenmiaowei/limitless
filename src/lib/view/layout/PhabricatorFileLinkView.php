@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\layout;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use orangins\lib\view\phui\PHUIIconView;
@@ -282,7 +283,7 @@ final class PhabricatorFileLinkView extends AphrontTagView
 
     /**
      * @return array
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent()

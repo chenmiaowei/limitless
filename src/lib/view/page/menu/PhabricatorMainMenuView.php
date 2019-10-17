@@ -2,16 +2,15 @@
 
 namespace orangins\lib\view\page\menu;
 
-use orangins\modules\aphlict\assets\JavelinAphlictDropdownBehaviorAsset;
+use Exception;
 use orangins\modules\aphlict\query\AphlictDropdownDataQuery;
 use orangins\lib\actions\PhabricatorAction;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
 use orangins\modules\file\favicon\PhabricatorFaviconRefQuery;
-use orangins\modules\notification\application\PhabricatorNotificationsApplication;
-use orangins\modules\settings\panel\PhabricatorEmailAddressesSettingsPanel;
 use orangins\modules\widgets\javelin\JavelinSidebarToggleAsset;
+use PhutilInvalidStateException;
 use PhutilSafeHTML;
 use orangins\lib\view\layout\PhabricatorActionListView;
 use orangins\lib\view\layout\PhabricatorActionView;
@@ -19,12 +18,13 @@ use orangins\lib\view\phui\PHUIButtonView;
 use orangins\lib\view\phui\PHUIListItemView;
 use orangins\lib\view\phui\PHUIListView;
 use orangins\modules\cache\PhabricatorCaches;
-use orangins\modules\config\check\PhabricatorSetupCheck;
 use orangins\modules\config\customer\PhabricatorCustomLogoConfigType;
 use orangins\modules\file\favicon\PhabricatorFaviconRef;
 use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\lib\view\AphrontView;
+use ReflectionException;
+use Yii;
 use yii\helpers\Url;
 
 /**
@@ -86,8 +86,7 @@ final class PhabricatorMainMenuView extends AphrontView
     /**
      * @return mixed
      * @author 陈妙威
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      */
     private static function getFavicons()
     {
@@ -117,10 +116,10 @@ final class PhabricatorMainMenuView extends AphrontView
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @throws \yii\base\Exception
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -304,8 +303,8 @@ final class PhabricatorMainMenuView extends AphrontView
 
     /**
      * @return PhabricatorMainMenuSearchView|null
-     * @throws \PhutilInvalidStateException
-     * @throws \Exception
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderSearch()
@@ -342,8 +341,8 @@ final class PhabricatorMainMenuView extends AphrontView
         }
 
         $keyboard_config['pht'] = array(
-            '/' => \Yii::t("app", 'Give keyboard focus to the search box.'),
-            '?' => \Yii::t("app", 'Show keyboard shortcut help for the current page.'),
+            '/' => Yii::t("app", 'Give keyboard focus to the search box.'),
+            '?' => Yii::t("app", 'Show keyboard shortcut help for the current page.'),
         );
 
 //        Javelin::initBehavior(
@@ -361,8 +360,8 @@ final class PhabricatorMainMenuView extends AphrontView
 
     /**
      * @return null
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function renderApplicationMenuButton()
@@ -380,12 +379,12 @@ final class PhabricatorMainMenuView extends AphrontView
             ->addClass('phabricator-core-user-mobile-menu')
             ->setNoCSS(true)
             ->setDropdownMenu($dropdown)
-            ->setAuralLabel(\Yii::t("app", 'Page Menu'));
+            ->setAuralLabel(Yii::t("app", 'Page Menu'));
     }
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function renderApplicationMenu()
@@ -410,7 +409,7 @@ final class PhabricatorMainMenuView extends AphrontView
     /**
      * @param $header_id
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function renderSearchMenuButton($header_id)
@@ -441,8 +440,8 @@ final class PhabricatorMainMenuView extends AphrontView
 
     /**
      * @return PHUIListView
-     * @throws \PhutilInvalidStateException
-     * @throws \Exception
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderPhabricatorSearchMenu()
@@ -461,10 +460,10 @@ final class PhabricatorMainMenuView extends AphrontView
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @throws \yii\base\Exception
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderPhabricatorLogo()
@@ -525,7 +524,7 @@ final class PhabricatorMainMenuView extends AphrontView
             'a',
             array(
                 'class' => 'navbar-brand',
-                'href' => \Yii::$app->getHomeUrl(),
+                'href' => Yii::$app->getHomeUrl(),
             ),
             array(
                 JavelinHtml::phutil_tag(
@@ -533,7 +532,7 @@ final class PhabricatorMainMenuView extends AphrontView
                     array(
                         'aural' => true,
                     ),
-                    \Yii::t("app", 'Home')),
+                    Yii::t("app", 'Home')),
                 $logo_node,
                 $wordmark_node,
             ));
@@ -541,10 +540,8 @@ final class PhabricatorMainMenuView extends AphrontView
 
     /**
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function renderNotificationMenu()
@@ -900,7 +897,7 @@ final class PhabricatorMainMenuView extends AphrontView
      * @return bool
      * @author 陈妙威
      * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      */
     private function isFullSession(PhabricatorUser $viewer)
     {

@@ -2,7 +2,6 @@
 
 namespace orangins\lib\view\layout;
 
-use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\view\AphrontTagView;
 use orangins\lib\view\phui\PHUI;
 use orangins\lib\view\phui\PHUIObjectBoxView;

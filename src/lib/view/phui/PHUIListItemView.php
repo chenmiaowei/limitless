@@ -7,6 +7,7 @@ use orangins\lib\view\AphrontTagView;
 use orangins\lib\view\layout\PhabricatorActionListView;
 use orangins\modules\widgets\javelin\JavelinPHUIDropdownBehaviorAsset;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
+use PhutilSafeHTML;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -886,6 +887,6 @@ final class PHUIListItemView extends AphrontTagView
         }
 
 
-        return array($list_item, new \PhutilSafeHTML($subMenu), $action_link);
+        return array($list_item, new PhutilSafeHTML($subMenu), $action_link);
     }
 }

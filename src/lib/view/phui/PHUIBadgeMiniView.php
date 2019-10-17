@@ -33,19 +33,108 @@ class PHUIBadgeMiniView extends AphrontView
      * @var
      */
     public $icon;
-    /**
-     * @var array
-     */
-    public $iconOptions = ["class" => "mr-1"];
+
     /**
      * @var
      */
     public $tag = "span";
+
     /**
      * @var array
      */
     public $options = [
     ];
+
+    /**
+     * @return string
+     */
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    /**
+     * @param string $color
+     * @return self
+     */
+    public function setColor(string $color): void
+    {
+        $this->color = $color;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param string $label
+     * @return self
+     */
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * @param mixed $icon
+     * @return self
+     */
+    public function setIcon($icon): void
+    {
+        $this->icon = $icon;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTag()
+    {
+        return $this->tag;
+    }
+
+    /**
+     * @param mixed $tag
+     * @return self
+     */
+    public function setTag($tag): void
+    {
+        $this->tag = $tag;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    /**
+     * @param array $options
+     * @return self
+     */
+    public function setOptions(array $options): void
+    {
+        $this->options = $options;
+        return $this;
+    }
+
 
     /**
      * @author 陈妙威
@@ -57,17 +146,13 @@ class PHUIBadgeMiniView extends AphrontView
     }
 
     /**
+     * @return mixed
      * @author 陈妙威
-     * @throws \Exception
      */
-    public function run()
+    public function render()
     {
-        $config = ArrayHelper::merge([
-            "options" => $this->iconOptions
-        ], [
-            "icon" => $this->icon
-        ]);
-        $icon = $this->icon ? PHUIIconView::widget($config) : "";
-        return Html::tag($this->tag, $icon . $this->label, $this->options);
-    }
+        $icon = $this->icon ? (new PHUIIconView())
+            ->setIcon($this->icon)
+            ->addClass('mr-1'): "";
+        return Html::tag($this->tag, $icon . $this->label, $this->options);    }
 }

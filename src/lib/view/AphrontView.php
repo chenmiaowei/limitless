@@ -269,9 +269,9 @@ abstract class AphrontView extends Component implements PhutilSafeHTMLProducerIn
      * Deprecated, use @{method:setViewer}.
      *
      * @task config
-     * @deprecated
      * @param PhabricatorUser $user
      * @return static
+     * @deprecated
      */
     public function setUser(PhabricatorUser $user)
     {
@@ -284,8 +284,8 @@ abstract class AphrontView extends Component implements PhutilSafeHTMLProducerIn
      *
      * @task config
      * @return PhabricatorUser
-     * @deprecated
      * @throws PhutilInvalidStateException
+     * @deprecated
      */
     protected function getUser()
     {
@@ -321,7 +321,7 @@ abstract class AphrontView extends Component implements PhutilSafeHTMLProducerIn
      * This method will only work if the view supports children, which is
      * determined by @{method:canAppendChild}.
      *
-     * @param  array   Something renderable.
+     * @param array   Something renderable.
      * @return static
      * @throws Exception
      */
@@ -377,8 +377,8 @@ abstract class AphrontView extends Component implements PhutilSafeHTMLProducerIn
      * NOTE: Because View children are not rendered, a View which renders down
      * to nothing will not be reduced by this method.
      *
-     * @param   array<wild>  Renderable children.
-     * @return  array<wild>  Reduced list of children.
+     * @param array $children Renderable children.
+     * @return  array   Reduced list of children.
      * @task children
      */
     private function reduceChildren(array $children)

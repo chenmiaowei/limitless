@@ -483,8 +483,8 @@ class PHUIButtonView extends AphrontTagView
 
     /**
      * @return array
-     * @author 陈妙威
      * @throws \ReflectionException
+     * @author 陈妙威
      */
     protected function getTagAttributes()
     {
@@ -589,13 +589,13 @@ class PHUIButtonView extends AphrontTagView
         $subtext = null;
 
         if ($this->subtext) {
-            $subtext = JavelinHtml::phutil_tag( 'div', array(
+            $subtext = JavelinHtml::phutil_tag('div', array(
                 'class' => 'phui-button-subtext',
             ), $this->subtext);
         }
 
         if ($this->text !== null) {
-            $text = JavelinHtml::phutil_tag(    'span', array(
+            $text = JavelinHtml::phutil_tag('span', array(
                 'class' => 'phui-button-text',
             ), array(
                 $this->text,

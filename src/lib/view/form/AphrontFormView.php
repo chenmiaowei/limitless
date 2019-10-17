@@ -14,6 +14,7 @@ use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\markup\view\PHUIRemarkupView;
 use orangins\lib\view\AphrontView;
 use orangins\lib\view\form\control\AphrontFormControl;
+use Yii;
 
 /**
  * Class AphrontFormView
@@ -284,7 +285,7 @@ final class AphrontFormView extends AphrontView
      *
      * @param AphrontFormControl $control
      * @return AphrontFormView
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function appendControl(AphrontFormControl $control)
     {
@@ -306,7 +307,7 @@ final class AphrontFormView extends AphrontView
 
         if (!$this->hasViewer()) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'You must pass the user to {0}.',[
                         __CLASS__
                     ]));

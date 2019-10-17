@@ -2,9 +2,10 @@
 
 namespace orangins\lib\view\form\control;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
-use orangins\lib\view\phui\PHUI;
 use orangins\modules\widgets\javelin\JavelinUniformControlAsset;
+use ReflectionException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -101,9 +102,9 @@ final class AphrontFormCheckboxControl extends AphrontFormControl
 
     /**
      * @return mixed
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
-     * @throws \ReflectionException
      */
     protected function renderInput()
     {

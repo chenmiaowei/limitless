@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use orangins\lib\view\layout\AphrontMultiColumnView;
@@ -47,7 +48,7 @@ final class PHUIWorkboardView extends AphrontTagView
 
     /**
      * @return array|string
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent()

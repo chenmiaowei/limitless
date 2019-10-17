@@ -2,8 +2,10 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontView;
+use Yii;
 
 /**
  * Class PHUIPinboardView
@@ -46,7 +48,7 @@ final class PHUIPinboardView extends AphrontView
 
     /**
      * @return array|mixed|string
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -54,7 +56,7 @@ final class PHUIPinboardView extends AphrontView
 //        require_celerity_resource('phui-pinboard-view-css');
 
         if (!$this->items) {
-            $string = nonempty($this->noDataString, \Yii::t("app", 'No data.'));
+            $string = nonempty($this->noDataString, Yii::t("app", 'No data.'));
             return (new PHUIInfoView())
                 ->setSeverity(PHUIInfoView::SEVERITY_NODATA)
                 ->appendChild($string)

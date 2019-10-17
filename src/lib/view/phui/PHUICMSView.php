@@ -4,6 +4,7 @@ namespace orangins\lib\view\phui;
 
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
+use orangins\lib\view\layout\AphrontSideNavFilterView;
 
 /**
  * Class PHUICMSView
@@ -18,7 +19,7 @@ final class PHUICMSView extends AphrontTagView
      */
     private $header;
     /**
-     * @var
+     * @var AphrontSideNavFilterView
      */
     private $nav;
     /**
@@ -134,7 +135,7 @@ final class PHUICMSView extends AphrontTagView
 
     /**
      * @return array|string
-     * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     protected function getTagContent()

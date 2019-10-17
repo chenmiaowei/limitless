@@ -46,7 +46,7 @@ final class AphrontCursorPagerView extends AphrontView
     private $moreResults;
 
     /**
-     * @var
+     * @var PhutilURI
      */
     private $uri;
 
@@ -237,7 +237,7 @@ final class AphrontCursorPagerView extends AphrontView
     }
 
     /**
-     * @return null
+     * @return PhutilURI
      * @throws PhutilInvalidStateException
      * @author 陈妙威
      */

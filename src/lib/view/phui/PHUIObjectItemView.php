@@ -4,11 +4,16 @@ namespace orangins\lib\view\phui;
 
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsViewUtil;
+use orangins\lib\response\AphrontResponse;
 use orangins\lib\view\AphrontTagView;
 use orangins\modules\phid\PhabricatorObjectHandle;
 use orangins\modules\spaces\view\PHUISpacesNamespaceContextView;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
 use Exception;
+use PhutilInvalidStateException;
+use PhutilSafeHTML;
+use ReflectionException;
+use Yii;
 
 /**
  * Class PHUIObjectItemView
@@ -481,8 +486,8 @@ final class PHUIObjectItemView extends AphrontTagView
      * @param $epoch
      * @return $this
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function setEpoch($epoch)
@@ -501,7 +506,7 @@ final class PHUIObjectItemView extends AphrontTagView
     public function addAction(PHUIListItemView $action)
     {
         if (count($this->actions) >= 3) {
-            throw new Exception(\Yii::t("app", 'Limit 3 actions per item.'));
+            throw new Exception(Yii::t("app", 'Limit 3 actions per item.'));
         }
         $this->actions[] = $action;
         return $this;
@@ -533,8 +538,8 @@ final class PHUIObjectItemView extends AphrontTagView
      */
     public function setIcon($icon)
     {
-        \Yii::error(
-            \Yii::t("app", 'Deprecated call to setIcon(), use setImageIcon() instead.'));
+        Yii::error(
+            Yii::t("app", 'Deprecated call to setIcon(), use setImageIcon() instead.'));
 
         return $this->setImageIcon($icon);
     }
@@ -719,9 +724,9 @@ final class PHUIObjectItemView extends AphrontTagView
     }
 
     /**
-     * @return \orangins\lib\response\AphrontResponse|string
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @return AphrontResponse|string
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */
@@ -988,7 +993,7 @@ final class PHUIObjectItemView extends AphrontTagView
                         'value' => $this->selectableValue,
                         'class' => 'mr-1',
                     ));
-                $checkbox = new \PhutilSafeHTML($checkbox);
+                $checkbox = new PhutilSafeHTML($checkbox);
             } else {
                 $checkbox = null;
             }
@@ -1085,7 +1090,7 @@ final class PHUIObjectItemView extends AphrontTagView
      * @param $icon
      * @param $label
      * @return string
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */
@@ -1114,7 +1119,7 @@ final class PHUIObjectItemView extends AphrontTagView
      * @param PhabricatorObjectHandle $handle
      * @param $label
      * @return string
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */

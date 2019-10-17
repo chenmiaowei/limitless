@@ -2,9 +2,11 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
+use ReflectionException;
 
 /**
  * Class PHUIStatusItemView
@@ -180,7 +182,8 @@ final class PHUIStatusItemView extends AphrontTagView
 
     /**
      * @return array
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent()

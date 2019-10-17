@@ -15,8 +15,8 @@ use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\PhabricatorApplication;
 use orangins\modules\notification\model\PhabricatorFeedStoryNotification;
-use orangins\modules\settings\models\PhabricatorUserPreferences;
 use orangins\modules\settings\setting\PhabricatorSidebarToggleSetting;
+use PhutilInvalidStateException;
 use PhutilSafeHTML;
 use orangins\lib\response\AphrontAjaxResponse;
 use orangins\lib\response\AphrontResponse;
@@ -44,6 +44,7 @@ use orangins\modules\widgets\javelin\JavelinDetectTimezoneAsset;
 use orangins\modules\widgets\javelin\JavelinSetupCheckHttpsAsset;
 use orangins\modules\widgets\javelin\JavelinWorkflowAsset;
 use Exception;
+use ReflectionException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -296,9 +297,9 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
 
     /**
      * @return bool
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function getShowDurableColumn()
@@ -353,7 +354,7 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
     /**
      * @return bool
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -366,7 +367,7 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
     /**
      * @return bool
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -469,7 +470,7 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
     /**
      * @return string
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -502,9 +503,10 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
 
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException*@throws Exception
+     * @throws PhutilInvalidStateException*@throws Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function willRenderPage()
@@ -672,7 +674,7 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
     /**
      * @return string
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -765,11 +767,10 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
     }
 
     /**
-     * @return \PhutilSafeHTML
-     * @throws \yii\base\Exception
-     * @throws \ReflectionException
-
-     * @throws \PhutilInvalidStateException
+     * @return PhutilSafeHTML
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException*@throws Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getBody()
@@ -871,7 +872,7 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
      * @return array
      * @author 陈妙威
      * @throws Exception
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      */
     private function renderPageBodyContent()
     {
@@ -1058,7 +1059,7 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
 
     /**
      * @return array
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @throws \yii\base\Exception
      * @author 陈妙威
@@ -1177,9 +1178,9 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
     /**
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @thr'ows \Seld\JsonLint\ParsingException
      * @author 陈妙威
      */
@@ -1200,7 +1201,7 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
     /**
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -1317,7 +1318,7 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
      * @param null $default
      * @return null
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -1339,9 +1340,9 @@ class PhabricatorStandardPageView extends PhabricatorBarePageView implements Aph
     /**
      * @return AphrontResponse
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function produceAphrontResponse()

@@ -10,6 +10,7 @@
 namespace orangins\lib\view\layout;
 
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
@@ -128,8 +129,8 @@ class PHUICardView extends AphrontTagView
 
     /**
      * @return array
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     protected function getTagContent()
     {

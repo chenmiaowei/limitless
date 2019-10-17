@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\page;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
@@ -62,8 +63,8 @@ abstract class AphrontPageView extends AphrontView
     }
 
     /**
-     * @return \PhutilSafeHTML
-     * @throws \yii\base\Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getBody()
@@ -109,7 +110,7 @@ abstract class AphrontPageView extends AphrontView
 
     /**
      * @return mixed
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()

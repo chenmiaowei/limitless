@@ -9,6 +9,7 @@ use orangins\lib\PhabricatorApplication;
 use PhutilClassMapQuery;
 use orangins\modules\people\models\PhabricatorUser;
 use Exception;
+use Yii;
 
 /**
  * Class PHUICurtainExtension
@@ -86,7 +87,6 @@ abstract class PHUICurtainExtension extends OranginsObject
     /**
      * @return string
      * @throws \ReflectionException
-     * @throws \yii\base\Exception
      * @author 陈妙威
      */
     final public function getExtensionKey()
@@ -123,7 +123,6 @@ abstract class PHUICurtainExtension extends OranginsObject
      * @throws PhutilMethodNotImplementedException
      * @throws \PhutilInvalidStateException
      * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     final public static function buildExtensionPanels(
@@ -140,7 +139,7 @@ abstract class PHUICurtainExtension extends OranginsObject
             $application = $extension->getExtensionApplication();
             if (!($application instanceof PhabricatorApplication)) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Curtain extension ("{0}", of class "{1}") did not return an ' .
                         'application from method "{2}". This method must return an ' .
                         'object of class "{3}".',
@@ -173,7 +172,7 @@ abstract class PHUICurtainExtension extends OranginsObject
             $panels = $extension->buildCurtainPanels($object);
             if (!is_array($panels)) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Curtain extension ("{0}", of class "{1}") did not return a list of ' .
                         'curtain panels from method "{2}". This method must return an ' .
                         'array, and each value in the array must be a "{3}" object.',
@@ -188,7 +187,7 @@ abstract class PHUICurtainExtension extends OranginsObject
             foreach ($panels as $panel_key => $panel) {
                 if (!($panel instanceof PHUICurtainPanelView)) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Curtain extension ("{0}", of class "{1}") returned a list of ' .
                             'curtain panels from "{2}" that contains an invalid value: ' .
                             'a value (with key "{3}") is not an object of class "{4}". ' .

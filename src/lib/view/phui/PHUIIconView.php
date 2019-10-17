@@ -8,9 +8,14 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
+use Filesystem;
+use FilesystemException;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
+use ReflectionException;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class IconBorder
@@ -217,8 +222,8 @@ class PHUIIconView extends AphrontTagView
 
     /**
      * @return array
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagAttributes()
@@ -284,6 +289,7 @@ class PHUIIconView extends AphrontTagView
     /**
      * @param $sheet
      * @return mixed
+     * @throws FilesystemException
      * @author 陈妙威
      */
     public static function getSheetManifest($sheet)

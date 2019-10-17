@@ -2,12 +2,15 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\helpers\OranginsViewUtil;
 use orangins\lib\infrastructure\contentsource\PhabricatorContentSource;
 use orangins\lib\infrastructure\contentsource\PhabricatorContentSourceView;
+use orangins\modules\metamta\contentsource\PhabricatorEmailContentSource;
 use orangins\modules\widgets\javelin\JavelinPHUIDropdownBehaviorAsset;
+use PhutilInvalidStateException;
 use PhutilSafeHTML;
 use orangins\lib\view\AphrontView;
 use orangins\lib\view\layout\PhabricatorActionListView;
@@ -16,6 +19,8 @@ use orangins\lib\view\layout\PhabricatorAnchorView;
 use orangins\modules\phid\PhabricatorObjectHandle;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
 use orangins\modules\widgets\javelin\JavelinWatchAnchorAsset;
+use ReflectionException;
+use Yii;
 
 /**
  * Class PHUITimelineEventView
@@ -31,7 +36,7 @@ final class PHUITimelineEventView extends AphrontView
     const DELIMITER = " \xC2\xB7 ";
 
     /**
-     * @var
+     * @var PhabricatorObjectHandle
      */
     private $userHandle;
     /**
@@ -598,7 +603,7 @@ final class PHUITimelineEventView extends AphrontView
      * @param $has_menu
      * @param $extra
      * @return string
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function renderEventTitle($force_icon, $has_menu, $extra)
@@ -660,10 +665,9 @@ final class PHUITimelineEventView extends AphrontView
 
     /**
      * @return array|mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception*@throws \Exception
-     * @throws \Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -698,7 +702,7 @@ final class PHUITimelineEventView extends AphrontView
                 array(
                     'aural' => true,
                 ),
-                \Yii::t("app", 'Comment Actions'));
+                Yii::t("app", 'Comment Actions'));
 
             if ($items) {
                 $sigil = 'phui-dropdown-menu';
@@ -911,10 +915,10 @@ final class PHUITimelineEventView extends AphrontView
     /**
      * @param PHUITimelineEventView[] $events
      * @return array|string
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @throws \yii\base\Exception*@throws \Exception
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderExtra(array $events)
@@ -922,11 +926,11 @@ final class PHUITimelineEventView extends AphrontView
         $extra = array();
 
         if ($this->getIsPreview()) {
-            $extra[] = \Yii::t("app", 'PREVIEW');
+            $extra[] = Yii::t("app", 'PREVIEW');
         } else {
             foreach ($events as $event) {
                 if ($event->getIsEdited()) {
-                    $extra[] = \Yii::t("app", 'Edited');
+                    $extra[] = Yii::t("app", 'Edited');
                     break;
                 }
             }
@@ -937,7 +941,7 @@ final class PHUITimelineEventView extends AphrontView
                 $content_source = (new PhabricatorContentSourceView())
                     ->setContentSource($source)
                     ->setUser($this->getUser());
-                $content_source = \Yii::t("app", 'Via {0}', [
+                $content_source = Yii::t("app", 'Via {0}', [
                     $content_source->getSourceName()
                 ]);
             }
@@ -982,7 +986,7 @@ final class PHUITimelineEventView extends AphrontView
             if ($this->getIsSilent()) {
                 $extra[] = (new PHUIIconView())
                     ->setIcon('fa-bell-slash', 'red')
-                    ->setTooltip(\Yii::t("app", 'Silent Edit'));
+                    ->setTooltip(Yii::t("app", 'Silent Edit'));
             }
 
             // If this edit was applied while the actor was in high-security mode,
@@ -990,7 +994,7 @@ final class PHUITimelineEventView extends AphrontView
             if ($this->getIsMFA()) {
                 $extra[] = (new PHUIIconView())
                     ->setIcon('fa-vcard', 'green')
-                    ->setTooltip(\Yii::t("app", 'MFA Authenticated'));
+                    ->setTooltip(Yii::t("app", 'MFA Authenticated'));
             }
         }
 
@@ -1026,7 +1030,7 @@ final class PHUITimelineEventView extends AphrontView
             $items[] = (new PhabricatorActionView())
                 ->setIcon('fa-pencil')
                 ->setHref('/transactions/edit/' . $xaction_phid . '/')
-                ->setName(\Yii::t("app", 'Edit Comment'))
+                ->setName(Yii::t("app", 'Edit Comment'))
                 ->addSigil('transaction-edit')
                 ->setMetadata(
                     array(
@@ -1045,7 +1049,7 @@ final class PHUITimelineEventView extends AphrontView
 
             $items[] = (new PhabricatorActionView())
                 ->setIcon('fa-quote-left')
-                ->setName(\Yii::t("app", 'Quote Comment'))
+                ->setName(Yii::t("app", 'Quote Comment'))
                 ->setHref('#')
                 ->addSigil('transaction-quote')
                 ->setMetadata(
@@ -1060,7 +1064,7 @@ final class PHUITimelineEventView extends AphrontView
             $items[] = (new PhabricatorActionView())
                 ->setIcon('fa-code')
                 ->setHref('/transactions/raw/' . $xaction_phid . '/')
-                ->setName(\Yii::t("app", 'View Remarkup'))
+                ->setName(Yii::t("app", 'View Remarkup'))
                 ->addSigil('transaction-raw')
                 ->setMetadata(
                     array(
@@ -1075,7 +1079,7 @@ final class PHUITimelineEventView extends AphrontView
                     $items[] = (new PhabricatorActionView())
                         ->setIcon('fa-envelope-o')
                         ->setHref('/transactions/raw/' . $xaction_phid . '/?email')
-                        ->setName(\Yii::t("app", 'View Email Body'))
+                        ->setName(Yii::t("app", 'View Email Body'))
                         ->addSigil('transaction-raw')
                         ->setMetadata(
                             array(
@@ -1089,7 +1093,7 @@ final class PHUITimelineEventView extends AphrontView
             $items[] = (new PhabricatorActionView())
                 ->setIcon('fa-list')
                 ->setHref('/transactions/history/' . $xaction_phid . '/')
-                ->setName(\Yii::t("app", 'View Edit History'))
+                ->setName(Yii::t("app", 'View Edit History'))
                 ->setWorkflow(true);
         }
 
@@ -1100,7 +1104,7 @@ final class PHUITimelineEventView extends AphrontView
             $items[] = (new PhabricatorActionView())
                 ->setIcon('fa-trash-o')
                 ->setHref('/transactions/remove/' . $xaction_phid . '/')
-                ->setName(\Yii::t("app", 'Remove Comment'))
+                ->setName(Yii::t("app", 'Remove Comment'))
                 ->setColor(PhabricatorActionView::RED)
                 ->addSigil('transaction-remove')
                 ->setMetadata(

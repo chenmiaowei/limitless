@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use orangins\lib\view\layout\PHUICurtainView;
@@ -251,8 +252,8 @@ final class PHUITwoColumnView extends AphrontTagView
 
     /**
      * @return string
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     protected function getTagContent()
     {
@@ -304,8 +305,8 @@ final class PHUITwoColumnView extends AphrontTagView
 
     /**
      * @return mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     private function buildMainColumn()
     {
@@ -349,8 +350,8 @@ final class PHUITwoColumnView extends AphrontTagView
 
     /**
      * @return mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     private function buildSideColumn()
     {
@@ -382,8 +383,8 @@ final class PHUITwoColumnView extends AphrontTagView
 
     /**
      * @return mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     private function buildFooter()
     {
