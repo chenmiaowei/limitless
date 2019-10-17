@@ -459,12 +459,14 @@ SQL;
                     $this->render('transaction_xaction_type.php', $params)
                 );
 
-                foreach ($requireColumns as $requireColumn) {
-                    $params['column'] = $requireColumn;
-                    $files[] = new CodeFile(
-                        Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "xaction" . '/' . str_replace('_', '', $tableName) . '/') . $modelClassName . str_replace("Phid", "PHID", str_replace(" ", '', Inflector::camel2words($requireColumn->name))) . 'TransactionType.php',
+                foreach ($tableSchema->columns as $column) {
+                    if(in_array($column->name, ['id', 'phid', 'created_at', 'updated_at'])) continue;
+                    $params['column'] = $column;
+                    $codeFile = new CodeFile(
+                        Yii::getAlias('@' . $this->applicationDir . '/' . $this->applicationName . '/' . "xaction" . '/' . str_replace('_', '', $tableName) . '/') . $modelClassName . str_replace("Phid", "PHID", str_replace(" ", '', Inflector::camel2words($column->name))) . 'TransactionType.php',
                         $this->render('transaction_xaction.php', $params)
                     );
+                    $files[] = $codeFile;
                 }
             }
         }

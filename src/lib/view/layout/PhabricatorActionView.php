@@ -587,7 +587,7 @@ final class PhabricatorActionView extends AphrontView
             $item = JavelinHtml::phutil_tag(
                 'div',
                 array(
-                    'class' => 'nav-link text-grey-800 d-block p-0 phabricator-action-view-item',
+                    'class' => 'nav-link text-grey-800 d-block phabricator-action-view-item',
                     'sigil' => $sigils,
                 ),
                 array($icon, $this->name, $this->renderChildren()));
