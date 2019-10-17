@@ -13,6 +13,7 @@ use Qiniu\Config;
 use Qiniu\Storage\BucketManager;
 use Qiniu\Storage\UploadManager;
 use Qiniu\Zone;
+use Yii;
 
 /**
  * Amazon S3 file storage engine. This engine scales well but is relatively
@@ -180,12 +181,16 @@ final class PhabricatorQiniuFileStorageEngine
      */
     public function getCDNURI($handle)
     {
-        $obsClient = $this->newS3API();
+        if (Yii::$app->cache->get($handle) === null) {
+            $obsClient = $this->newS3API();
 
-        $endpoint = PhabricatorEnv::getEnvConfig('qiniu-s3.endpoint');
+            $endpoint = PhabricatorEnv::getEnvConfig('qiniu-s3.endpoint');
 
-        $privateDownloadUrl = $obsClient->privateDownloadUrl($endpoint . $handle, 100 * 365 * 24 * 3600);
-
+            $privateDownloadUrl = $obsClient->privateDownloadUrl($endpoint . $handle, 100 * 365 * 24 * 3600);
+            $privateDownloadUrl = Yii::$app->cache->set($handle, $privateDownloadUrl);
+        } else {
+            $privateDownloadUrl = Yii::$app->cache->get($handle);
+        }
         return $privateDownloadUrl;
     }
 
@@ -230,7 +235,7 @@ final class PhabricatorQiniuFileStorageEngine
         $bucket = PhabricatorEnv::getEnvConfig('qiniu-s3.bucket');
         if (!$bucket) {
             throw new PhabricatorFileStorageConfigurationException(
-                \Yii::t("app",
+                Yii::t("app",
                     "No '{0}' specified!", [
                         'storage.s3.bucket'
                     ]));
