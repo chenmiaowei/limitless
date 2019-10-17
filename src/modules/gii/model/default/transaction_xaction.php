@@ -89,7 +89,7 @@ class <?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', In
             $value = $xaction->getNewValue();
             $normalizeNumber = StringHelper::normalizeNumber($value);
             if (!preg_match('/^\s*[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?\s*$/', $normalizeNumber)) {
-                $errors[] = $this->newRequiredError(Yii::t("app", '{0} of {1} must be a Number.', ['<?= Inflector::camel2words($column->name) ?>', '<?= Inflector::camel2words($generator->tableName) ?>']));
+                $errors[] = $this->newRequiredError(Yii::t("app", '{0} of {1} must be a Number.', ['<?= Inflector::camel2words($column->name) ?>', '<?= Inflector::camel2words($tableName) ?>']));
             }
         }
 
@@ -98,7 +98,7 @@ class <?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', In
             $value = $xaction->getNewValue();
             $normalizeNumber = StringHelper::normalizeNumber($value);
             if (!preg_match('/^\s*[+-]?\d+\s*$/', $normalizeNumber)) {
-                $errors[] = $this->newRequiredError(Yii::t("app", '{0} of {1} must be a Integer.', ['<?= Inflector::camel2words($column->name) ?>', '<?= Inflector::camel2words($generator->tableName) ?>']));
+                $errors[] = $this->newRequiredError(Yii::t("app", '{0} of {1} must be a Integer.', ['<?= Inflector::camel2words($column->name) ?>', '<?= Inflector::camel2words($tableName) ?>']));
             }
         }
 
@@ -106,7 +106,7 @@ class <?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', In
         foreach ($xactions as $xaction) {
             $value = $xaction->getNewValue();
             if (!strlen($value)) {
-                $errors[] = $this->newRequiredError(Yii::t("app", '{0} of {1} must be a String.', ['<?= Inflector::camel2words($column->name) ?>', '<?= Inflector::camel2words($generator->tableName) ?>']));
+                $errors[] = $this->newRequiredError(Yii::t("app", '{0} of {1} must be a String.', ['<?= Inflector::camel2words($column->name) ?>', '<?= Inflector::camel2words($tableName) ?>']));
             }
         }
 <?php endif; ?>
