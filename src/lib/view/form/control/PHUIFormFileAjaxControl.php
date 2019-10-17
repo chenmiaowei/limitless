@@ -124,7 +124,7 @@ final class PHUIFormFileAjaxControl
 
 
         return JavelinHtml::phutil_tag("div", [
-            "class" => "card justify-content-center text-center position-relative",
+            "class" => "card justify-content-center text-center position-relative mt-2",
             "style" => "width: 200px; height: 200px;",
             'id' => $id,
         ], [

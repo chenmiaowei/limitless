@@ -3,8 +3,6 @@
 namespace orangins\modules\config\customer;
 
 use orangins\lib\env\PhabricatorEnv;
-use orangins\lib\helpers\OranginsUtil;
-use orangins\lib\parser\PhutilTypeSpec;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\control\AphrontFormCheckboxControl;
 use orangins\lib\view\form\control\AphrontFormFileControl;
@@ -13,6 +11,8 @@ use orangins\modules\config\option\PhabricatorConfigOption;
 use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\policy\constants\PhabricatorPolicies;
 use Exception;
+use PhutilTypeSpec;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -50,15 +50,13 @@ final class PhabricatorCustomLogoConfigType
      * @param PhabricatorConfigOption $option
      * @param $value
      * @throws Exception
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
      * @author 陈妙威
      */
     public function validateOption(PhabricatorConfigOption $option, $value)
     {
         if (!is_array($value)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Logo configuration is not valid: value must be a dictionary.'));
         }
 
@@ -115,7 +113,7 @@ final class PhabricatorCustomLogoConfigType
         try {
             $this->validateOption($option, $value);
         } catch (Exception $ex) {
-            $e_value = \Yii::t("app", 'Invalid');
+            $e_value = Yii::t("app", 'Invalid');
             $errors[] = $ex->getMessage();
             $value = array();
         }
@@ -153,20 +151,20 @@ final class PhabricatorCustomLogoConfigType
         // in non-workflow forms.
         $controls[] = (new AphrontFormFileControl())
             ->setName('logoImage')
-            ->setLabel(\Yii::t("app", 'Logo Image'));
+            ->setLabel(Yii::t("app", 'Logo Image'));
 
         if ($logo_image_phid) {
             $controls[] = (new AphrontFormCheckboxControl())
                 ->addCheckbox(
                     'removeLogo',
                     1,
-                    \Yii::t("app", 'Remove Custom Logo'));
+                    Yii::t("app", 'Remove Custom Logo'));
         }
 
         $controls[] = (new AphrontFormTextControl())
             ->setName('wordmarkText')
-            ->setLabel(\Yii::t("app", 'Wordmark'))
-            ->setPlaceholder(\Yii::t("app", 'Phabricator'))
+            ->setLabel(Yii::t("app", 'Wordmark'))
+            ->setPlaceholder(Yii::t("app", 'Phabricator'))
             ->setValue($wordmark_text);
 
         return $controls;
