@@ -190,7 +190,7 @@ final class <?= $modelClassName ?>SearchEngine extends PhabricatorApplicationSea
 
         $tableView = new <?= $modelClassName ?>TableView();
         $tableView->setItems($files);
-        $tableView->setNoDataString(\Yii::t("app", '<?= Inflector::camel2words($tableName) ?>'));
+        $tableView->setNoDataString(\Yii::t("app", 'No Data'));
 
         $result = new PhabricatorApplicationSearchResultView();
         $result->setTable($tableView);
