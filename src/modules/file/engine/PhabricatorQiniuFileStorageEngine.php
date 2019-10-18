@@ -13,6 +13,7 @@ use Qiniu\Config;
 use Qiniu\Storage\BucketManager;
 use Qiniu\Storage\UploadManager;
 use Qiniu\Zone;
+use Requests;
 use Yii;
 
 /**
@@ -139,37 +140,18 @@ final class PhabricatorQiniuFileStorageEngine
      */
     public function readFile($handle)
     {
-        $obsClient = $this->newS3API();
-
+        $CDNURI = $this->getCDNURI($handle);
         $profiler = PhutilServiceProfiler::getInstance();
         $call_id = $profiler->beginServiceCall(
             array(
                 'type' => 'qiniu',
                 'method' => 'getObject',
             ));
-
-
-//        $str = '';
-//        $resp = $obsClient->getObject([
-//            'Bucket' => $this->getBucketName(),
-//            'Key' => $handle,
-//            'Range' => 'bytes=0-10'
-//        ]);
-//        $body = (string)$resp['Body'];
-
-        $endpoint = PhabricatorEnv::getEnvConfig('qiniu-s3.endpoint');
-
-        $privateDownloadUrl = $obsClient->privateDownloadUrl($endpoint . $handle);
-        $requests_Response = \Requests::get($privateDownloadUrl, [], [
+        $requests_Response = Requests::get($CDNURI, [], [
             'timeout' => 30
         ]);
         $body = $requests_Response->body;
-//        $result = $obsClient
-//            ->setParametersForGetObject($handle)
-//            ->resolve();
-//
         $profiler->endServiceCall($call_id, array());
-
         return $body;
     }
 
@@ -181,13 +163,11 @@ final class PhabricatorQiniuFileStorageEngine
      */
     public function getCDNURI($handle)
     {
-        if (Yii::$app->cache->get($handle) === null) {
+        if (empty(Yii::$app->cache->get($handle))) {
             $obsClient = $this->newS3API();
-
             $endpoint = PhabricatorEnv::getEnvConfig('qiniu-s3.endpoint');
-
             $privateDownloadUrl = $obsClient->privateDownloadUrl($endpoint . $handle, 100 * 365 * 24 * 3600);
-            $privateDownloadUrl = Yii::$app->cache->set($handle, $privateDownloadUrl);
+            Yii::$app->cache->set($handle, $privateDownloadUrl);
         } else {
             $privateDownloadUrl = Yii::$app->cache->get($handle);
         }

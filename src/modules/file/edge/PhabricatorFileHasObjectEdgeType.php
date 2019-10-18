@@ -3,7 +3,6 @@
 namespace orangins\modules\file\edge;
 
 use orangins\lib\infrastructure\edges\type\PhabricatorEdgeType;
-use orangins\modules\transactions\edges\PhabricatorObjectHasFileEdgeType;
 
 /**
  * Class PhabricatorFileHasObjectEdgeType
@@ -35,5 +34,4 @@ final class PhabricatorFileHasObjectEdgeType extends PhabricatorEdgeType
     {
         return true;
     }
-
 }

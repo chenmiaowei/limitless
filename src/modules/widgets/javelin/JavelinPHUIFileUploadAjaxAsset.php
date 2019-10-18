@@ -30,6 +30,7 @@ class JavelinPHUIFileUploadAjaxAsset extends JavelinBehaviorAsset
      */
     public $js = [
         'js/lib/DragAndDropFileUpload.js',
+        'js/lib/FileUploadControl.js',
         'js/phui/behavior-phui-file-upload-ajax.js',
     ];
 

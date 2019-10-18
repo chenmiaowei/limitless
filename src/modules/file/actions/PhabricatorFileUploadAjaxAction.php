@@ -62,18 +62,18 @@ final class PhabricatorFileUploadAjaxAction
             }
         }
 
-        if ($request->getURIData('single')) {
-            $allow_multiple = false;
-        } else {
-            $allow_multiple = true;
-        }
-
         $form = (new AphrontFormView())
             ->appendChild(
                 (new PHUIFormFileAjaxControl())
+                    ->setName('filePHID')
+                    ->setLabel(\Yii::t("app", 'Upload File'))
+                    ->setAllowMultiple(false)
+                    ->setError($e_file))
+             ->appendChild(
+                (new PHUIFormFileAjaxControl())
                     ->setName('filePHIDs')
                     ->setLabel(\Yii::t("app", 'Upload File'))
-                    ->setAllowMultiple($allow_multiple)
+                    ->setAllowMultiple(true)
                     ->setError($e_file))
             ->appendChild(
                 (new PhabricatorCKEditorControl())

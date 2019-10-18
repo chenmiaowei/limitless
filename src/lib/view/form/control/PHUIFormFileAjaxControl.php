@@ -3,6 +3,7 @@
 namespace orangins\lib\view\form\control;
 
 use orangins\lib\helpers\JavelinHtml;
+use orangins\lib\view\phui\PHUIIconView;
 use orangins\modules\file\engine\PhabricatorFileStorageEngine;
 use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\widgets\javelin\JavelinPHUIFileUploadAjaxAsset;
@@ -66,6 +67,7 @@ final class PHUIFormFileAjaxControl
             new JavelinPHUIFileUploadAjaxAsset(),
             array(
                 'id' => $id,
+                'isMultiple' => $this->getAllowMultiple(),
                 'uploadButtonText' => $uploadButtonText,
                 'inputName' => $this->getName(),
                 'uploadURI' => Url::to(['/file/index/dropupload']),
@@ -95,7 +97,7 @@ final class PHUIFormFileAjaxControl
             array(
                 'type' => 'hidden',
                 'sigil' => 'file-upload-ajax-input-hidden',
-                'name' => $this->getName(),
+                'name' => $this->getName() . ($this->getAllowMultiple() ? '[]' : ''),
                 'value' => $default_value,
             ));
         $content = [
@@ -103,7 +105,7 @@ final class PHUIFormFileAjaxControl
             JavelinHtml::phutil_tag("h5", ['class' => 'card-title mb-3'], \Yii::t("app", $uploadButtonText)),
         ];
 
-        if($default_value && ($phabricatorFile = PhabricatorFile::findModelByPHID($default_value))) {
+        if ($default_value && ($phabricatorFile = PhabricatorFile::findModelByPHID($default_value))) {
             $content = [
                 JavelinHtml::phutil_tag("img", ['class' => 'w-100', 'src' => $phabricatorFile->getViewURI()])
             ];
@@ -124,21 +126,45 @@ final class PHUIFormFileAjaxControl
 
 
         return JavelinHtml::phutil_tag("div", [
-            "class" => "card justify-content-center text-center position-relative mt-2",
-            "style" => "width: 200px; height: 200px;",
             'id' => $id,
+            'class' => 'd-flex flex-wrap align-content-start bg-light border rounded pt-2 pl-2 pr-2 mt-2'
         ], [
             JavelinHtml::phutil_tag("div", [
-                'sigil' => 'file-upload-ajax-content'
-            ], $content),
-            JavelinHtml::phutil_tag("input", [
-                'type' => 'file',
-                'sigil' => 'file-upload-ajax-input',
-                'style' => 'height: 100%; width: 100%; opacity: 0; ',
-                'class' => 'position-absolute',
-                'name' => $this->getName() . "_raw",
+                "class" => "card justify-content-center text-center position-relative mr-2 mb-2",
+                "style" => "width: 200px; height: 200px;",
+                'sigil' => 'file-upload-ajax-item'
+            ], [
+                JavelinHtml::phutil_tag("div", [
+                    'sigil' => 'file-upload-ajax-item-content'
+                ], $content),
+                JavelinHtml::phutil_tag("input", [
+                    'type' => 'file',
+                    'sigil' => 'file-upload-ajax-input',
+                    'multiple' => $this->getAllowMultiple() ? 'multiple' : null,
+                    'disabled' => $this->getDisabled() ? 'disabled' : null,
+                    'style' => 'height: 100%; width: 100%; opacity: 0; ',
+                    'class' => 'position-absolute',
+                    'name' => $this->getName() . "_raw",
+                ]),
+                $default_input
             ]),
-            $default_input
+//            JavelinHtml::phutil_tag("div", [
+//                "class" => "card justify-content-center text-center position-relative mr-2 mb-2",
+//                "style" => "width: 200px; height: 200px;",
+//            ], [
+//                JavelinHtml::phutil_tag("div", [
+//                    'sigil' => 'file-upload-ajax-item-content'
+//                ], $content),
+//                JavelinHtml::phutil_tag("input", [
+//                    'type' => 'file',
+//                    'sigil' => 'file-upload-ajax-input',
+//                    'multiple' => $this->getAllowMultiple() ? 'multiple' : null,
+//                    'disabled' => $this->getDisabled() ? 'disabled' : null,
+//                    'style' => 'height: 100%; width: 100%; opacity: 0; ',
+//                    'class' => 'position-absolute',
+//                    'name' => $this->getName() . "_raw",
+//                ]),
+//            ]),
         ]);
     }
 }

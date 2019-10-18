@@ -68,6 +68,10 @@ final class PhabricatorCKEditorControl extends AphrontFormTextAreaControl
                 "language" => "zh-cn",
             ],
         ]);
-        return array($phutil_tag);
+        return JavelinHtml::phutil_tag("div", [
+            "class" => "mt-2",
+        ], [
+            $phutil_tag
+        ]);
     }
 }
