@@ -92,7 +92,7 @@ final class <?= $modelClassName ?>SearchEngine extends PhabricatorApplicationSea
 <?php foreach ($indexColumns as $indexColumn): ?>
             (new PhabricatorSearchTextField())
                 ->setKey('<?= $indexColumn ?>')
-                ->setLabel(\Yii::t("app", '<?= $indexColumn ?>')),
+                ->setLabel(\Yii::t("app", '<?= Inflector::camel2words($indexColumn) ?>')),
 <?php endforeach; ?>
         );
     }
