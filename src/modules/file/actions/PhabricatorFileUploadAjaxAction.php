@@ -4,9 +4,12 @@ namespace orangins\modules\file\actions;
 
 use orangins\lib\response\AphrontAjaxResponse;
 use orangins\lib\view\form\AphrontFormView;
+use orangins\lib\view\form\control\AphrontFormSelectControl;
+use orangins\lib\view\form\control\AphrontFormSwitchControl;
 use orangins\lib\view\form\control\PHUIFormFileAjaxControl;
 use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\widgets\form\control\PhabricatorCKEditorControl;
+use Yii;
 
 /**
  * Class PhabricatorFileUploadDialogAction
@@ -33,58 +36,54 @@ final class PhabricatorFileUploadAjaxAction
 
         $e_file = true;
         $errors = array();
-        if ($request->isDialogFormPost()) {
-            $file_phids = $request->getStrList('filePHIDs');
-            if ($file_phids) {
-                $files = PhabricatorFile::find()
-                    ->setViewer($viewer)
-                    ->withPHIDs($file_phids)
-                    ->setRaisePolicyExceptions(true)
-                    ->execute();
-            } else {
-                $files = array();
-            }
-
-            if ($files) {
-                $results = array();
-                foreach ($files as $file) {
-                    $results[] = $file->getDragAndDropDictionary();
-                }
-
-                $content = array(
-                    'files' => $results,
-                );
-
-                return (new AphrontAjaxResponse())->setContent($content);
-            } else {
-                $e_file = \Yii::t("app", 'Required');
-                $errors[] = \Yii::t("app", 'You must choose a file to upload.');
-            }
+        if ($request->isFormPost()) {
+//            $errors[] = "Switch value is: " . ($request->getSwitchValue('switch') ? 'true' : 'false');
         }
 
         $form = (new AphrontFormView())
             ->appendChild(
+                (new AphrontFormSwitchControl())
+                    ->setOptions([
+                        '否',
+                        '是',
+                    ])
+                    ->setName('switch')
+                    ->setValue($request->getSwitchValue('switch'))
+                    ->setLabel(Yii::t("app", 'Switch')))
+            ->appendChild(
+                (new AphrontFormSelectControl())
+                    ->setOptions([
+                        '否',
+                        '是',
+                    ])
+                    ->setValue($request->getValue('select'))
+                    ->setName('select')
+                    ->setLabel(Yii::t("app", 'Select')))
+            ->appendChild(
                 (new PHUIFormFileAjaxControl())
+                    ->setValue($request->getStr('filePHID'))
                     ->setName('filePHID')
-                    ->setLabel(\Yii::t("app", 'Upload File'))
+                    ->setLabel(Yii::t("app", 'Upload File'))
                     ->setAllowMultiple(false)
                     ->setError($e_file))
-             ->appendChild(
+            ->appendChild(
                 (new PHUIFormFileAjaxControl())
+                    ->setValue($request->getArr('filePHIDs'))
                     ->setName('filePHIDs')
-                    ->setLabel(\Yii::t("app", 'Upload File'))
+                    ->setLabel(Yii::t("app", 'Upload File'))
                     ->setAllowMultiple(true)
                     ->setError($e_file))
             ->appendChild(
                 (new PhabricatorCKEditorControl())
+                    ->setValue($request->getValue('content'))
                     ->setName('content')
-                    ->setLabel(\Yii::t("app", 'Content')));
+                    ->setLabel(Yii::t("app", 'Content')));
 
         return $this->newDialog()
-            ->setTitle(\Yii::t("app", 'File'))
+            ->setTitle(Yii::t("app", 'File'))
             ->setErrors($errors)
             ->appendForm($form)
-            ->addSubmitButton(\Yii::t("app", 'Upload'))
+            ->addSubmitButton(Yii::t("app", 'Upload'))
             ->addCancelButton('/');
     }
 }

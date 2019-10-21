@@ -2,8 +2,11 @@
 
 namespace orangins\lib\view\form\control;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
+use orangins\modules\widgets\javelin\JavelinSelect2Asset;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class AphrontFormSelectControl
@@ -65,7 +68,21 @@ final class AphrontFormSelectControl extends AphrontFormControl
     /**
      * @return mixed
      * @author 陈妙威
-     * @throws \yii\base\Exception
+     */
+    public function getID()
+    {
+        $ID = parent::getID();
+        if (!$ID) {
+            $ID = JavelinHtml::generateUniqueNodeId();
+            parent::setID($ID);
+        }
+        return $ID;
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     * @author 陈妙威
      */
     protected function renderInput()
     {
@@ -87,8 +104,8 @@ final class AphrontFormSelectControl extends AphrontFormControl
      * @param array $attrs
      * @param array $disabled
      * @return mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public static function renderSelectTag(
         $selected,
@@ -97,7 +114,11 @@ final class AphrontFormSelectControl extends AphrontFormControl
         array $disabled = array())
     {
         $option_tags = self::renderOptions($selected, $options, $disabled);
-        return JavelinHtml::tag('select', $option_tags, $attrs);
+
+        JavelinHtml::initBehavior(new JavelinSelect2Asset(), [
+           'id' => ArrayHelper::getValue($attrs, 'id')
+        ]);
+        return JavelinHtml::phutil_tag('select', $attrs, $option_tags);
     }
 
     /**
@@ -105,8 +126,9 @@ final class AphrontFormSelectControl extends AphrontFormControl
      * @param array $options
      * @param array $disabled
      * @return array
+     * @throws \yii\base\Exception*@throws Exception
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     private static function renderOptions(
         $selected,
@@ -119,9 +141,9 @@ final class AphrontFormSelectControl extends AphrontFormControl
         $already_selected = false;
         foreach ($options as $value => $thing) {
             if (is_array($thing)) {
-                $tags[] = JavelinHtml::tag('optgroup', self::renderOptions($selected, $thing), array(
+                $tags[] = JavelinHtml::phutil_tag('optgroup', array(
                     'label' => $value,
-                ));
+                ), self::renderOptions($selected, $thing));
             } else {
                 // When there are a list of options including similar values like
                 // "0" and "" (the empty string), only select the first matching
@@ -135,11 +157,11 @@ final class AphrontFormSelectControl extends AphrontFormControl
                     $is_selected = null;
                 }
 
-                $tags[] = JavelinHtml::tag('option', $thing, array(
+                $tags[] = JavelinHtml::phutil_tag('option', array(
                     'selected' => $is_selected,
                     'value' => $value,
                     'disabled' => isset($disabled[$value]) ? 'disabled' : null,
-                ));
+                ), $thing);
             }
         }
         return $tags;

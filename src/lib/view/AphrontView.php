@@ -17,6 +17,7 @@ use orangins\modules\people\models\PhabricatorUser;
 use Yii;
 use yii\base\Component;
 use Exception;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class Widget
@@ -66,119 +67,407 @@ abstract class AphrontView extends Component implements PhutilSafeHTMLProducerIn
      */
     const STYLE_INFO = "info";
 
+    /**
+     *
+     */
     const COLOR_PRIMARY_800 = "primary-800";
+    /**
+     *
+     */
     const COLOR_PRIMARY_700 = "primary-700";
+    /**
+     *
+     */
     const COLOR_PRIMARY_600 = "primary-600";
+    /**
+     *
+     */
     const COLOR_PRIMARY = "primary";
+    /**
+     *
+     */
     const COLOR_PRIMARY_400 = "primary-400";
+    /**
+     *
+     */
     const COLOR_PRIMARY_300 = "primary-300";
 
+    /**
+     *
+     */
     const COLOR_DANGER_800 = "danger-800";
+    /**
+     *
+     */
     const COLOR_DANGER_700 = "danger-700";
+    /**
+     *
+     */
     const COLOR_DANGER_600 = "danger-600";
+    /**
+     *
+     */
     const COLOR_DANGER = "danger";
+    /**
+     *
+     */
     const COLOR_DANGER_400 = "danger-400";
+    /**
+     *
+     */
     const COLOR_DANGER_300 = "danger-300";
 
+    /**
+     *
+     */
     const COLOR_SUCCESS_800 = "success-800";
+    /**
+     *
+     */
     const COLOR_SUCCESS_700 = "success-700";
+    /**
+     *
+     */
     const COLOR_SUCCESS_600 = "success-600";
+    /**
+     *
+     */
     const COLOR_SUCCESS = "success";
+    /**
+     *
+     */
     const COLOR_SUCCESS_400 = "success-400";
+    /**
+     *
+     */
     const COLOR_SUCCESS_300 = "success-300";
 
+    /**
+     *
+     */
     const COLOR_WARNING_800 = "warning-800";
+    /**
+     *
+     */
     const COLOR_WARNING_700 = "warning-700";
+    /**
+     *
+     */
     const COLOR_WARNING_600 = "warning-600";
+    /**
+     *
+     */
     const COLOR_WARNING = "warning";
+    /**
+     *
+     */
     const COLOR_WARNING_400 = "warning-400";
+    /**
+     *
+     */
     const COLOR_WARNING_300 = "warning-300";
 
+    /**
+     *
+     */
     const COLOR_INFO_800 = "info-800";
+    /**
+     *
+     */
     const COLOR_INFO_700 = "info-700";
+    /**
+     *
+     */
     const COLOR_INFO_600 = "info-600";
+    /**
+     *
+     */
     const COLOR_INFO = "info";
+    /**
+     *
+     */
     const COLOR_INFO_400 = "info-400";
+    /**
+     *
+     */
     const COLOR_INFO_300 = "info-300";
 
 
+    /**
+     *
+     */
     const COLOR_PINK_800 = "pink-800";
+    /**
+     *
+     */
     const COLOR_PINK_700 = "pink-700";
+    /**
+     *
+     */
     const COLOR_PINK_600 = "pink-600";
+    /**
+     *
+     */
     const COLOR_PINK = "pink";
+    /**
+     *
+     */
     const COLOR_PINK_400 = "pink-400";
+    /**
+     *
+     */
     const COLOR_PINK_300 = "pink-300";
 
+    /**
+     *
+     */
     const COLOR_VIOLET_800 = "violet-800";
+    /**
+     *
+     */
     const COLOR_VIOLET_700 = "violet-700";
+    /**
+     *
+     */
     const COLOR_VIOLET_600 = "violet-600";
+    /**
+     *
+     */
     const COLOR_VIOLET = "violet";
+    /**
+     *
+     */
     const COLOR_VIOLET_400 = "violet-400";
+    /**
+     *
+     */
     const COLOR_VIOLET_300 = "violet-300";
 
 
+    /**
+     *
+     */
     const COLOR_PURPLE_800 = "purple-800";
+    /**
+     *
+     */
     const COLOR_PURPLE_700 = "purple-700";
+    /**
+     *
+     */
     const COLOR_PURPLE_600 = "purple-600";
+    /**
+     *
+     */
     const COLOR_PURPLE = "purple";
+    /**
+     *
+     */
     const COLOR_PURPLE_400 = "purple-400";
+    /**
+     *
+     */
     const COLOR_PURPLE_300 = "purple-300";
 
+    /**
+     *
+     */
     const COLOR_INDIGO_800 = "indigo-800";
+    /**
+     *
+     */
     const COLOR_INDIGO_700 = "indigo-700";
+    /**
+     *
+     */
     const COLOR_INDIGO_600 = "indigo-600";
+    /**
+     *
+     */
     const COLOR_INDIGO = "indigo";
+    /**
+     *
+     */
     const COLOR_INDIGO_400 = "indigo-400";
+    /**
+     *
+     */
     const COLOR_INDIGO_300 = "indigo-300";
 
+    /**
+     *
+     */
     const COLOR_BLUE_800 = "blue-800";
+    /**
+     *
+     */
     const COLOR_BLUE_700 = "blue-700";
+    /**
+     *
+     */
     const COLOR_BLUE_600 = "blue-600";
+    /**
+     *
+     */
     const COLOR_BLUE = "blue";
+    /**
+     *
+     */
     const COLOR_BLUE_400 = "blue-400";
+    /**
+     *
+     */
     const COLOR_BLUE_300 = "blue-300";
 
+    /**
+     *
+     */
     const COLOR_TEAL_800 = "teal-800";
+    /**
+     *
+     */
     const COLOR_TEAL_700 = "teal-700";
+    /**
+     *
+     */
     const COLOR_TEAL_600 = "teal-600";
+    /**
+     *
+     */
     const COLOR_TEAL = "teal";
+    /**
+     *
+     */
     const COLOR_TEAL_400 = "teal-400";
+    /**
+     *
+     */
     const COLOR_TEAL_300 = "teal-300";
 
+    /**
+     *
+     */
     const COLOR_GREEN_800 = "green-800";
+    /**
+     *
+     */
     const COLOR_GREEN_700 = "green-700";
+    /**
+     *
+     */
     const COLOR_GREEN_600 = "green-600";
+    /**
+     *
+     */
     const COLOR_GREEN = "green";
+    /**
+     *
+     */
     const COLOR_GREEN_400 = "green-400";
+    /**
+     *
+     */
     const COLOR_GREEN_300 = "green-300";
 
+    /**
+     *
+     */
     const COLOR_ORANGE_800 = "orange-800";
+    /**
+     *
+     */
     const COLOR_ORANGE_700 = "orange-700";
+    /**
+     *
+     */
     const COLOR_ORANGE_600 = "orange-600";
+    /**
+     *
+     */
     const COLOR_ORANGE = "orange";
+    /**
+     *
+     */
     const COLOR_ORANGE_400 = "orange-400";
+    /**
+     *
+     */
     const COLOR_ORANGE_300 = "orange-300";
 
+    /**
+     *
+     */
     const COLOR_BROWN_800 = "brown-800";
+    /**
+     *
+     */
     const COLOR_BROWN_700 = "brown-700";
+    /**
+     *
+     */
     const COLOR_BROWN_600 = "brown-600";
+    /**
+     *
+     */
     const COLOR_BROWN = "brown";
+    /**
+     *
+     */
     const COLOR_BROWN_400 = "brown-400";
+    /**
+     *
+     */
     const COLOR_BROWN_300 = "brown-300";
 
 
+    /**
+     *
+     */
     const COLOR_GREY_800 = "grey-800";
+    /**
+     *
+     */
     const COLOR_GREY_700 = "grey-700";
+    /**
+     *
+     */
     const COLOR_GREY_600 = "grey-600";
+    /**
+     *
+     */
     const COLOR_GREY = "grey";
+    /**
+     *
+     */
     const COLOR_GREY_400 = "grey-400";
+    /**
+     *
+     */
     const COLOR_GREY_300 = "grey-300";
 
+    /**
+     *
+     */
     const COLOR_SLATE_800 = "slate-800";
+    /**
+     *
+     */
     const COLOR_SLATE_700 = "slate-700";
+    /**
+     *
+     */
     const COLOR_SLATE_600 = "slate-600";
+    /**
+     *
+     */
     const COLOR_SLATE = "slate";
+    /**
+     *
+     */
     const COLOR_SLATE_400 = "slate-400";
+    /**
+     *
+     */
     const COLOR_SLATE_300 = "slate-300";
 
     /**
@@ -224,9 +513,123 @@ abstract class AphrontView extends Component implements PhutilSafeHTMLProducerIn
 
 
     /**
+     * @return array
+     * @author 陈妙威
+     */
+    public static function getColorCodes()
+    {
+        return array(
+            self::COLOR_DANGER => "#F44336",
+            self::COLOR_PRIMARY => "#2196F3",
+            self::COLOR_SUCCESS => "#4CAF50",
+            self::COLOR_WARNING => "#FF5722",
+            self::COLOR_INFO => "#00BCD4",
+            self::COLOR_PINK => "#E91E63",
+            self::COLOR_VIOLET => "#9C27B0",
+            self::COLOR_PURPLE => "#673AB7",
+            self::COLOR_INDIGO => "#3F51B5",
+            self::COLOR_BLUE => "#03A9F4",
+            self::COLOR_TEAL => "#009688",
+            self::COLOR_GREEN => "#8BC34A",
+            self::COLOR_ORANGE => "#FF9800",
+            self::COLOR_BROWN => "#795548",
+            self::COLOR_GREY => "#777777",
+            self::COLOR_SLATE => "#607D8B",
+        );
+    }
+
+    /**
+     * @param $themeColor
+     * @return string
+     * @author 陈妙威
+     */
+    public static function getColorCode($themeColor)
+    {
+        return ArrayHelper::getValue(self::getColorCodes(), $themeColor, "#2196F3");
+    }
+
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    public static function getShadeMap()
+    {
+        return array(
+            self::COLOR_DANGER => Yii::t("app", 'Red'),
+            self::COLOR_ORANGE => Yii::t("app", 'Orange'),
+            self::COLOR_WARNING => Yii::t("app", 'Yellow'),
+            self::COLOR_BLUE => Yii::t("app", 'Blue'),
+            self::COLOR_INDIGO => Yii::t("app", 'Indigo'),
+            self::COLOR_VIOLET => Yii::t("app", 'Violet'),
+            self::COLOR_GREEN => Yii::t("app", 'Green'),
+            self::COLOR_GREY => Yii::t("app", 'Grey'),
+            self::COLOR_PINK => Yii::t("app", 'Pink'),
+        );
+    }
+
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    public static function getShades()
+    {
+        return array_keys(self::getShadeMap());
+    }
+
+
+    /**
+     * @param $shade
+     * @return mixed
+     * @author 陈妙威
+     */
+    public static function getShadeName($shade)
+    {
+        return ArrayHelper::getValue(self::getShadeMap(), $shade, $shade);
+    }
+
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    public static function getOutlines()
+    {
+        return array_keys(self::getOutlineMap());
+    }
+
+    /**
+     * @return array
+     * @author 陈妙威
+     */
+    public static function getOutlineMap()
+    {
+        return array(
+            self::COLOR_DANGER => Yii::t("app", 'Red'),
+            self::COLOR_ORANGE => Yii::t("app", 'Orange'),
+            self::COLOR_WARNING => Yii::t("app", 'Yellow'),
+            self::COLOR_BLUE => Yii::t("app", 'Blue'),
+            self::COLOR_INDIGO => Yii::t("app", 'Indigo'),
+            self::COLOR_VIOLET => Yii::t("app", 'Violet'),
+            self::COLOR_GREEN => Yii::t("app", 'Green'),
+            self::COLOR_GREY => Yii::t("app", 'Grey'),
+            self::COLOR_PINK => Yii::t("app", 'Pink'),
+        );
+    }
+
+    /**
+     * @param $outline
+     * @return mixed
+     * @author 陈妙威
+     */
+    public static function getOutlineName($outline)
+    {
+        return ArrayHelper::getValue(self::getOutlineMap(), $outline, $outline);
+    }
+
+
+    /**
      * Set the user viewing this element.
      *
-     * @param PhabricatorUser Viewing user.
+     * @param PhabricatorUser $viewer Viewing user.
      * @return static
      */
     public function setViewer(PhabricatorUser $viewer)

@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\form\control;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\modules\file\engine\PhabricatorFileStorageEngine;
@@ -11,6 +12,8 @@ use orangins\modules\widgets\javelin\JavelinDragAndDropTextareaAsset;
 use orangins\modules\widgets\javelin\JavelinRemarkAssistAsset;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
 use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -101,11 +104,10 @@ final class PhabricatorRemarkupControl extends AphrontFormTextAreaControl
     }
 
     /**
-     * @return mixed|string
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @return mixed
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function renderInput()
@@ -153,15 +155,15 @@ final class PhabricatorRemarkupControl extends AphrontFormTextAreaControl
             new JavelinRemarkAssistAsset(),
             array(
                 'pht' => array(
-                    'bold text' => \Yii::t("app", 'bold text'),
-                    'italic text' => \Yii::t("app", 'italic text'),
-                    'monospaced text' => \Yii::t("app", 'monospaced text'),
-                    'List Item' => \Yii::t("app", 'List Item'),
-                    'Quoted Text' => \Yii::t("app", 'Quoted Text'),
-                    'data' => \Yii::t("app", 'data'),
-                    'name' => \Yii::t("app", 'name'),
-                    'URL' => \Yii::t("app", 'URL'),
-                    'key-help' => \Yii::t("app", 'Pin or unpin the comment form.'),
+                    'bold text' => Yii::t("app", 'bold text'),
+                    'italic text' => Yii::t("app", 'italic text'),
+                    'monospaced text' => Yii::t("app", 'monospaced text'),
+                    'List Item' => Yii::t("app", 'List Item'),
+                    'Quoted Text' => Yii::t("app", 'Quoted Text'),
+                    'data' => Yii::t("app", 'data'),
+                    'name' => Yii::t("app", 'name'),
+                    'URL' => Yii::t("app", 'URL'),
+                    'key-help' => Yii::t("app", 'Pin or unpin the comment form.'),
                 ),
                 'canPin' => $this->getCanPin(),
                 'disabled' => $this->getDisabled(),
@@ -171,7 +173,7 @@ final class PhabricatorRemarkupControl extends AphrontFormTextAreaControl
                     64 => array( // "@"
                         'datasourceURI' => $user_datasource->getDatasourceURI(),
                         'headerIcon' => 'fa-user',
-                        'headerText' => \Yii::t("app", 'Find User:'),
+                        'headerText' => Yii::t("app", 'Find User:'),
                         'hintText' => $user_datasource->getPlaceholderText(),
                     ),
 //                    35 => array( // "#"
@@ -223,19 +225,19 @@ final class PhabricatorRemarkupControl extends AphrontFormTextAreaControl
 
         $actions = array(
             'fa-bold' => array(
-                'tip' => \Yii::t("app", 'Bold'),
+                'tip' => Yii::t("app", 'Bold'),
                 'nodevice' => true,
             ),
             'fa-italic' => array(
-                'tip' => \Yii::t("app", 'Italics'),
+                'tip' => Yii::t("app", 'Italics'),
                 'nodevice' => true,
             ),
             'fa-text-width' => array(
-                'tip' => \Yii::t("app", 'Monospaced'),
+                'tip' => Yii::t("app", 'Monospaced'),
                 'nodevice' => true,
             ),
             'fa-link' => array(
-                'tip' => \Yii::t("app", 'Link'),
+                'tip' => Yii::t("app", 'Link'),
                 'nodevice' => true,
             ),
             array(
@@ -243,27 +245,27 @@ final class PhabricatorRemarkupControl extends AphrontFormTextAreaControl
                 'nodevice' => true,
             ),
             'fa-list-ul' => array(
-                'tip' => \Yii::t("app", 'Bulleted List'),
+                'tip' => Yii::t("app", 'Bulleted List'),
                 'nodevice' => true,
             ),
             'fa-list-ol' => array(
-                'tip' => \Yii::t("app", 'Numbered List'),
+                'tip' => Yii::t("app", 'Numbered List'),
                 'nodevice' => true,
             ),
             'fa-code' => array(
-                'tip' => \Yii::t("app", 'Code Block'),
+                'tip' => Yii::t("app", 'Code Block'),
                 'nodevice' => true,
             ),
             'fa-quote-right' => array(
-                'tip' => \Yii::t("app", 'Quote'),
+                'tip' => Yii::t("app", 'Quote'),
                 'nodevice' => true,
             ),
             'fa-table' => array(
-                'tip' => \Yii::t("app", 'Table'),
+                'tip' => Yii::t("app", 'Table'),
                 'nodevice' => true,
             ),
             'fa-cloud-upload' => array(
-                'tip' => \Yii::t("app", 'Upload File'),
+                'tip' => Yii::t("app", 'Upload File'),
             ),
         );
 
@@ -287,12 +289,12 @@ final class PhabricatorRemarkupControl extends AphrontFormTextAreaControl
 //        }
 
         $actions['fa-eye'] = array(
-            'tip' => \Yii::t("app", 'Preview'),
+            'tip' => Yii::t("app", 'Preview'),
             'align' => 'right',
         );
 
         $actions['fa-book'] = array(
-            'tip' => \Yii::t("app", 'Help'),
+            'tip' => Yii::t("app", 'Help'),
             'align' => 'right',
             'href' => PhabricatorEnv::getDoclink('Remarkup Reference'),
         );
@@ -301,14 +303,14 @@ final class PhabricatorRemarkupControl extends AphrontFormTextAreaControl
 
         if (!$this->disableFullScreen) {
             $mode_actions['fa-arrows-alt'] = array(
-                'tip' => \Yii::t("app", 'Fullscreen Mode'),
+                'tip' => Yii::t("app", 'Fullscreen Mode'),
                 'align' => 'right',
             );
         }
 
         if ($this->getCanPin()) {
             $mode_actions['fa-thumb-tack'] = array(
-                'tip' => \Yii::t("app", 'Pin Form On Screen'),
+                'tip' => Yii::t("app", 'Pin Form On Screen'),
                 'align' => 'right',
             );
         }

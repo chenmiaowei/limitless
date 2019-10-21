@@ -35,6 +35,13 @@ JX.install('PhabricatorFileUploadControl', {
             this._inputItem = JX.DOM.find(this._container, 'div', 'file-upload-ajax-item');
             this._input = JX.DOM.find(this._container, 'input', 'file-upload-ajax-input');
             JX.DOM.listen(this._input, 'change', null, JX.bind(this, this.startUpload));
+
+            JX.DOM.listen(this._container, 'click', 'file-upload-ajax-item-close', this.deleteItem);
+        },
+
+        deleteItem: function(e) {
+            let coverage_row = JX.DOM.findAbove(e.getTarget(), 'div', 'file-upload-ajax-item-static');
+            JX.DOM.remove(coverage_row);
         },
 
         startUpload: function () {
@@ -81,20 +88,23 @@ JX.install('PhabricatorFileUploadControl', {
 
         didUpload: function (state, file) {
             let content;
-
-            if(this.getIsMultiple()) {
+            let hiddenInput;
+            if (this.getIsMultiple()) {
                 let cloneNode = this._inputItem.cloneNode(true);
                 let closeButtonHtml = JX.$H('<div class="position-absolute font-size-lg" data-sigil="file-upload-ajax-item-close" style="right: 10px; top: 10px;"><i class="visual-only fa fa-close" data-meta="0_3" aria-hidden="true"></i></div>');
                 JX.DOM.prependContent(cloneNode, closeButtonHtml);
                 let findInput = JX.DOM.find(cloneNode, 'input', 'file-upload-ajax-input');
                 JX.DOM.remove(findInput);
-                let hiddenInput = JX.DOM.find(cloneNode, 'input', 'file-upload-ajax-input-hidden');
+                hiddenInput = JX.DOM.find(cloneNode, 'input', 'file-upload-ajax-input-hidden');
                 hiddenInput.value = file.getPHID();
                 content = JX.DOM.find(cloneNode, 'div', 'file-upload-ajax-item-content');
-                JX.DOM.prependContent(this._container, cloneNode);
+                // JX.DOM.prependContent(this._container, cloneNode);
+                this._container.insertBefore(cloneNode, this._inputItem);
                 let closeButton = JX.DOM.find(cloneNode, 'div', 'file-upload-ajax-item-close');
                 JX.DOM.listen(closeButton, 'click', null, JX.bind(this, this.didDelete, cloneNode));
             } else {
+                hiddenInput = JX.DOM.find(this._inputItem, 'input', 'file-upload-ajax-input-hidden');
+                hiddenInput.value = file.getPHID();
                 content = JX.DOM.find(this._inputItem, 'div', 'file-upload-ajax-item-content');
             }
 
@@ -128,7 +138,7 @@ JX.install('PhabricatorFileUploadControl', {
                 JX.DOM.setContent(content, JX.$N("img", {src: file.getURI(), style: {width: '100%'}}));
             }
 
-            if(this.getIsMultiple()) {
+            if (this.getIsMultiple()) {
                 let oldContent = JX.DOM.find(this._inputItem, 'div', 'file-upload-ajax-item-content');
                 JX.DOM.setContent(oldContent, [
                     JX.$N("i", {className: "icon-file-plus icon-2x text-success p-3 mt-3"}),

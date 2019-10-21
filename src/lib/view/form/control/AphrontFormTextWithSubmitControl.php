@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\form\control;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 
 /**
@@ -47,8 +48,8 @@ final class AphrontFormTextWithSubmitControl extends AphrontFormControl
     }
 
     /**
-     * @return mixed|string
-     * @throws \yii\base\Exception
+     * @return string
+     * @throws Exception
      * @author 陈妙威
      */
     protected function renderInput()

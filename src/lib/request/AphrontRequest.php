@@ -10,12 +10,14 @@
 namespace orangins\lib\request;
 
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\exception\AphrontMalformedRequestException;
 use PhutilURI;
 use orangins\lib\configuration\AphrontDefaultApplicationConfiguration;
 use orangins\modules\people\models\PhabricatorUser;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\web\Cookie;
 use yii\web\Request;
@@ -154,7 +156,7 @@ class AphrontRequest extends Request
      * @param $name
      * @param $value
      * @return self
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function setCookie($name, $value)
     {
@@ -165,8 +167,8 @@ class AphrontRequest extends Request
     /**
      * @param $name
      * @return $this
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function clearCookie($name)
     {
@@ -185,7 +187,7 @@ class AphrontRequest extends Request
      * @param string  Cookie value.
      * @return static
      * @task cookie
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function setTemporaryCookie($name, $value)
     {
@@ -201,8 +203,7 @@ class AphrontRequest extends Request
      * @param int     Epoch timestamp for cookie expiration.
      * @return static
      * @task cookie
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      */
     private function setCookieWithExpiration(
         $name,
@@ -338,7 +339,7 @@ class AphrontRequest extends Request
      */
     public function getInt($name, $default = null)
     {
-        if (isset($this->requestData[$name])) {
+        if (isset($this->getRequestData()[$name])) {
             // Converting from array to int is "undefined". Don't rely on whatever
             // PHP decides to do.
             if (is_array($this->getRequestData()[$name])) {
@@ -359,7 +360,7 @@ class AphrontRequest extends Request
      */
     public function getBool($name, $default = null)
     {
-        if (isset($this->requestData[$name])) {
+        if (isset($this->getRequestData()[$name])) {
             if ($this->getRequestData()[$name] === 'true') {
                 return true;
             } else if ($this->getRequestData()[$name] === 'false') {
@@ -381,7 +382,7 @@ class AphrontRequest extends Request
      */
     public function getStr($name, $default = null)
     {
-        if (isset($this->requestData[$name])) {
+        if (isset($this->getRequestData()[$name])) {
             $str = (string)$this->getRequestData()[$name];
             // Normalize newline craziness.
             $str = str_replace(
@@ -394,6 +395,23 @@ class AphrontRequest extends Request
         }
     }
 
+    /**
+     * @task data
+     * @param $name
+     * @return bool
+     */
+    public function getSwitchValue($name)
+    {
+        if (isset($this->getRequestData()[$name])) {
+            if ($this->getRequestData()[$name] === 'on') {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 
     /**
      * @task data
@@ -403,7 +421,7 @@ class AphrontRequest extends Request
      */
     public function getArr($name, $default = array())
     {
-        if (isset($this->requestData[$name]) &&
+        if (isset($this->getRequestData()[$name]) &&
             is_array($this->getRequestData()[$name])) {
             return $this->getRequestData()[$name];
         } else {
@@ -420,7 +438,7 @@ class AphrontRequest extends Request
      */
     public function getStrList($name, $default = array())
     {
-        if (!isset($this->requestData[$name])) {
+        if (!isset($this->getRequestData()[$name])) {
             return $default;
         }
         $list = $this->getStr($name);
@@ -450,12 +468,12 @@ class AphrontRequest extends Request
 
     /**
      * @return mixed|string
+     * @throws Exception
      * @author 陈妙威
-     * @throws \Exception
      */
     public function getRequestURI()
     {
-        $url = \Yii::$app->request->url;
+        $url = Yii::$app->request->url;
         $phutilURI = new PhutilURI($url);
         return $phutilURI;
     }
@@ -552,7 +570,7 @@ class AphrontRequest extends Request
 
     /**
      * @return mixed|string
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function getAbsoluteRequestURI()
@@ -601,7 +619,7 @@ class AphrontRequest extends Request
      * Get request data other than "magic" parameters.
      *
      * @param bool $include_quicksand
-     * @return array<string, wild> Request data, with magic filtered out.
+     * @return array<string, mixed> Request data, with magic filtered out.
      */
     public function getPassthroughRequestData($include_quicksand = false)
     {
@@ -616,7 +634,7 @@ class AphrontRequest extends Request
                 unset($data[$key]);
             }
 
-            if($this->csrfParam === $key) {
+            if ($this->csrfParam === $key) {
                 unset($data[$key]);
             }
         }
@@ -626,7 +644,7 @@ class AphrontRequest extends Request
 
     /**
      * @return string
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function getPath()
@@ -646,8 +664,8 @@ class AphrontRequest extends Request
 
     /**
      * @return string
-     * @author 陈妙威
      * @throws \Exception
+     * @author 陈妙威
      */
     public function getHost()
     {

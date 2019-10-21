@@ -103,8 +103,8 @@ class AphrontFormTextControl extends AphrontFormControl
 
     /**
      * @return mixed|string
+     * @throws \Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     protected function renderInput()
     {

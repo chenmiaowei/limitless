@@ -435,7 +435,7 @@ final class AphrontSideNavFilterView extends AphrontView
      */
     public function render()
     {
-        $var = PHUITagView::getShadeCode()[PhabricatorEnv::getEnvConfig("ui.widget-color")];
+        $var = PHUITagView::getColorCode(PhabricatorEnv::getEnvConfig("ui.widget-color"));
         \Yii::$app->getView()->registerCss(<<<STR
 .sidebar-light .nav-sidebar>.nav-item-open>.nav-link:not(.disabled), .sidebar-light .nav-sidebar>.nav-item>.nav-link.active {
     background-color: {$var};

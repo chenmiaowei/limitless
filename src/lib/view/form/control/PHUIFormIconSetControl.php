@@ -2,10 +2,12 @@
 
 namespace orangins\lib\view\form\control;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\modules\file\iconset\PhabricatorIconSet;
 use orangins\modules\widgets\javelin\JavelinChooseControlAsset;
+use ReflectionException;
 
 /**
  * Class PHUIFormIconSetControl
@@ -50,10 +52,10 @@ final class PHUIFormIconSetControl extends AphrontFormControl
     }
 
     /**
-     * @return array|mixed
+     * @return mixed
+     * @throws ReflectionException
+      *@throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
-     * @throws \ReflectionException
      */
     protected function renderInput()
     {

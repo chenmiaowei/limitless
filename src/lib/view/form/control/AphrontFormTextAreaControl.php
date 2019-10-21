@@ -2,6 +2,7 @@
 
 namespace orangins\lib\view\form\control;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 
 /**
@@ -137,7 +138,7 @@ class AphrontFormTextAreaControl extends AphrontFormControl
 
     /**
      * @return mixed|string
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function renderInput()

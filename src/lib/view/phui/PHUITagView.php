@@ -9,12 +9,13 @@
 
 namespace orangins\lib\view\phui;
 
+use Exception;
 use PhutilInvalidStateException;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\AphrontTagView;
 use orangins\modules\widgets\javelin\JavelinHoverCardAsset;
+use ReflectionException;
 use Yii;
-use yii\helpers\ArrayHelper;
 
 /**
  * Class PHUITagView
@@ -134,6 +135,8 @@ class PHUITagView extends AphrontTagView
     /**
      * This method has been deprecated, use @{method:setColor} instead.
      *
+     * @param $shade
+     * @return PHUITagView
      * @deprecated
      */
     public function setShade($shade)
@@ -266,7 +269,7 @@ class PHUITagView extends AphrontTagView
     /**
      * @return array
      * @author 陈妙威
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function getTagAttributes()
     {
@@ -319,8 +322,7 @@ class PHUITagView extends AphrontTagView
     /**
      * @return array|string
      * @throws PhutilInvalidStateException
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function getTagContent()
@@ -407,108 +409,6 @@ class PHUITagView extends AphrontTagView
         );
     }
 
-    /**
-     * @return array
-     * @author 陈妙威
-     */
-    public static function getShades()
-    {
-        return array_keys(self::getShadeMap());
-    }
-
-    /**
-     * @return array
-     * @author 陈妙威
-     */
-    public static function getShadeMap()
-    {
-        return array(
-            self::COLOR_DANGER => Yii::t("app",'Red'),
-            self::COLOR_ORANGE => Yii::t("app",'Orange'),
-            self::COLOR_WARNING => Yii::t("app",'Yellow'),
-            self::COLOR_BLUE => Yii::t("app",'Blue'),
-            self::COLOR_INDIGO => Yii::t("app",'Indigo'),
-            self::COLOR_VIOLET => Yii::t("app",'Violet'),
-            self::COLOR_GREEN => Yii::t("app",'Green'),
-            self::COLOR_GREY => Yii::t("app",'Grey'),
-            self::COLOR_PINK => Yii::t("app",'Pink'),
-        );
-    }
-
-    /**
-     * @return array
-     * @author 陈妙威
-     */
-    public static function getShadeCode()
-    {
-        return array(
-            self::COLOR_DANGER => "#F44336",
-            self::COLOR_PRIMARY => "#2196F3",
-            self::COLOR_SUCCESS => "#4CAF50",
-            self::COLOR_WARNING => "#FF5722",
-            self::COLOR_INFO => "#00BCD4",
-            self::COLOR_PINK => "#E91E63",
-            self::COLOR_VIOLET => "#9C27B0",
-            self::COLOR_PURPLE => "#673AB7",
-            self::COLOR_INDIGO => "#3F51B5",
-            self::COLOR_BLUE => "#03A9F4",
-            self::COLOR_TEAL => "#009688",
-            self::COLOR_GREEN => "#8BC34A",
-            self::COLOR_ORANGE => "#FF9800",
-            self::COLOR_BROWN => "#795548",
-            self::COLOR_GREY => "#777777",
-            self::COLOR_SLATE => "#607D8B",
-        );
-    }
-
-
-    /**
-     * @param $shade
-     * @return mixed
-     * @author 陈妙威
-     */
-    public static function getShadeName($shade)
-    {
-        return ArrayHelper::getValue(self::getShadeMap(), $shade, $shade);
-    }
-
-    /**
-     * @return array
-     * @author 陈妙威
-     */
-    public static function getOutlines()
-    {
-        return array_keys(self::getOutlineMap());
-    }
-
-    /**
-     * @return array
-     * @author 陈妙威
-     */
-    public static function getOutlineMap()
-    {
-        return array(
-            self::COLOR_DANGER => Yii::t("app",'Red'),
-            self::COLOR_ORANGE => Yii::t("app",'Orange'),
-            self::COLOR_WARNING => Yii::t("app",'Yellow'),
-            self::COLOR_BLUE => Yii::t("app",'Blue'),
-            self::COLOR_INDIGO => Yii::t("app",'Indigo'),
-            self::COLOR_VIOLET => Yii::t("app",'Violet'),
-            self::COLOR_GREEN => Yii::t("app",'Green'),
-            self::COLOR_GREY => Yii::t("app",'Grey'),
-            self::COLOR_PINK => Yii::t("app",'Pink'),
-        );
-    }
-
-    /**
-     * @param $outline
-     * @return mixed
-     * @author 陈妙威
-     */
-    public static function getOutlineName($outline)
-    {
-        return ArrayHelper::getValue(self::getOutlineMap(), $outline, $outline);
-    }
 
 
     /**

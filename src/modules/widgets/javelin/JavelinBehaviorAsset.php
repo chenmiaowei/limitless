@@ -48,7 +48,7 @@ abstract class JavelinBehaviorAsset extends AssetBundle
      */
     public function initExtra()
     {
-        $var = PHUITagView::getShadeCode()[PhabricatorEnv::getEnvConfig("ui.widget-color")];
+        $var = PHUITagView::getColorCode(PhabricatorEnv::getEnvConfig("ui.widget-color"));
         \Yii::$app->getView()->registerCss(<<<STR
 .daterangepicker td.active, .daterangepicker td.active:focus, .daterangepicker td.active:hover {
         background-color: {$var};
