@@ -38,7 +38,7 @@ final class PhabricatorApplicationTransactionValidationException extends UserExc
     }
 
     /**
-     * @return \Exception[]
+     * @return PhabricatorApplicationTransactionValidationError[]
      * @author 陈妙威
      */
     public function getErrors()

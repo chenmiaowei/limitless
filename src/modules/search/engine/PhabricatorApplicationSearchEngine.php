@@ -13,6 +13,7 @@ use orangins\lib\view\form\control\AphrontFormTextControl;
 use orangins\lib\view\form\control\PHUIFormFreeformDateControl;
 use orangins\lib\view\layout\PhabricatorActionView;
 use orangins\lib\view\phui\PHUIListItemView;
+use orangins\modules\conduit\interfaces\PhabricatorConduitSearchFieldSpecification;
 use orangins\modules\conduit\method\ConduitAPIMethod;
 use orangins\modules\conduit\protocol\ConduitAPIRequest;
 use orangins\modules\conduit\query\ConduitResultSearchEngineExtension;
@@ -45,6 +46,7 @@ use orangins\lib\view\form\AphrontFormView;
 use orangins\modules\typeahead\datasource\PhabricatorTypeaheadDatasource;
 use orangins\lib\view\AphrontView;
 use Exception;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -261,7 +263,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
     {
         if ($query->getID()) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Query (with ID "{0}") has already been saved. Queries are ' .
                     'immutable once saved.', [
                         $query->getID()
@@ -456,7 +458,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
             $orders = ipull($orders, 'name');
 
             $fields[] = (new PhabricatorSearchOrderField())
-                ->setLabel(\Yii::t("app", 'Order By'))
+                ->setLabel(Yii::t("app", 'Order By'))
                 ->setKey('order')
                 ->setOrderAliases($query->getBuiltinOrderAliasMap())
                 ->setOptions($orders);
@@ -465,11 +467,11 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
         $buckets = $this->newResultBuckets();
         if ($query && $buckets) {
             $bucket_options = array(
-                    self::BUCKET_NONE => \Yii::t("app", 'No Bucketing'),
+                    self::BUCKET_NONE => Yii::t("app", 'No Bucketing'),
                 ) + mpull($buckets, 'getResultBucketName');
 
             $fields[] = (new PhabricatorSearchSelectField())
-                ->setLabel(\Yii::t("app", 'Bucket'))
+                ->setLabel(Yii::t("app", 'Bucket'))
                 ->setKey('bucket')
                 ->setOptions($bucket_options);
         }
@@ -479,7 +481,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
             $key = $field->getKey();
             if (isset($field_map[$key])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Two fields in this SearchEngine use the same key ("{0}"), but ' .
                         'each field must use a unique key.', [
                             $key
@@ -711,7 +713,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
     {
         $viewer = $this->requireViewer();
 
-        $menu->newLabel(\Yii::t("app", 'Queries'));
+        $menu->newLabel(Yii::t("app", 'Queries'));
 
         $named_queries = $this->loadEnabledNamedQueries();
 
@@ -726,14 +728,14 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
         if ($viewer->isLoggedIn()) {
             $manage_uri = $this->getQueryManagementURI();
             $menu
-                ->newLink(\Yii::t("app", 'Edit Queries...'), $manage_uri, 'query/edit')
+                ->newLink(Yii::t("app", 'Edit Queries...'), $manage_uri, 'query/edit')
                 ->setIcon("fa-pencil");
         }
 
-        $menu->newLabel(\Yii::t("app", 'Search'));
+        $menu->newLabel(Yii::t("app", 'Search'));
         $advanced_uri = $this->getQueryResultsPageURI('advanced');
         $menu
-            ->newLink(\Yii::t("app", 'Advanced Search'), $advanced_uri, 'query/advanced')
+            ->newLink(Yii::t("app", 'Advanced Search'), $advanced_uri, 'query/advanced')
             ->setIcon("fa-plus-square");
 
         foreach ($this->navigationItems as $extra_item) {
@@ -914,7 +916,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
 
             if (!$this->application) {
                 throw new Exception(
-                    \Yii::t("app", 'Application "{0}" is not installed!', [$class]));
+                    Yii::t("app", 'Application "{0}" is not installed!', [$class]));
             }
         }
 
@@ -997,7 +999,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
     public function getBuiltinQuery($query_key)
     {
         if (!$this->isBuiltinQuery($query_key)) {
-            throw new Exception(\Yii::t("app", "'{0}' is not a builtin!", [
+            throw new Exception(Yii::t("app", "'{0}' is not a builtin!", [
                 $query_key
             ]));
         }
@@ -1034,7 +1036,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      */
     public function buildSavedQueryFromBuiltin($query_key)
     {
-        throw new Exception(\Yii::t("app", "Builtin '{0}' is not supported!", [
+        throw new Exception(Yii::t("app", "Builtin '{0}' is not supported!", [
             $query_key
         ]));
     }
@@ -1294,7 +1296,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
             $start = $this->parseDateTime($start_str);
             if (!$start) {
                 $this->addError(
-                    \Yii::t("app",
+                    Yii::t("app",
                         '"{0}" date can not be parsed.', [
                             $start_name
                         ]));
@@ -1308,7 +1310,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
             $end = $this->parseDateTime($end_str);
             if (!$end) {
                 $this->addError(
-                    \Yii::t("app",
+                    Yii::t("app",
                         '"{0}" date can not be parsed.', [
                             $end_name
                         ]));
@@ -1317,7 +1319,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
 
         if ($start && $end && ($start >= $end)) {
             $this->addError(
-                \Yii::t("app",
+                Yii::t("app",
                     '"{0}" must be a date before "{1}".',
                     [
                         $start_name,
@@ -1549,11 +1551,10 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
 
 
     /**
-     * @return array
+     * @return PhabricatorSearchField[]
      * @throws Exception
      * @throws PhutilInvalidStateException
      * @throws PhutilMethodNotImplementedException
-     * @throws \ReflectionException
      * @author 陈妙威
      */
     public function getSearchFieldsForConduit()
@@ -1569,7 +1570,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
                 $other_key = $other->getKey();
 
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'SearchFields "{0}" (of class "{1}") and "{2}" (of class "{3}") both ' .
                         'define the same Conduit key ("{4}"). Keys must be unique.',
                         [
@@ -1627,7 +1628,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
                 ->executeOne();
             if (!$saved_query) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Query key "{0}" does not correspond to a valid query.', [
                             $query_key
                         ]));
@@ -1654,7 +1655,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
         foreach ($constraints as $key => $constraint) {
             if (empty($valid_constraints[$key])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Constraint "{0}" is not a valid constraint for this query.', [
                             $key
                         ]));
@@ -1769,7 +1770,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
     }
 
     /**
-     * @return array
+     * @return PhabricatorConduitSearchFieldSpecification[]
      * @throws Exception
      * @throws PhutilInvalidStateException
      * @author 陈妙威
@@ -1786,7 +1787,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
                 $key = $specification->getKey();
                 if (isset($map[$key])) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Two field specifications share the same key ("{0}"). Each ' .
                             'specification must have a unique key.', [
                                 $key
@@ -1889,7 +1890,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
 
         if ($limit > 100) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Maximum page size for Conduit API method calls is 100, but ' .
                     'this call specified {0}.', [
                         $limit
@@ -1898,7 +1899,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
 
         if ($limit < 1) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Minimum page size for API searches is 1, but this call ' .
                     'specified {0}.', [
                         $limit
@@ -1969,7 +1970,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
                 if (isset($attachments[$attachment_key])) {
                     $other = $attachments[$attachment_key];
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Two search engine attachments (of classes "{0}" and "{1}") ' .
                             'specify the same attachment key ("{2}"); keys must be unique.',
                              [
@@ -2072,7 +2073,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
 
             if (isset($fields[$key])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Search engine ("{0}") defines an export field with a key ("{1}") ' .
                         'that collides with another field. Each field must have a ' .
                         'unique key.', [
@@ -2092,7 +2093,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
 
                 if (isset($fields[$key])) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Export engine extension ("{0}") defines an export field with ' .
                             'a key ("{1}") that collides with another field. Each field ' .
                             'must have a unique key.',
@@ -2139,7 +2140,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
         $export_data = array_values($export_data);
         if (count($export_data) !== count($objects)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Search engine ("{0}") exported the wrong number of objects, ' .
                     'expected {0} but got {0}.',
                     [
@@ -2159,7 +2160,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
             $extension_data = array_values($extension_data);
             if (count($export_data) !== count($objects)) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Export engine extension ("{0}") exported the wrong number of ' .
                         'objects, expected {1} but got {2}.',
                         [

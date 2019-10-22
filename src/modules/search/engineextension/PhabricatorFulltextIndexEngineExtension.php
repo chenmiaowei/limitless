@@ -80,6 +80,7 @@ final class PhabricatorFulltextIndexEngineExtension extends PhabricatorIndexEngi
      * @param PhabricatorIndexEngine $engine
      * @param PhabricatorFulltextInterface $object
      * @return mixed|void
+     * @throws \PhutilAggregateException
      * @author 陈妙威
      */
     public function indexObject(

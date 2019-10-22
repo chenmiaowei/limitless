@@ -41,8 +41,6 @@ final class PhabricatorDatasourceEngine extends OranginsObject
 
     /**
      * @return PhabricatorDatasourceEngineExtension[]
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     public function getAllQuickSearchDatasources()
@@ -53,8 +51,6 @@ final class PhabricatorDatasourceEngine extends OranginsObject
     /**
      * @param $query
      * @return null
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     public function newJumpURI($query)
@@ -78,8 +74,6 @@ final class PhabricatorDatasourceEngine extends OranginsObject
     /**
      * @param PhabricatorTypeaheadCompositeDatasource $datasource
      * @return array
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     public function newDatasourcesForCompositeDatasource(

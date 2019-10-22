@@ -10,7 +10,8 @@ use orangins\lib\infrastructure\edges\type\PhabricatorEdgeType;
  * @author 陈妙威
  */
 final class PhabricatorDashboardPanelUsedByObjectEdgeType
-  extends PhabricatorEdgeType {
+    extends PhabricatorEdgeType
+{
 
     /**
      *
@@ -20,15 +21,19 @@ final class PhabricatorDashboardPanelUsedByObjectEdgeType
     /**
      * @return int|null
      * @author 陈妙威
-     */public function getInverseEdgeConstant() {
-    return PhabricatorObjectUsesDashboardPanelEdgeType::EDGECONST;
-  }
+     */
+    public function getInverseEdgeConstant()
+    {
+        return PhabricatorObjectUsesDashboardPanelEdgeType::EDGECONST;
+    }
 
     /**
      * @return bool
      * @author 陈妙威
-     */public function shouldWriteInverseTransactions() {
-    return true;
-  }
+     */
+    public function shouldWriteInverseTransactions()
+    {
+        return true;
+    }
 
 }

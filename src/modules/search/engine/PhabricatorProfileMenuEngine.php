@@ -2,7 +2,9 @@
 
 namespace orangins\modules\search\engine;
 
+use AphrontDuplicateKeyQueryException;
 use orangins\lib\actions\PhabricatorAction;
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\lib\OranginsObject;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\response\Aphront404Response;
@@ -37,6 +39,19 @@ use orangins\modules\search\menuitems\PhabricatorProfileMenuItem;
 use orangins\modules\search\models\PhabricatorProfileMenuItemConfiguration;
 use orangins\modules\search\models\PhabricatorProfileMenuItemConfigurationTransaction;
 use Exception;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -226,8 +241,8 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     /**
      * @return mixed
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function getDefaultItem()
@@ -330,10 +345,10 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     /**
      * @return Aphront404Response|AphrontRedirectResponse|PhabricatorStandardPageView
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\db\StaleObjectException
-     * @throws \Throwable
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws StaleObjectException
+     * @throws Throwable
      * @author 陈妙威
      */
     public function buildResponse()
@@ -435,7 +450,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
                     }
                 }
             }
-            $page_title = \Yii::t("app", 'Configure Menu');
+            $page_title = Yii::t("app", 'Configure Menu');
         } else {
             if ($selected_item) {
                 $page_title = $selected_item->getDisplayName();
@@ -450,7 +465,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
                     try {
                         $content = $this->buildItemViewContent($selected_item);
                     } catch (Exception $ex) {
-                        $content = id(new PHUIInfoView())
+                        $content = (new PHUIInfoView())
                             ->setTitle(pht('Unable to Render Dashboard'))
                             ->setErrors(array($ex->getMessage()));
                     }
@@ -469,12 +484,12 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
             case 'configure':
                 $mode = $this->getEditMode();
                 if (!$mode) {
-                    $crumbs->addTextCrumb(\Yii::t("app", 'Configure Menu'));
+                    $crumbs->addTextCrumb(Yii::t("app", 'Configure Menu'));
                     $content = $this->buildMenuEditModeContent();
                 } else {
                     if (count($available_modes) > 1) {
                         $crumbs->addTextCrumb(
-                            \Yii::t("app", 'Configure Menu'),
+                            Yii::t("app", 'Configure Menu'),
                         $this->getItemURI([
                             'itemAction' => 'configure'
                         ]));
@@ -488,7 +503,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
                                 break;
                         }
                     } else {
-                        $crumbs->addTextCrumb(\Yii::t("app", 'Configure Menu'));
+                        $crumbs->addTextCrumb(Yii::t("app", 'Configure Menu'));
                     }
                     $edit_list = $this->loadItems($mode);
                     $content = $this->buildItemConfigureContent($edit_list);
@@ -559,8 +574,8 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     /**
      * @return PhabricatorProfileMenuItemConfiguration[]
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function getItems()
@@ -575,8 +590,8 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
      * @param $mode
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function loadItems($mode)
@@ -671,7 +686,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     /**
      * @param $mode
      * @return array
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws PhabricatorDataNotAttachedException
      * @throws Exception
      * @author 陈妙威
      */
@@ -708,14 +723,14 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
             if (!$builtin_key) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Object produced a builtin item with no builtin item key! ' .
                         'Builtin items must have a unique key.'));
             }
 
             if (isset($map[$builtin_key])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Object produced two items with the same builtin key ("{0}"). ' .
                         'Each item must have a unique builtin key.', [
                             $builtin_key
@@ -727,7 +742,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
             $item = ArrayHelper::getValue($items, $item_key);
             if (!$item) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Builtin item ("{0}") specifies a bad item key ("{1}"); there ' .
                         'is no corresponding item implementation available.',
                         [
@@ -767,7 +782,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     {
         if (!($item instanceof PHUIListItemView)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Expected buildNavigationMenuItems() to return a list of ' .
                     'PHUIListItemView objects, but got a surprise.'));
         }
@@ -803,15 +818,15 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
      * @param array $items
      * @return AphrontRedirectResponse
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     private function buildItemReorderContent(array $items)
@@ -838,7 +853,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
             if (!$policy_object) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Failed to load custom PHID "%s"!',
                         $custom_phid));
             }
@@ -913,7 +928,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
      * @param PhabricatorProfileMenuItemConfiguration $item
      * @return mixed
      * @author 陈妙威
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws PhabricatorDataNotAttachedException
      */
     protected function buildItemViewContent(PhabricatorProfileMenuItemConfiguration $item)
     {
@@ -922,8 +937,8 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
     /**
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function getViewerEditModes()
@@ -973,8 +988,8 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
     /**
      * @return Aphront404Response|AphrontRedirectResponse|PHUITwoColumnView
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */
@@ -1003,13 +1018,13 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
         if (isset($modes['custom'])) {
             $menu->addItem(
                 (new PHUIObjectItemView())
-                    ->setHeader(\Yii::t("app", 'Personal Menu Items'))
+                    ->setHeader(Yii::t("app", 'Personal Menu Items'))
                     ->setHref($this->getItemURI([
                         'itemAction' => 'configure',
                         'itemEditMode' => 'custom'
                     ]))
                     ->setImageURI($viewer->getProfileImageURI())
-                    ->addAttribute(\Yii::t("app", 'Edit the menu for your personal account.')));
+                    ->addAttribute(Yii::t("app", 'Edit the menu for your personal account.')));
         }
 
         if (isset($modes['global'])) {
@@ -1021,13 +1036,13 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
             $menu->addItem(
                 (new PHUIObjectItemView())
-                    ->setHeader(\Yii::t("app", 'Global Menu Items'))
+                    ->setHeader(Yii::t("app", 'Global Menu Items'))
                     ->setHref($this->getItemURI([
                         'itemAction' => 'configure',
                         'itemEditMode' => 'global'
                     ]))
                     ->setImageIcon($icon)
-                    ->addAttribute(\Yii::t("app", 'Edit the global default menu for all users.')));
+                    ->addAttribute(Yii::t("app", 'Edit the global default menu for all users.')));
         }
 
         $box = (new PHUIObjectBoxView())
@@ -1044,7 +1059,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     private function buildMenuEditModeHeader()
     {
         $header = (new PHUIPageHeaderView())
-            ->setHeader(\Yii::t("app", 'Manage Menu'))
+            ->setHeader(Yii::t("app", 'Manage Menu'))
             ->setHeaderIcon('fa-list');
         return $header;
     }
@@ -1056,7 +1071,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     public function buildItemConfigureHeader()
     {
         $header = (new PHUIPageHeaderView())
-            ->setHeader(\Yii::t("app", 'Menu Items'))
+            ->setHeader(Yii::t("app", 'Menu Items'))
             ->setHeaderIcon('fa-list');
         return $header;
     }
@@ -1064,9 +1079,9 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     /**
      * @param PhabricatorProfileMenuItemConfiguration[] $items
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
      * @throws Exception
      * @author 陈妙威
      */
@@ -1096,7 +1111,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
         $mode = $this->getEditMode();
         $list = (new PHUIObjectItemListView())
             ->setViewer($this->getViewer())
-            ->setNoDataString(\Yii::t("app", 'This menu currently has no items.'));
+            ->setNoDataString(Yii::t("app", 'This menu currently has no items.'));
 
         JavelinHtml::initBehavior(
             new JavelinReorderProfileMenuAsset(),
@@ -1124,7 +1139,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
             $name = $item->getDisplayName();
             $type = $item->getMenuItemTypeName();
             if (!strlen(trim($name))) {
-                $name = \Yii::t("app", 'Untitled "%s" Item', $type);
+                $name = Yii::t("app", 'Untitled "%s" Item', $type);
             }
 
             $view->setHeader($name);
@@ -1157,10 +1172,10 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
                 if ($this->isMenuEnginePinnable()) {
                     if ($item->isDefault()) {
                         $default_icon = 'fa-thumb-tack green';
-                        $default_text = \Yii::t("app", 'Current Default');
+                        $default_text = Yii::t("app", 'Current Default');
                     } else if ($item->canMakeDefault()) {
                         $default_icon = 'fa-thumb-tack';
-                        $default_text = \Yii::t("app", 'Make Default');
+                        $default_text = Yii::t("app", 'Make Default');
                     }
                 }
 
@@ -1195,13 +1210,13 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
                 if ($item->isDisabled()) {
                     $hide_icon = 'fa-plus';
-                    $hide_text = \Yii::t("app", 'Enable');
+                    $hide_text = Yii::t("app", 'Enable');
                 } else if ($item->getBuiltinKey() !== null) {
                     $hide_icon = 'fa-times';
-                    $hide_text = \Yii::t("app", 'Disable');
+                    $hide_text = Yii::t("app", 'Disable');
                 } else {
                     $hide_icon = 'fa-times';
-                    $hide_text = \Yii::t("app", 'Delete');
+                    $hide_text = Yii::t("app", 'Delete');
                 }
 
                 $can_disable = $item->canHideMenuItem();
@@ -1234,7 +1249,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
             (new PhabricatorActionView())
                 ->setLabel(true)
                 ->addClass("pt-3 pl-3")
-                ->setName(\Yii::t("app", 'Add New Menu Item...')));
+                ->setName(Yii::t("app", 'Add New Menu Item...')));
 
         foreach ($item_types as $item_type) {
             if (!$item_type->canAddToObject($object)) {
@@ -1273,7 +1288,7 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
 
         $box = (new PHUIObjectBoxView())
-            ->setHeaderText(\Yii::t("app", 'Current Menu Items'))
+            ->setHeaderText(Yii::t("app", 'Current Menu Items'))
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->addBodyClass(PHUI::PADDING_NONE)
             ->setObjectList($list);
@@ -1298,17 +1313,16 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
      * @param $item_key
      * @param $mode
      * @return Aphront404Response
-     * @throws \AphrontDuplicateKeyQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws AphrontDuplicateKeyQueryException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     private function buildItemNewContent($item_key, $mode)
@@ -1347,8 +1361,8 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     /**
      * @return mixed
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     private function buildItemEditContent()
@@ -1367,16 +1381,16 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     /**
      * @param PhabricatorProfileMenuItemConfiguration $configuration
      * @return mixed
-     * @throws \AphrontDuplicateKeyQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\InvalidConfigException
+     * @throws AphrontDuplicateKeyQueryException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws InvalidConfigException
      * @throws Exception
      * @author 陈妙威
      */
@@ -1420,10 +1434,19 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
     /**
      * @param PhabricatorProfileMenuItemConfiguration $configuration
      * @return mixed
-     * @throws \ReflectionException
-     * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\StaleObjectException
+     * @throws InvalidConfigException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws PhabricatorDataNotAttachedException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws StaleObjectException
      * @author 陈妙威
      */
     private function buildItemHideContent(PhabricatorProfileMenuItemConfiguration $configuration)
@@ -1440,33 +1463,33 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
         if (!$configuration->canHideMenuItem()) {
             return $action->newDialog()
-                ->setTitle(\Yii::t("app", 'Mandatory Item'))
+                ->setTitle(Yii::t("app", 'Mandatory Item'))
                 ->appendParagraph(
-                    \Yii::t("app", 'This menu item is very important, and can not be disabled.'))
+                    Yii::t("app", 'This menu item is very important, and can not be disabled.'))
                 ->addCancelButton($this->getConfigureURI());
         }
 
         if ($configuration->getBuiltinKey() === null) {
             $new_value = null;
 
-            $title = \Yii::t("app", 'Delete Menu Item');
-            $body = \Yii::t("app", 'Delete this menu item?');
-            $button = \Yii::t("app", 'Delete Menu Item');
+            $title = Yii::t("app", 'Delete Menu Item');
+            $body = Yii::t("app", 'Delete this menu item?');
+            $button = Yii::t("app", 'Delete Menu Item');
         } else if ($configuration->isDisabled()) {
             $new_value = PhabricatorProfileMenuItemConfiguration::VISIBILITY_VISIBLE;
 
-            $title = \Yii::t("app", 'Enable Menu Item');
-            $body = \Yii::t("app",
+            $title = Yii::t("app", 'Enable Menu Item');
+            $body = Yii::t("app",
                 'Enable this menu item? It will appear in the menu again.');
-            $button = \Yii::t("app", 'Enable Menu Item');
+            $button = Yii::t("app", 'Enable Menu Item');
         } else {
             $new_value = PhabricatorProfileMenuItemConfiguration::VISIBILITY_DISABLED;
 
-            $title = \Yii::t("app", 'Disable Menu Item');
-            $body = \Yii::t("app",
+            $title = Yii::t("app", 'Disable Menu Item');
+            $body = Yii::t("app",
                 'Disable this menu item? It will no longer appear in the menu, but ' .
                 'you can re-enable it later.');
-            $button = \Yii::t("app", 'Disable Menu Item');
+            $button = Yii::t("app", 'Disable Menu Item');
         }
 
         $v_visibility = $configuration->getVisibility();
@@ -1507,16 +1530,16 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
      * @param PhabricatorProfileMenuItemConfiguration $configuration
      * @param array $items
      * @return AphrontRedirectResponse|AphrontDialogView
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws InvalidConfigException
      * @throws Exception
      * @author 陈妙威
      */
@@ -1538,9 +1561,9 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
         if (!$configuration->canMakeDefault()) {
             return $action->newDialog()
-                ->setTitle(\Yii::t("app", 'Not Defaultable'))
+                ->setTitle(Yii::t("app", 'Not Defaultable'))
                 ->appendParagraph(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'This item can not be set as the default item. This is usually ' .
                         'because the item has no page of its own, or links to an ' .
                         'external page.'))
@@ -1549,9 +1572,9 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
         if ($configuration->isDefault()) {
             return $action->newDialog()
-                ->setTitle(\Yii::t("app", 'Already Default'))
+                ->setTitle(Yii::t("app", 'Already Default'))
                 ->appendParagraph(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'This item is already set as the default item for this menu.'))
                 ->addCancelButton($done_uri);
         }
@@ -1569,13 +1592,13 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
         }
 
         return $action->newDialog()
-            ->setTitle(\Yii::t("app", 'Make Default'))
+            ->setTitle(Yii::t("app", 'Make Default'))
             ->appendParagraph(
-                \Yii::t("app",
+                Yii::t("app",
                     'Set this item as the default for this menu? Users arriving on ' .
                     'this page will be shown the content of this item by default.'))
             ->addCancelButton($done_uri)
-            ->addSubmitButton(\Yii::t("app", 'Make Default'));
+            ->addSubmitButton(Yii::t("app", 'Make Default'));
     }
 
     /**
@@ -1615,15 +1638,15 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
      * @param $key
      * @return $this
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws InvalidConfigException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     public function adjustDefault($key)
@@ -1773,9 +1796,9 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
 
     /**
      * @return PhabricatorProfileMenuItemViewList
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
      * @author 陈妙威
      */
     final public function newProfileMenuItemViewList()
@@ -1857,8 +1880,8 @@ abstract class PhabricatorProfileMenuEngine extends OranginsObject
      * @param PhabricatorProfileMenuItemViewList $view_list
      * @param $item_id
      * @return null|PhabricatorProfileMenuItemConfiguration
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */

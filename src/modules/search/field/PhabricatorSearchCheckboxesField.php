@@ -130,7 +130,7 @@ final class PhabricatorSearchCheckboxesField extends PhabricatorSearchField
     }
 
     /**
-     * @return array
+     * @return ConduitConstantDescription[]
      * @author 陈妙威
      */
     public function newConduitConstants()

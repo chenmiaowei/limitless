@@ -3,8 +3,9 @@
 namespace orangins\modules\search\field;
 
 use orangins\lib\OranginsObject;
+use orangins\modules\conduit\data\ConduitConstantDescription;
+use orangins\modules\conduit\parametertype\ConduitListParameterType;
 use PhutilMethodNotImplementedException;
-use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\request\AphrontRequest;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\search\models\PhabricatorSavedQuery;
@@ -478,6 +479,7 @@ abstract class PhabricatorSearchField extends OranginsObject
 
     /**
      * @task conduit
+     * @return ConduitListParameterType|boolean
      */
     final public function getConduitParameterType()
     {
@@ -495,7 +497,7 @@ abstract class PhabricatorSearchField extends OranginsObject
     }
 
     /**
-     * @return null
+     * @return ConduitListParameterType
      * @author 陈妙威
      */
     protected function newConduitParameterType()
@@ -563,7 +565,7 @@ abstract class PhabricatorSearchField extends OranginsObject
     }
 
     /**
-     * @return array
+     * @return ConduitConstantDescription[]
      * @author 陈妙威
      */
     public function newConduitConstants()

@@ -3,7 +3,10 @@
 namespace orangins\modules\conduit\query;
 
 use orangins\modules\conduit\interfaces\PhabricatorConduitResultInterface;
+use orangins\modules\conduit\interfaces\PhabricatorConduitSearchFieldSpecification;
+use orangins\modules\search\engineextension\PhabricatorSearchEngineAttachment;
 use orangins\modules\search\engineextension\PhabricatorSearchEngineExtension;
+use Yii;
 
 /**
  * Class ConduitResultSearchEngineExtension
@@ -43,7 +46,7 @@ final class ConduitResultSearchEngineExtension
      */
     public function getExtensionName()
     {
-        return \Yii::t("app",'Support for ConduitResultInterface');
+        return Yii::t("app",'Support for ConduitResultInterface');
     }
 
     /**
@@ -57,8 +60,8 @@ final class ConduitResultSearchEngineExtension
     }
 
     /**
-     * @param $object
-     * @return array
+     * @param PhabricatorConduitResultInterface $object
+     * @return PhabricatorConduitSearchFieldSpecification[]
      * @author 陈妙威
      */
     public function getFieldSpecificationsForConduit($object)
@@ -67,7 +70,7 @@ final class ConduitResultSearchEngineExtension
     }
 
     /**
-     * @param $object
+     * @param PhabricatorConduitResultInterface $object
      * @param $data
      * @return array
      * @author 陈妙威
@@ -78,8 +81,8 @@ final class ConduitResultSearchEngineExtension
     }
 
     /**
-     * @param $object
-     * @return array
+     * @param PhabricatorConduitResultInterface $object
+     * @return PhabricatorSearchEngineAttachment[]
      * @author 陈妙威
      */
     public function getSearchAttachments($object)

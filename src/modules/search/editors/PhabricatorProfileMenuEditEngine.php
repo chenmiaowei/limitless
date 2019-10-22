@@ -2,6 +2,8 @@
 
 namespace orangins\modules\search\editors;
 
+use orangins\lib\db\PhabricatorDataNotAttachedException;
+use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;
 use orangins\modules\search\application\PhabricatorSearchApplication;
 use orangins\modules\search\engine\PhabricatorProfileMenuEngine;
 use orangins\modules\search\menuitems\PhabricatorProfileMenuItem;
@@ -11,6 +13,9 @@ use orangins\modules\transactions\editengine\PhabricatorEditEngine;
 use orangins\modules\transactions\editfield\PhabricatorEditField;
 use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
 use Exception;
+use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface;
+use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * Class PhabricatorProfileMenuEditEngine
@@ -161,7 +166,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
      */
     public function getEngineName()
     {
-        return \Yii::t("app",'Profile Menu Items');
+        return Yii::t("app",'Profile Menu Items');
     }
 
     /**
@@ -170,7 +175,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
      */
     public function getSummaryHeader()
     {
-        return \Yii::t("app",'Edit Profile Menu Item Configurations');
+        return Yii::t("app",'Edit Profile Menu Item Configurations');
     }
 
     /**
@@ -179,7 +184,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
      */
     public function getSummaryText()
     {
-        return \Yii::t("app",'This engine is used to modify menu items on profiles.');
+        return Yii::t("app",'This engine is used to modify menu items on profiles.');
     }
 
     /**
@@ -192,7 +197,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
     }
 
     /**
-     * @return \orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface
+     * @return PhabricatorApplicationTransactionInterface
      * @author 陈妙威
      * @throws Exception
      */
@@ -200,7 +205,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
     {
         if (!$this->newMenuItemConfiguration) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Profile menu items can not be generated without an ' .
                     'object context.'));
         }
@@ -209,9 +214,9 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
     }
 
     /**
-     * @return \orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery
+     * @return PhabricatorPolicyAwareQuery
      * @author 陈妙威
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     protected function newObjectQuery()
     {
@@ -226,9 +231,9 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
     protected function getObjectCreateTitleText($object)
     {
         if ($this->getIsBuiltin()) {
-            return \Yii::t("app",'Edit Builtin Item');
+            return Yii::t("app",'Edit Builtin Item');
         } else {
-            return \Yii::t("app",'Create Menu Item');
+            return Yii::t("app",'Create Menu Item');
         }
     }
 
@@ -240,9 +245,9 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
     protected function getObjectCreateButtonText($object)
     {
         if ($this->getIsBuiltin()) {
-            return \Yii::t("app",'Save Changes');
+            return Yii::t("app",'Save Changes');
         } else {
-            return \Yii::t("app",'Create Menu Item');
+            return Yii::t("app",'Create Menu Item');
         }
     }
 
@@ -254,7 +259,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
     protected function getObjectEditTitleText($object)
     {
         $object->willGetMenuItemViewList(array($object));
-        return \Yii::t("app",'Edit Menu Item: {0}', [$object->getDisplayName()]);
+        return Yii::t("app",'Edit Menu Item: {0}', [$object->getDisplayName()]);
     }
 
     /**
@@ -264,7 +269,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
      */
     protected function getObjectEditShortText($object)
     {
-        return \Yii::t("app",'Edit Menu Item');
+        return Yii::t("app",'Edit Menu Item');
     }
 
     /**
@@ -273,7 +278,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
      */
     protected function getObjectCreateShortText()
     {
-        return \Yii::t("app",'Edit Menu Item');
+        return Yii::t("app",'Edit Menu Item');
     }
 
     /**
@@ -282,7 +287,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
      */
     protected function getObjectName()
     {
-        return \Yii::t("app",'Menu Item');
+        return Yii::t("app",'Menu Item');
     }
 
     /**
@@ -307,9 +312,9 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
 
     /**
      * @param PhabricatorProfileMenuItemConfiguration $object
-     * @return \orangins\modules\transactions\editfield\PhabricatorEditField[]
+     * @return PhabricatorEditField[]
      * @author 陈妙威
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws PhabricatorDataNotAttachedException
 
      */
     protected function buildCustomEditFields($object)
@@ -331,6 +336,7 @@ final class PhabricatorProfileMenuEditEngine extends PhabricatorEditEngine
      * @param PhabricatorApplicationTransactionValidationException $ex
      * @param PhabricatorEditField $field
      * @return null
+     * @throws \PhutilJSONParserException
      * @author 陈妙威
      */
     protected function getValidationExceptionShortMessage(PhabricatorApplicationTransactionValidationException $ex, PhabricatorEditField $field)

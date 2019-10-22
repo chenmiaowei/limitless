@@ -2,20 +2,41 @@
 
 namespace orangins\modules\search\engine;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
+use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\PhabricatorApplication;
 use orangins\lib\view\control\AphrontTableView;
+use orangins\lib\view\phui\PHUIIconView;
 use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\modules\conduit\method\ConduitAPIMethod;
 use orangins\modules\conduit\protocol\ConduitAPIRequest;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
+use ReflectionException;
 use yii\helpers\ArrayHelper;
 
+/**
+ * Class PhabricatorSearchEngineAPIMethod
+ * @package orangins\modules\search\engine
+ * @author 陈妙威
+ */
 abstract class PhabricatorSearchEngineAPIMethod
     extends ConduitAPIMethod
 {
 
+    /**
+     * @return PhabricatorApplicationSearchEngine
+     * @author 陈妙威
+     */
     abstract public function newSearchEngine();
 
+    /**
+     * @param $query
+     * @return array|object
+     * @author 陈妙威
+     */
     final public function getQueryMaps($query)
     {
         $maps = $this->getCustomQueryMaps($query);
@@ -34,11 +55,21 @@ abstract class PhabricatorSearchEngineAPIMethod
         return $maps;
     }
 
+    /**
+     * @param $query
+     * @return array
+     * @author 陈妙威
+     */
     protected function getCustomQueryMaps($query)
     {
         return array();
     }
 
+    /**
+     * @return PhabricatorApplication|null
+     * @throws Exception
+     * @author 陈妙威
+     */
     public function getApplication()
     {
         $engine = $this->newSearchEngine();
@@ -46,6 +77,10 @@ abstract class PhabricatorSearchEngineAPIMethod
         return PhabricatorApplication::getByClass($class);
     }
 
+    /**
+     * @return array|mixed
+     * @author 陈妙威
+     */
     final protected function defineParamTypes()
     {
         return array(
@@ -56,19 +91,35 @@ abstract class PhabricatorSearchEngineAPIMethod
             ) + $this->getPagerParamTypes();
     }
 
+    /**
+     * @return mixed|string
+     * @author 陈妙威
+     */
     final protected function defineReturnType()
     {
         return 'map<string, wild>';
     }
 
+    /**
+     * @param ConduitAPIRequest $request
+     * @return mixed
+     * @throws Exception
+     * @author 陈妙威
+     */
     final protected function execute(ConduitAPIRequest $request)
     {
-        $engine = $this->newSearchEngine()
+        $engine = $this
+            ->newSearchEngine()
             ->setViewer($request->getUser());
 
         return $engine->buildConduitResponse($request, $this);
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     * @author 陈妙威
+     */
     final public function getMethodDescription()
     {
         return pht(
@@ -78,6 +129,14 @@ abstract class PhabricatorSearchEngineAPIMethod
             PhabricatorEnv::getDoclink('Conduit API: Using Search Endpoints'));
     }
 
+    /**
+     * @return array|null
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws Exception
+     * @author 陈妙威
+     */
     final public function getMethodDocumentation()
     {
         $viewer = $this->getViewer();
@@ -99,6 +158,14 @@ abstract class PhabricatorSearchEngineAPIMethod
         return $out;
     }
 
+    /**
+     * @param PhabricatorApplicationSearchEngine $engine
+     * @return PHUIObjectBoxView
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
+     * @author 陈妙威
+     */
     private function buildQueriesBox(
         PhabricatorApplicationSearchEngine $engine)
     {
@@ -168,6 +235,14 @@ EOTEXT
             ->appendChild($table);
     }
 
+    /**
+     * @param PhabricatorApplicationSearchEngine $engine
+     * @return mixed
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws Exception
+     * @author 陈妙威
+     */
     private function buildConstraintsBox(
         PhabricatorApplicationSearchEngine $engine)
     {
@@ -252,7 +327,7 @@ EOTEXT
                 $constants_rows = array();
                 foreach ($constants as $constant) {
                     if ($constant->getIsDeprecated()) {
-                        $icon = id(new PHUIIconView())
+                        $icon = (new PHUIIconView())
                             ->setIcon('fa-exclamation-triangle', 'red');
                     } else {
                         $icon = null;
@@ -268,7 +343,7 @@ EOTEXT
                     );
                 }
 
-                $constants_table = id(new AphrontTableView($constants_rows))
+                $constants_table = (new AphrontTableView($constants_rows))
                     ->setHeaders(
                         array(
                             pht('Key'),
@@ -284,7 +359,7 @@ EOTEXT
             }
         }
 
-        $table = id(new AphrontTableView($rows))
+        $table = (new AphrontTableView($rows))
             ->setHeaders(
                 array(
                     pht('Key'),
@@ -300,7 +375,7 @@ EOTEXT
                     'wide',
                 ));
 
-        return id(new PHUIObjectBoxView())
+        return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Custom Query Constraints'))
             ->setCollapsed(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
@@ -309,6 +384,14 @@ EOTEXT
             ->appendChild($constant_lists);
     }
 
+    /**
+     * @param PhabricatorApplicationSearchEngine $engine
+     * @param PhabricatorCursorPagedPolicyAwareQuery $query
+     * @return mixed
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @author 陈妙威
+     */
     private function buildOrderBox(
         PhabricatorApplicationSearchEngine $engine,
         $query)
@@ -347,7 +430,7 @@ EOTEXT
             );
         }
 
-        $orders_table = id(new AphrontTableView($rows))
+        $orders_table = (new AphrontTableView($rows))
             ->setHeaders(
                 array(
                     pht('Key'),
@@ -396,7 +479,7 @@ EOTEXT
             );
         }
 
-        $columns_table = id(new AphrontTableView($rows))
+        $columns_table = (new AphrontTableView($rows))
             ->setHeaders(
                 array(
                     pht('Key'),
@@ -409,7 +492,7 @@ EOTEXT
                 ));
 
 
-        return id(new PHUIObjectBoxView())
+        return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Result Ordering'))
             ->setCollapsed(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
@@ -419,6 +502,13 @@ EOTEXT
             ->appendChild($columns_table);
     }
 
+    /**
+     * @param PhabricatorApplicationSearchEngine $engine
+     * @return mixed
+     * @throws PhutilInvalidStateException
+     * @throws Exception
+     * @author 陈妙威
+     */
     private function buildFieldsBox(
         PhabricatorApplicationSearchEngine $engine)
     {
@@ -477,7 +567,7 @@ EOTEXT
             );
         }
 
-        $table = id(new AphrontTableView($rows))
+        $table = (new AphrontTableView($rows))
             ->setHeaders(
                 array(
                     pht('Key'),
@@ -491,7 +581,7 @@ EOTEXT
                     'wide',
                 ));
 
-        return id(new PHUIObjectBoxView())
+        return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Object Fields'))
             ->setCollapsed(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
@@ -499,6 +589,13 @@ EOTEXT
             ->appendChild($table);
     }
 
+    /**
+     * @param PhabricatorApplicationSearchEngine $engine
+     * @return mixed
+     * @throws PhutilInvalidStateException
+     * @throws Exception
+     * @author 陈妙威
+     */
     private function buildAttachmentsBox(
         PhabricatorApplicationSearchEngine $engine)
     {
@@ -567,7 +664,7 @@ EOTEXT
             );
         }
 
-        $table = id(new AphrontTableView($rows))
+        $table = (new AphrontTableView($rows))
             ->setNoDataString(pht('This call does not support any attachments.'))
             ->setHeaders(
                 array(
@@ -582,7 +679,7 @@ EOTEXT
                     'wide',
                 ));
 
-        return id(new PHUIObjectBoxView())
+        return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Attachments'))
             ->setCollapsed(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
@@ -590,6 +687,12 @@ EOTEXT
             ->appendChild($table);
     }
 
+    /**
+     * @param PhabricatorApplicationSearchEngine $engine
+     * @return mixed
+     * @throws Exception
+     * @author 陈妙威
+     */
     private function buildPagingBox(
         PhabricatorApplicationSearchEngine $engine)
     {
@@ -654,7 +757,7 @@ if `before` is `null`, there are no previous results available.
 EOTEXT
         );
 
-        return id(new PHUIObjectBoxView())
+        return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Paging and Limits'))
             ->setCollapsed(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)

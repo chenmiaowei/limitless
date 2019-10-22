@@ -2,6 +2,9 @@
 
 namespace orangins\modules\conduit\parametertype;
 
+use orangins\modules\phid\resolver\PhabricatorUserPHIDResolver;
+use Yii;
+
 /**
  * Class ConduitUserListParameterType
  * @package orangins\modules\conduit\parametertype
@@ -44,9 +47,9 @@ final class ConduitUserListParameterType
     protected function getParameterFormatDescriptions()
     {
         return array(
-            \Yii::t("app", 'List of user PHIDs.'),
-            \Yii::t("app", 'List of usernames.'),
-            \Yii::t("app", 'List with a mixture of PHIDs and usernames.'),
+            Yii::t("app", 'List of user PHIDs.'),
+            Yii::t("app", 'List of usernames.'),
+            Yii::t("app", 'List with a mixture of PHIDs and usernames.'),
         );
     }
 

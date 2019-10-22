@@ -13,6 +13,7 @@ use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\OranginsObject;
 use orangins\modules\cache\PhabricatorCaches;
+use PhutilInvalidStateException;
 use PhutilOpaqueEnvelope;
 
 /**
@@ -317,6 +318,7 @@ final class PhabricatorDatabaseRef
 
     /**
      * @return mixed
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function getConnectionStatus()
@@ -680,7 +682,7 @@ final class PhabricatorDatabaseRef
 
         $config = PhabricatorEnv::getEnvConfig('cluster.databases');
 
-        return id(new PhabricatorDatabaseRefParser())
+        return (new PhabricatorDatabaseRefParser())
             ->setDefaultPort($default_port)
             ->setDefaultUser($default_user)
             ->setDefaultPass($default_pass)
@@ -977,6 +979,7 @@ final class PhabricatorDatabaseRef
 
     /**
      * @return array
+     * @throws Exception
      * @author 陈妙威
      */
     public static function getMasterDatabaseRefs()
@@ -1024,6 +1027,7 @@ final class PhabricatorDatabaseRef
     /**
      * @param $application
      * @return mixed|object
+     * @throws Exception
      * @author 陈妙威
      */
     public static function getMasterDatabaseRefForApplication($application)

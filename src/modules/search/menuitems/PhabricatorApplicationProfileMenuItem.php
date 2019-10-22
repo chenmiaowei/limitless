@@ -9,6 +9,11 @@ use orangins\modules\search\models\PhabricatorProfileMenuItemConfiguration;
 use orangins\modules\transactions\editfield\PhabricatorDatasourceEditField;
 use orangins\modules\transactions\editfield\PhabricatorEditField;
 use orangins\modules\transactions\editfield\PhabricatorTextEditField;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
+use ReflectionException;
+use Yii;
 
 /**
  * 主菜单添加应用
@@ -44,7 +49,7 @@ final class PhabricatorApplicationProfileMenuItem extends PhabricatorProfileMenu
      */
     public function getMenuItemTypeName()
     {
-        return \Yii::t("app", 'Application');
+        return Yii::t("app", 'Application');
     }
 
     /**
@@ -60,15 +65,15 @@ final class PhabricatorApplicationProfileMenuItem extends PhabricatorProfileMenu
     /**
      * @param PhabricatorProfileMenuItemConfiguration $config
      * @return array|mixed|string
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getDisplayName(PhabricatorProfileMenuItemConfiguration $config)
     {
         $application = $this->getApplication($config);
         if (!$application) {
-            return \Yii::t("app", '(Restricted/Invalid Application)');
+            return Yii::t("app", '(Restricted/Invalid Application)');
         }
 
         $name = $this->getName($config);
@@ -90,13 +95,13 @@ final class PhabricatorApplicationProfileMenuItem extends PhabricatorProfileMenu
         return array(
             (new PhabricatorDatasourceEditField())
                 ->setKey(self::FIELD_APPLICATION)
-                ->setLabel(\Yii::t("app", 'Application'))
+                ->setLabel(Yii::t("app", 'Application'))
                 ->setDatasource(new PhabricatorApplicationDatasource())
                 ->setIsRequired(true)
                 ->setSingleValue($config->getMenuItemProperty('application')),
             (new PhabricatorTextEditField())
                 ->setKey('name')
-                ->setLabel(\Yii::t("app", 'Name'))
+                ->setLabel(Yii::t("app", 'Name'))
                 ->setValue($this->getName($config)),
         );
     }
@@ -116,8 +121,8 @@ final class PhabricatorApplicationProfileMenuItem extends PhabricatorProfileMenu
     /**
      * @param PhabricatorProfileMenuItemConfiguration $config
      * @return PhabricatorApplication
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function getApplication(
@@ -137,10 +142,9 @@ final class PhabricatorApplicationProfileMenuItem extends PhabricatorProfileMenu
     /**
      * @param PhabricatorProfileMenuItemConfiguration $config
      * @return array|mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function newMenuItemViewList(PhabricatorProfileMenuItemConfiguration $config)
@@ -181,9 +185,9 @@ final class PhabricatorApplicationProfileMenuItem extends PhabricatorProfileMenu
      * @param $value
      * @param array $xactions
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function validateTransactions(
@@ -199,7 +203,7 @@ final class PhabricatorApplicationProfileMenuItem extends PhabricatorProfileMenu
         if ($field_key == self::FIELD_APPLICATION) {
             if ($this->isEmptyTransaction($value, $xactions)) {
                 $errors[] = $this->newRequiredError(
-                    \Yii::t("app", 'You must choose an application.'),
+                    Yii::t("app", 'You must choose an application.'),
                     $field_key);
             }
 
@@ -220,7 +224,7 @@ final class PhabricatorApplicationProfileMenuItem extends PhabricatorProfileMenu
                     ->execute();
                 if (!$applications) {
                     $errors[] = $this->newInvalidError(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Application "{0}" is not a valid application which you have ' .
                             'permission to see.', [
                                 $new

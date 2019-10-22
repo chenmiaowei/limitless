@@ -71,6 +71,7 @@ final class PhabricatorMySQLSearchHost
 
     /**
      * @return mixed
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getConnectionStatus()

@@ -6,6 +6,7 @@ use orangins\lib\OranginsObject;
 use PhutilClassMapQuery;
 use orangins\modules\phid\PhabricatorObjectHandle;
 use orangins\lib\view\phui\PHUIHovercardView;
+use ReflectionException;
 
 /**
  * Class PhabricatorHovercardEngineExtension
@@ -22,8 +23,7 @@ abstract class PhabricatorHovercardEngineExtension extends OranginsObject
 
     /**
      * @return string
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final public function getExtensionKey()
@@ -105,9 +105,6 @@ abstract class PhabricatorHovercardEngineExtension extends OranginsObject
 
     /**
      * @return PhabricatorHovercardEngineExtension[]
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     final public static function getAllExtensions()
@@ -121,9 +118,6 @@ abstract class PhabricatorHovercardEngineExtension extends OranginsObject
 
     /**
      * @return PhabricatorHovercardEngineExtension[]
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     final public static function getAllEnabledExtensions()

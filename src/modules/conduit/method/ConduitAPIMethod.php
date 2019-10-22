@@ -3,8 +3,11 @@
 namespace orangins\modules\conduit\method;
 
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
+use orangins\lib\markup\view\PHUIRemarkupView;
 use orangins\lib\PhabricatorApplication;
 use orangins\lib\view\control\AphrontCursorPagerView;
+use orangins\lib\view\phui\PHUI;
+use orangins\lib\view\phui\PHUIBoxView;
 use orangins\modules\cache\PhabricatorCachedClassMapQuery;
 use orangins\modules\conduit\protocol\ConduitAPIRequest;
 use orangins\lib\OranginsObject;
@@ -16,6 +19,9 @@ use orangins\modules\policy\interfaces\PhabricatorPolicyInterface;
 use orangins\modules\userservice\conduitprice\UserServiceConduitPrice;
 use PhutilClassMapQuery;
 use Exception;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -201,7 +207,7 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
      */
     public function getErrorDescription($error_code)
     {
-        return ArrayHelper::getValue($this->getErrorTypes(), $error_code, \Yii::t("app",'Unknown Error'));
+        return ArrayHelper::getValue($this->getErrorTypes(), $error_code, Yii::t("app", 'Unknown Error'));
     }
 
     /**
@@ -259,9 +265,9 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
     public static function getMethodStatusMap()
     {
         $map = array(
-            self::METHOD_STATUS_STABLE => \Yii::t("app",'Stable'),
-            self::METHOD_STATUS_UNSTABLE => \Yii::t("app",'Unstable'),
-            self::METHOD_STATUS_DEPRECATED => \Yii::t("app",'Deprecated'),
+            self::METHOD_STATUS_STABLE => Yii::t("app", 'Stable'),
+            self::METHOD_STATUS_UNSTABLE => Yii::t("app", 'Unstable'),
+            self::METHOD_STATUS_DEPRECATED => Yii::t("app", 'Deprecated'),
         );
 
         return $map;
@@ -299,8 +305,8 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
     /**
      * @param $method_name
      * @return array|ConduitAPIMethod
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     public static function getConduitMethod($method_name)
     {
@@ -528,7 +534,7 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
 
         if (!$query) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'You can not call newQueryFromRequest() in this method ("{0}") ' .
                     'because it does not implement newQueryObject().', [
                         get_class($this)
@@ -537,7 +543,7 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
 
         if (!($query instanceof PhabricatorCursorPagedPolicyAwareQuery)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Call to method newQueryObject() did not return an object of class ' .
                     '"{0}".', [
                         'PhabricatorCursorPagedPolicyAwareQuery'
@@ -586,7 +592,7 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
      * @param $capability
      * @return mixed|string
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getPolicy($capability)
@@ -623,8 +629,8 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
      * @param PhabricatorUser $viewer
      * @return bool
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function hasApplicationCapability(
@@ -648,8 +654,8 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
      * @param $capability
      * @param PhabricatorUser $viewer
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function requireApplicationCapability(
@@ -666,5 +672,28 @@ abstract class ConduitAPIMethod extends OranginsObject implements PhabricatorPol
             $viewer,
             $this->getApplication(),
             $capability);
+    }
+
+
+    /**
+     * @param $remarkup
+     * @return mixed
+     * @throws Exception
+     * @author 陈妙威
+     */
+    final protected function newRemarkupDocumentationView($remarkup)
+    {
+        $viewer = $this->getViewer();
+
+        $view = new PHUIRemarkupView($viewer, $remarkup);
+
+        $view->setRemarkupOptions(
+            array(
+                PHUIRemarkupView::OPTION_PRESERVE_LINEBREAKS => false,
+            ));
+
+        return (new PHUIBoxView())
+            ->appendChild($view)
+            ->addPadding(PHUI::PADDING_LARGE);
     }
 }

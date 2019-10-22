@@ -8,6 +8,10 @@ use orangins\modules\transactions\editengine\PhabricatorEditEngine;
 use orangins\modules\transactions\editfield\PhabricatorDatasourceEditField;
 use orangins\modules\transactions\editfield\PhabricatorTextEditField;
 use orangins\modules\transactions\typeahead\PhabricatorEditEngineDatasource;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use ReflectionException;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -88,9 +92,9 @@ final class PhabricatorEditEngineProfileMenuItem extends PhabricatorProfileMenuI
 
     /**
      * @param array $items
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function willGetMenuItemViewList(array $items)
@@ -146,7 +150,6 @@ final class PhabricatorEditEngineProfileMenuItem extends PhabricatorProfileMenuI
     /**
      * @param PhabricatorProfileMenuItemConfiguration $config
      * @return array
-
      * @author 陈妙威
      */
     public function buildEditEngineFields(
@@ -169,7 +172,6 @@ final class PhabricatorEditEngineProfileMenuItem extends PhabricatorProfileMenuI
     /**
      * @param PhabricatorProfileMenuItemConfiguration $config
      * @return array|mixed
-
      * @author 陈妙威
      */
     private function getName(
@@ -215,10 +217,10 @@ final class PhabricatorEditEngineProfileMenuItem extends PhabricatorProfileMenuI
      * @param $value
      * @param array $xactions
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function validateTransactions(

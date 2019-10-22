@@ -3,6 +3,8 @@
 namespace orangins\modules\conduit\interfaces;
 
 use orangins\modules\phid\interfaces\PhabricatorPHIDInterface;
+use orangins\modules\search\engineextension\PhabricatorSearchEngineAttachment;
+
 /**
  * Interface PhabricatorConduitResultInterface
  * @package orangins\modules\conduit\interfaces
@@ -12,19 +14,19 @@ interface PhabricatorConduitResultInterface
 {
 
     /**
-     * @return mixed
+     * @return PhabricatorConduitSearchFieldSpecification[]
      * @author 陈妙威
      */
     public function getFieldSpecificationsForConduit();
 
     /**
-     * @return mixed
+     * @return array
      * @author 陈妙威
      */
     public function getFieldValuesForConduit();
 
     /**
-     * @return mixed
+     * @return PhabricatorSearchEngineAttachment[]
      * @author 陈妙威
      */
     public function getConduitSearchAttachments();

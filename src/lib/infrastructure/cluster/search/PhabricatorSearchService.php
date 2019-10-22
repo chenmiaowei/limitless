@@ -88,7 +88,8 @@ class PhabricatorSearchService
     }
 
     /**
-     * @throws Exception
+     * @param $config
+     * @return PhabricatorSearchHost
      */
     public function newHost($config)
     {
@@ -199,7 +200,7 @@ class PhabricatorSearchService
     }
 
     /**
-     * @return \wild
+     * @return string
      * @author 陈妙威
      */
     public function getPort()
@@ -208,7 +209,7 @@ class PhabricatorSearchService
     }
 
     /**
-     * @return \wild
+     * @return string
      * @author 陈妙威
      */
     public function getProtocol()
@@ -218,7 +219,7 @@ class PhabricatorSearchService
 
 
     /**
-     * @return \wild
+     * @return string
      * @author 陈妙威
      */
     public function getVersion()
@@ -239,8 +240,9 @@ class PhabricatorSearchService
     /**
      * Get a random host reference with the specified role, skipping hosts which
      * failed recent health checks.
-     * @throws PhabricatorClusterNoHostForRoleException if no healthy hosts match.
      * @return PhabricatorSearchHost
+     * @throws Exception
+     * @throws PhabricatorClusterNoHostForRoleException if no healthy hosts match.
      */
     public function getAnyHostForRole($role)
     {
@@ -259,6 +261,7 @@ class PhabricatorSearchService
 
     /**
      * Get all configured hosts for this service which have the specified role.
+     * @param $role
      * @return PhabricatorSearchHost[]
      */
     public function getAllHostsForRole($role)
@@ -331,6 +334,7 @@ class PhabricatorSearchService
                         implode(', ', array_keys($engines))));
             }
 
+            /** @var PhabricatorFulltextStorageEngine $engine */
             $engine = clone($engines[$config['type']]);
             $cluster = new self($engine);
             $cluster->setConfig($config);

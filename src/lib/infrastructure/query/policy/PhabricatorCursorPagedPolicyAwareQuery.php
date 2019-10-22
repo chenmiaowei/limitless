@@ -2,12 +2,15 @@
 
 namespace orangins\lib\infrastructure\query\policy;
 
+use AphrontAccessDeniedQueryException;
 use Exception;
 use orangins\lib\db\ActiveRecord;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorCustomFieldInterface;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldIndexStorage;
 use orangins\lib\infrastructure\edges\constants\PhabricatorEdgeConfig;
+use orangins\lib\infrastructure\edges\interfaces\PhabricatorEdgeInterface;
 use orangins\lib\infrastructure\query\constraint\PhabricatorQueryConstraint;
 use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
 use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
@@ -25,9 +28,15 @@ use orangins\modules\search\ngrams\PhabricatorSearchNgrams;
 use orangins\modules\spaces\interfaces\PhabricatorSpacesInterface;
 use orangins\modules\spaces\models\PhabricatorSpacesNamespace;
 use orangins\modules\spaces\query\PhabricatorSpacesNamespaceQuery;
+use PhutilInvalidStateException;
 use PhutilSearchQueryCompiler;
 use PhutilSearchQueryToken;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
 use PhutilTypeSpec;
+use ReflectionException;
+use Yii;
+use yii\db\Expression;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
@@ -44,8 +53,7 @@ use yii\helpers\ArrayHelper;
  * @task edgelogic Working with Edge Logic
  * @task spaces Working with Spaces
  */
-abstract class PhabricatorCursorPagedPolicyAwareQuery
-    extends PhabricatorPolicyAwareQuery
+abstract class PhabricatorCursorPagedPolicyAwareQuery extends PhabricatorPolicyAwareQuery
 {
 
     /**
@@ -144,8 +152,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @param $object
      * @return string
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     protected function newExternalCursorStringForResult($object)
     {
@@ -277,8 +285,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @param $object
      * @return string
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     final private function getExternalCursorStringForResult($object)
     {
@@ -387,8 +395,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      * @param PhabricatorQueryCursor $cursor
      * @param array $keys
      * @return array
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     final private function getPagingMapFromCursorObject(
         PhabricatorQueryCursor $cursor,
@@ -455,8 +463,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     final public function getFerretMetadata()
     {
@@ -474,9 +482,9 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @return mixed
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @author 陈妙威
      */
     protected function loadStandardPage()
@@ -488,9 +496,9 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @return array
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @author 陈妙威
      */
     protected function loadStandardPageRows()
@@ -501,9 +509,9 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @return array
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @author 陈妙威
      */
     protected function loadStandardPageRowsWithConnection()
@@ -517,9 +525,9 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @return void
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws Exception
      * @author 陈妙威
      */
@@ -607,8 +615,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @param AphrontCursorPagerView $pager
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     final public function executeWithCursorPager(AphrontCursorPagerView $pager)
     {
@@ -696,16 +704,12 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     protected function buildSelectClauseParts()
     {
 
-//        $alias = $this->getPrimaryTableAlias();
-//        if ($alias) {
-//            $select[] = qsprintf($conn, '%T.*', $alias);
-//        } else {
-//            $select[] = qsprintf($conn, '*');
-//        }
-
-//        $select[] = $this->buildEdgeLogicSelectClause();
-//        $select[] = $this->buildFerretSelectClause();
-
+        $alias = $this->getPrimaryTableAlias();
+        if ($alias) {
+            $this->addSelect(sprintf('%s.*', $alias));
+        } else {
+            $this->addSelect(sprintf('*'));
+        }
         $this->addSelect($this->buildEdgeLogicSelectClause());
         $this->addSelect($this->buildFerretSelectClause());
     }
@@ -753,10 +757,10 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @throws PhabricatorEmptyQueryException
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
      * @throws \yii\base\Exception
      * @author 陈妙威
      */
@@ -769,11 +773,10 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @throws PhabricatorEmptyQueryException
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */
@@ -790,8 +793,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @author 陈妙威
      */
     protected function buildHavingClause()
@@ -811,8 +814,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
 
     /**
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     protected function buildGroupClause()
     {
@@ -856,8 +859,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @return null|string
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws Exception
      * @author 陈妙威
      */
@@ -873,8 +876,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @return null|string
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws Exception
      * @author 陈妙威
      */
@@ -889,8 +892,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return bool
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function shouldPageWithHavingClause()
     {
@@ -923,8 +926,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      * @task paging
      * @return \PhutilQueryString|string
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws Exception
      */
     protected function buildPagingClause()
@@ -1024,8 +1027,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      *
      * @param array $columns
      * @param array $options
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws Exception
      * @task paging
      */
@@ -1255,8 +1258,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      *   - `vector` (`list<string>`): The actual order vector to use.
      *   - `name` (`string`): Human-readable order name.
      *
-     * @return array<string, wild> Map from builtin order keys to specification.
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return array<string, mixed> Map from builtin order keys to specification.
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @throws Exception
      * @task order
      */
@@ -1265,12 +1268,12 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
         $orders = array(
             'newest' => array(
                 'vector' => array('id'),
-                'name' => \Yii::t('app', 'Creation (Newest First)'),
+                'name' => Yii::t('app', 'Creation (Newest First)'),
                 'aliases' => array('created'),
             ),
             'oldest' => array(
                 'vector' => array('-id'),
-                'name' => \Yii::t('app', 'Creation (Oldest First)'),
+                'name' => Yii::t('app', 'Creation (Oldest First)'),
             ),
         );
 
@@ -1313,9 +1316,9 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array
-     * @author 陈妙威
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @throws Exception
+     * @author 陈妙威
      */
     public function getBuiltinOrderAliasMap()
     {
@@ -1898,7 +1901,7 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
                     call_user_func_array([$this, $join_type], [
                         sprintf("%s %s", $table, $alias),
-                        sprintf("%s.object_phid=:object_phid AND %s.index_key=:index_key", $alias),
+                        sprintf("%s.object_phid=:object_phid AND %s.index_key=:index_key", $alias, $alias),
                         [
                             ":object_phid" => $phid_column,
                             ":index_key" => $index,
@@ -2055,7 +2058,7 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      * @task customfield
      * @param PhabricatorCustomFieldInterface $object
      * @return array
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @throws Exception
      */
     protected function getPagingValueMapForCustomFields(
@@ -2107,8 +2110,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      * @param PhabricatorFerretEngine $engine
      * @param PhabricatorSavedQuery $query
      * @return $this
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     public function withFerretQuery(
         PhabricatorFerretEngine $engine,
@@ -2130,8 +2133,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     public function getFerretTokens()
     {
@@ -2149,8 +2152,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      * @param PhabricatorFerretEngine $engine
      * @param array $fulltext_tokens
      * @return $this
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     public function withFerretConstraint(
         PhabricatorFerretEngine $engine,
@@ -2216,8 +2219,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @param
      * @return array
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     protected function buildFerretSelectClause()
     {
@@ -2336,7 +2339,7 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @param
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildFerretJoinClause()
@@ -2503,8 +2506,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @param
      * @return array|void
-     * @author 陈妙威
      * @throws PhabricatorEmptyQueryException
+     * @author 陈妙威
      */
     protected function buildFerretWhereClause()
     {
@@ -2641,7 +2644,7 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
                         'AND',
                         [
                             "LIKE",
-                            sprintf("%s.raw_corpus"),
+                            sprintf("%s.raw_corpus", $table_alias),
                             "%{$value}",
                             false
                         ],
@@ -2653,7 +2656,7 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
                         'AND',
                         [
                             "LIKE",
-                            sprintf("%s.raw_corpus"),
+                            sprintf("%s.raw_corpus", $table_alias),
                             "%{$value}",
                             false
                         ],
@@ -2764,7 +2767,7 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      * @param PhabricatorSearchNgrams $index
      * @param $value
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function withNgramsConstraint(
@@ -2786,8 +2789,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @param
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     protected function buildNgramsJoinClause()
     {
@@ -2903,17 +2906,36 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
 
     /**
+     * @return bool
+     * @author 陈妙威
+     */
+    public function supportsEdgeEngine()
+    {
+        $object = $this->newResultObject();
+        return ($object instanceof PhabricatorEdgeInterface);
+    }
+
+    /**
      * Convenience method for specifying edge logic constraints with a list of
      * PHIDs.
      *
-     * @param string Edge constant.
-     * @param string Constraint operator.
-     * @param array<phid> List of PHIDs.
+     * @param $edge_type
+     * @param $operator
+     * @param array $phids
      * @return static
+     * @throws Exception
      * @task edgelogic
      */
     public function withEdgeLogicPHIDs($edge_type, $operator, array $phids)
     {
+        if (!$this->supportsEdgeEngine()) {
+            throw new Exception(
+                pht(
+                    'Unable to retrieve Edge engine metadata, this class ("%s") does ' .
+                    'not support the Edge engine.',
+                    $this->modelClass));
+        }
+
         $constraints = array();
         foreach ($phids as $phid) {
             $constraints[] = new PhabricatorQueryConstraint($operator, $phid);
@@ -2928,10 +2950,20 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      * @param array $constraints
      * @return static
      * @task edgelogic
+     * @throws Exception
      */
     public function withEdgeLogicConstraints($edge_type, array $constraints)
     {
-        assert_instances_of($constraints, 'PhabricatorQueryConstraint');
+        if (!$this->supportsEdgeEngine()) {
+            throw new Exception(
+                pht(
+                    'Unable to retrieve Edge engine metadata, this class ("%s") does ' .
+                    'not support the Edge engine.',
+                    $this->modelClass));
+        }
+
+
+        assert_instances_of($constraints, PhabricatorQueryConstraint::className());
 
         $constraints = mgroup($constraints, 'getOperator');
         foreach ($constraints as $operator => $list) {
@@ -2947,13 +2979,16 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
 
     /**
-     * @task edgelogic
      * @throws PhabricatorEmptyQueryException
      */
     public function buildEdgeLogicSelectClause()
     {
-        $select = array();
+        /** @var PhabricatorEdgeInterface $newResultObject */
+        $newResultObject = $this->newResultObject();
+        if ($newResultObject === null) return array();
+        if (!$newResultObject instanceof PhabricatorEdgeInterface) return array();
 
+        $select = array();
         $this->validateEdgeLogicConstraints();
 
         foreach ($this->edgeLogicConstraints as $type => $constraints) {
@@ -3025,7 +3060,12 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      */
     public function buildEdgeLogicJoinClause()
     {
-        $edge_table = PhabricatorEdgeConfig::TABLE_NAME_EDGE;
+        /** @var PhabricatorEdgeInterface $newResultObject */
+        $newResultObject = $this->newResultObject();
+        if ($newResultObject === null) return;
+        if (!$newResultObject instanceof PhabricatorEdgeInterface) return;
+
+        $edge_table = $newResultObject->edgeBaseTableName() . "_" . PhabricatorEdgeConfig::TABLE_NAME_EDGE;
         $phid_column = $this->getApplicationSearchObjectPHIDColumn();
 
         foreach ($this->edgeLogicConstraints as $type => $constraints) {
@@ -3073,15 +3113,20 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
                     case PhabricatorQueryConstraint::OPERATOR_NOT:
                         $this->leftJoin(
                             sprintf("%s %s", $edge_table, $alias),
-                            sprintf("%s = %s.src AND %s.type = %d AND %s.dst IN (:dst)",
-                                $phid_column,
-                                $alias,
-                                $alias,
-                                $type,
-                                $alias),
                             [
-                                ":dst" => $phids
+                                sprintf("%s", $phid_column) => new Expression(sprintf("%s.src", $alias)),
+                                sprintf("%s.type", $alias) => $type,
+                                sprintf("%s.dst", $alias) => $phids,
                             ]
+//                            sprintf("%s = %s.src AND %s.type = %d AND %s.dst IN (:dst)",
+//                                $phid_column,
+//                                $alias,
+//                                $alias,
+//                                $type,
+//                                $alias),
+//                            [
+//                                ":dst" => $phids
+//                            ]
                         );
                         break;
                     case PhabricatorQueryConstraint::OPERATOR_ANCESTOR:
@@ -3098,15 +3143,20 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
                         call_user_func_array([$this, $join_type], [
                             sprintf("%s %s", $edge_table, $alias),
-                            sprintf("%s = %s.src AND %s.type = %d AND %s.dst IN (:dst)",
-                                $phid_column,
-                                $alias,
-                                $alias,
-                                $type,
-                                $alias),
                             [
-                                ":dst" => $phids
+                                sprintf("%s", $phid_column) => new Expression(sprintf("%s.src", $alias)),
+                                sprintf("%s.type", $alias) => $type,
+                                sprintf("%s.dst", $alias) => $phids,
                             ]
+//                            sprintf("%s = %s.src AND %s.type = %d AND %s.dst IN (:dst)",
+//                                $phid_column,
+//                                $alias,
+//                                $alias,
+//                                $type,
+//                                $alias),
+//                            [
+//                                ":dst" => $phids
+//                            ]
                         ]);
                         break;
                     case PhabricatorQueryConstraint::OPERATOR_NULL:
@@ -3123,15 +3173,20 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
                         $this->leftJoin(
                             sprintf("%s %s", $edge_table, $alias),
-                            sprintf("%s = %s.src AND %s.type = %d AND %s.dst IN (:dst)",
-                                $phid_column,
-                                $alias,
-                                $alias,
-                                $type,
-                                $alias),
                             [
-                                ":dst" => $all_phids
+                                sprintf("%s", $phid_column) => new Expression(sprintf("%s.src", $alias)),
+                                sprintf("%s.type", $alias) => $type,
+                                sprintf("%s.dst", $alias) => $all_phids,
                             ]
+//                            sprintf("%s = %s.src AND %s.type = %d AND %s.dst IN (:dst)",
+//                                $phid_column,
+//                                $alias,
+//                                $alias,
+//                                $type,
+//                                $alias),
+//                            [
+//                                ":dst" => $all_phids
+//                            ]
                         );
                         break;
                 }
@@ -3145,6 +3200,11 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      */
     public function buildEdgeLogicWhereClause()
     {
+        /** @var PhabricatorEdgeInterface $newResultObject */
+        $newResultObject = $this->newResultObject();
+        if ($newResultObject === null) return;
+        if (!$newResultObject instanceof PhabricatorEdgeInterface) return;
+
         foreach ($this->edgeLogicConstraints as $type => $constraints) {
 
             $full = array();
@@ -3202,7 +3262,10 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      */
     public function buildEdgeLogicHavingClause()
     {
-        $having = array();
+        /** @var PhabricatorEdgeInterface $newResultObject */
+        $newResultObject = $this->newResultObject();
+        if ($newResultObject === null) return;
+        if (!$newResultObject instanceof PhabricatorEdgeInterface) return;
 
         foreach ($this->edgeLogicConstraints as $type => $constraints) {
             foreach ($constraints as $operator => $list) {
@@ -3221,8 +3284,6 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
                 }
             }
         }
-
-        return $having;
     }
 
 
@@ -3231,6 +3292,11 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      */
     public function shouldGroupEdgeLogicResultRows()
     {
+        /** @var PhabricatorEdgeInterface $newResultObject */
+        $newResultObject = $this->newResultObject();
+        if ($newResultObject === null) return false;
+        if (!$newResultObject instanceof PhabricatorEdgeInterface) return false;
+
         foreach ($this->edgeLogicConstraints as $type => $constraints) {
             foreach ($constraints as $operator => $list) {
                 switch ($operator) {
@@ -3486,8 +3552,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
      * @{method:withSpacePHIDs}.
      *
      * @throws PhabricatorEmptyQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @throws \yii\base\Exception
      * @task spaces
      */
@@ -3617,8 +3683,8 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return bool
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function hasFerretOrder()
     {
