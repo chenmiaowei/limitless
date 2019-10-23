@@ -90,7 +90,7 @@ abstract class PhabricatorProfileMenuItem extends OranginsObject
         return false;
     }
 
-      /**
+    /**
      * @return bool
      * @author 陈妙威
      */
@@ -217,7 +217,9 @@ abstract class PhabricatorProfileMenuItem extends OranginsObject
      * @param array $items
      * @author 陈妙威
      */
-    public function willGetMenuItemViewList(array $items) {}
+    public function willGetMenuItemViewList(array $items)
+    {
+    }
 
     /**
      * @param PhabricatorProfileMenuItemConfiguration $config
@@ -226,13 +228,14 @@ abstract class PhabricatorProfileMenuItem extends OranginsObject
      * @author 陈妙威
      */
     final public function getMenuItemViewList(
-        PhabricatorProfileMenuItemConfiguration $config) {
+        PhabricatorProfileMenuItemConfiguration $config)
+    {
         $list = $this->newMenuItemViewList($config);
 
         if (!is_array($list)) {
             throw new Exception(
                 pht(
-                    'Expected "newMenuItemViewList()" to return a list (in class "%s"), '.
+                    'Expected "newMenuItemViewList()" to return a list (in class "%s"), ' .
                     'but it returned something else ("%s").',
                     get_class($this),
                     phutil_describe_type($list)));
@@ -362,4 +365,15 @@ abstract class PhabricatorProfileMenuItem extends OranginsObject
         return $this->newError(Yii::t("app", 'Invalid'), $message, $xaction);
     }
 
+
+    /**
+     * @param PhabricatorProfileMenuItemConfiguration $config
+     * @return array
+     * @author 陈妙威
+     */
+    public function getAffectedObjectPHIDs(
+        PhabricatorProfileMenuItemConfiguration $config)
+    {
+        return array();
+    }
 }

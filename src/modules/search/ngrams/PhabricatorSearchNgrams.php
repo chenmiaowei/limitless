@@ -3,29 +3,52 @@
 namespace orangins\modules\search\ngrams;
 
 use orangins\lib\db\ActiveRecord;
+use Yii;
 
 /**
  * Class PhabricatorSearchNgrams
  * @package orangins\modules\search\ngrams
+ * @property int $id
+ * @property int $object_id
+ * @property string $ngram
+ * @property string $created_at
+ * @property string $updated_at
  * @author 陈妙威
  */
 abstract class PhabricatorSearchNgrams
     extends ActiveRecord
 {
-
-    /**
-     * @var
-     */
-    protected $objectID;
-    /**
-     * @var
-     */
-    protected $ngram;
-
     /**
      * @var
      */
     private $value;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['object_id', 'ngram'], 'required'],
+            [['object_id'], 'integer'],
+            [['created_at', 'updated_at'], 'safe'],
+            [['ngram'], 'string', 'max' => 3],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => Yii::t('app', 'ID'),
+            'object_id' => Yii::t('app', 'Object ID'),
+            'ngram' => Yii::t('app', 'Ngram'),
+            'created_at' => Yii::t('app', 'Created At'),
+            'updated_at' => Yii::t('app', 'Updated At'),
+        ];
+    }
 
     /**
      * @return mixed
@@ -38,6 +61,12 @@ abstract class PhabricatorSearchNgrams
      * @author 陈妙威
      */
     abstract public function getColumnName();
+
+    /**
+     * @return string
+     * @author 陈妙威
+     */
+    abstract public function getApplicationName();
 
     /**
      * @param $value
@@ -60,37 +89,12 @@ abstract class PhabricatorSearchNgrams
     }
 
     /**
-     * @return array
-     * @author 陈妙威
-     */
-    protected function getConfiguration()
-    {
-        return array(
-                self::CONFIG_TIMESTAMPS => false,
-                self::CONFIG_COLUMN_SCHEMA => array(
-                    'objectID' => 'uint32',
-                    'ngram' => 'char3',
-                ),
-                self::CONFIG_KEY_SCHEMA => array(
-                    'key_ngram' => array(
-                        'columns' => array('ngram', 'objectID'),
-                    ),
-                    'key_object' => array(
-                        'columns' => array('objectID'),
-                    ),
-                ),
-            ) + parent::getConfiguration();
-    }
-
-    /**
      * @return string
      * @author 陈妙威
      */
     public function getTableName()
     {
-        $application = $this->getApplicationName();
-        $key = $this->getNgramKey();
-        return "{$application}_{$key}_ngrams";
+        return static::tableName();
     }
 
     /**
@@ -145,34 +149,42 @@ abstract class PhabricatorSearchNgrams
     /**
      * @param $object_id
      * @return $this
+     * @throws \yii\db\Exception
      * @author 陈妙威
      */
     final public function writeNgram($object_id)
     {
         $ngrams = $this->getNgramsFromString($this->getValue(), 'index');
-        $conn_w = $this->establishConnection('w');
+
 
         $sql = array();
         foreach ($ngrams as $ngram) {
-            $sql[] = qsprintf(
-                $conn_w,
-                '(%d, %s)',
-                $object_id,
-                $ngram);
+            $sql[] = [
+                'object_id' => $object_id,
+                'ngram' => $ngram,
+            ];
         }
 
-        queryfx(
-            $conn_w,
-            'DELETE FROM %T WHERE objectID = %d',
-            $this->getTableName(),
-            $object_id);
+//        queryfx(
+//            $conn_w,
+//            'DELETE FROM %T WHERE objectID = %d',
+//            $this->getTableName(),
+//            $object_id);
+
+        static::deleteAll([
+            'object_id' => $object_id
+        ]);
 
         if ($sql) {
-            queryfx(
-                $conn_w,
-                'INSERT INTO %T (objectID, ngram) VALUES %LQ',
-                $this->getTableName(),
-                $sql);
+//            queryfx(
+//                $conn_w,
+//                'INSERT INTO %T (objectID, ngram) VALUES %LQ',
+//                $this->getTableName(),
+//                $sql);
+            $this->getDb()->createCommand()->batchInsert(static::tableName(), [
+                'object_id',
+                'ngram',
+            ], $sql)->execute();
         }
 
         return $this;

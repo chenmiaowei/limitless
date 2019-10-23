@@ -2,6 +2,7 @@
 
 namespace orangins\modules\search\worker;
 
+use AphrontQueryException;
 use Exception;
 use orangins\lib\infrastructure\daemon\workers\exception\PhabricatorWorkerPermanentFailureException;
 use orangins\lib\infrastructure\daemon\workers\exception\PhabricatorWorkerYieldException;
@@ -11,6 +12,9 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\search\index\PhabricatorIndexEngine;
 use PhutilLockException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -25,12 +29,11 @@ final class PhabricatorSearchWorker extends PhabricatorWorker
      * @param $phid
      * @param null $parameters
      * @param bool $is_strict
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws \Throwable
      * @author 陈妙威
      */
     public static function queueDocumentForIndexing(

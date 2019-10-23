@@ -417,6 +417,14 @@ class PhabricatorProfileMenuItemConfiguration extends ActiveRecordPHID
         return $this->assertAttached($this->profileObject);
     }
 
+    /**
+     * @return array
+     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @author 陈妙威
+     */
+    public function getAffectedObjectPHIDs() {
+        return $this->getMenuItem()->getAffectedObjectPHIDs($this);
+    }
 
     /**
      * @return mixed

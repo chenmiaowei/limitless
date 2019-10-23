@@ -3,6 +3,7 @@
 namespace orangins\modules\file\models;
 
 use AphrontDuplicateKeyQueryException;
+use AphrontQueryException;
 use AphrontWriteGuard;
 use Filesystem;
 use HTTPFutureHTTPResponseStatus;
@@ -21,6 +22,7 @@ use orangins\modules\file\engine\PhabricatorChunkedFileStorageEngine;
 use orangins\modules\file\exception\PhabricatorFileUploadException;
 use orangins\modules\file\PhabricatorFilesBuiltinFile;
 use orangins\modules\search\interfaces\PhabricatorIndexableInterface;
+use orangins\modules\search\interfaces\PhabricatorNgramsInterface;
 use orangins\modules\search\worker\PhabricatorSearchWorker;
 use orangins\modules\transactions\interfaces\PhabricatorEditableInterface;
 use orangins\modules\transactions\view\PhabricatorApplicationTransactionView;
@@ -50,13 +52,21 @@ use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEdito
 use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface;
 use PhutilAggregateException;
 use PhutilClassMapQuery;
+use PhutilInvalidStateException;
 use PhutilProxyException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
 use PhutilURI;
 use PhutilUTF8StringTruncator;
 use PhutilTypeSpec;
+use ReflectionException;
 use TempFile;
+use Throwable;
 use Yii;
 use Exception;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -92,7 +102,8 @@ class PhabricatorFile extends ActiveRecordPHID
     PhabricatorApplicationTransactionInterface,
     PhabricatorEdgeInterface,
     PhabricatorEditableInterface,
-    PhabricatorIndexableInterface
+    PhabricatorIndexableInterface,
+    PhabricatorNgramsInterface
 {
     use ActiveRecordAuthorTrait;
 
@@ -221,18 +232,18 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param PhabricatorUser $admins
      * @return PhabricatorFile
      * @throws ActiveRecordException
+     * @throws AphrontQueryException
      * @throws FilesystemException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
      * @throws PhabricatorFileStorageConfigurationException
      * @throws PhutilAggregateException
-     * @throws \AphrontQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
-     * @throws Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      */
     public static function loadBuiltin($name, PhabricatorUser $admins = null)
     {
@@ -246,7 +257,7 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param PhabricatorUser $admins
      * @return PhabricatorFile[]
      * @throws Exception
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function loadDefaultAvatar(PhabricatorUser $admins)
     {
@@ -261,22 +272,22 @@ class PhabricatorFile extends ActiveRecordPHID
 
 
     /**
-     * @param PhabricatorUser $user
      * @param PhabricatorFilesBuiltinFile[] $builtins
+     * @param PhabricatorUser $user
      * @return PhabricatorFile[]
      * @throws ActiveRecordException
+     * @throws AphrontQueryException
      * @throws FilesystemException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
      * @throws PhabricatorFileStorageConfigurationException
      * @throws PhutilAggregateException
-     * @throws \AphrontQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
-     * @throws Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      */
     public static function loadBuiltins($builtins, PhabricatorUser $user = null)
     {
@@ -356,7 +367,7 @@ class PhabricatorFile extends ActiveRecordPHID
 
     /**
      * @return PhabricatorFile
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */
@@ -385,20 +396,21 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param array $params
      * @return mixed|null|PhabricatorFile
      * @throws ActiveRecordException
+     * @throws AphrontQueryException
      * @throws FilesystemException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
      * @throws PhabricatorFileStorageConfigurationException
      * @throws PhutilAggregateException
-     * @throws \AphrontQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      * @author 陈妙威
      */
-    public static function newFromXHRUpload($data, array $params = array()) {
+    public static function newFromXHRUpload($data, array $params = array())
+    {
         return self::newFromFileData($data, $params);
     }
 
@@ -412,7 +424,7 @@ class PhabricatorFile extends ActiveRecordPHID
     public static function readUploadedFileData($spec)
     {
         if (!$spec) {
-            throw new Exception(\Yii::t("app", 'No file was uploaded!'));
+            throw new Exception(Yii::t("app", 'No file was uploaded!'));
         }
 
         $err = ArrayHelper::getValue($spec, 'error');
@@ -430,7 +442,7 @@ class PhabricatorFile extends ActiveRecordPHID
         if (ini_get('enable_post_data_reading')) {
             $is_valid = @is_uploaded_file($tmp_name);
             if (!$is_valid) {
-                throw new Exception(\Yii::t("app", 'File is not an uploaded file.'));
+                throw new Exception(Yii::t("app", 'File is not an uploaded file.'));
             }
         }
 
@@ -438,7 +450,7 @@ class PhabricatorFile extends ActiveRecordPHID
         $file_size = ArrayHelper::getValue($spec, 'size');
 
         if (strlen($file_data) != $file_size) {
-            throw new Exception(\Yii::t("app", 'File size disagrees with uploaded size.'));
+            throw new Exception(Yii::t("app", 'File size disagrees with uploaded size.'));
         }
 
         return $file_data;
@@ -449,19 +461,18 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param array $params
      * @return mixed|null|PhabricatorFile
      * @throws ActiveRecordException
-     * @throws Exception
+     * @throws AphrontQueryException
      * @throws FilesystemException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
      * @throws PhabricatorFileStorageConfigurationException
      * @throws PhutilAggregateException
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      * @throws \FilesystemException
-     * @throws \PhutilInvalidStateException
      * @author 陈妙威
      */
     public static function newFromPHPUpload($spec, array $params = array())
@@ -483,18 +494,17 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param array $params
      * @return mixed|null|PhabricatorFile
      * @throws ActiveRecordException
-     * @throws Exception
+     * @throws AphrontQueryException
      * @throws FilesystemException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
      * @throws PhabricatorFileStorageConfigurationException
      * @throws PhutilAggregateException
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      * @author 陈妙威
      */
     public static function newFromFileData($data, array $params = array())
@@ -534,7 +544,7 @@ class PhabricatorFile extends ActiveRecordPHID
             try {
                 if (count($redirects) > 10) {
                     throw new Exception(
-                        \Yii::t("app", 'Too many redirects trying to fetch remote URI.'));
+                        Yii::t("app", 'Too many redirects trying to fetch remote URI.'));
                 }
 
                 $resolved = PhabricatorEnv::requireValidRemoteURIForFetch(
@@ -595,7 +605,7 @@ class PhabricatorFile extends ActiveRecordPHID
 
                     if (isset($redirects[$location])) {
                         throw new Exception(
-                            \Yii::t("app", 'Encountered loop while following redirects.'));
+                            Yii::t("app", 'Encountered loop while following redirects.'));
                     }
 
                     $redirects[$location] = $location;
@@ -624,7 +634,7 @@ class PhabricatorFile extends ActiveRecordPHID
             } catch (Exception $ex) {
                 if ($redirects) {
                     throw new PhutilProxyException(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Failed to fetch remote URI "{0}" after following {1} redirect(s) ' .
                             '({2}): {3}',
                             [
@@ -670,17 +680,18 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param array $params
      * @return PhabricatorFile
      * @throws \FilesystemException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\UnknownPropertyException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws UnknownPropertyException
      * @throws Exception
      * @author 陈妙威
      */
     public static function newChunkedFile(
         PhabricatorFileStorageEngine $engine,
         $length,
-        array $params) {
+        array $params)
+    {
 
         $file = self::initializeNewFile();
 
@@ -790,7 +801,7 @@ class PhabricatorFile extends ActiveRecordPHID
     {
         if (!$this->getPHID()) {
             throw new Exception(
-                \Yii::t("app", 'You must save a file before you can generate a view URI.'));
+                Yii::t("app", 'You must save a file before you can generate a view URI.'));
         }
 
         return $this->getCDNURI('data');
@@ -814,7 +825,7 @@ class PhabricatorFile extends ActiveRecordPHID
         if (($request_kind !== 'data') &&
             ($request_kind !== 'download')) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Unknown file content request kind "{0}".',
                     [
                         $request_kind
@@ -856,7 +867,7 @@ class PhabricatorFile extends ActiveRecordPHID
         } else {
             $engine = $this->instantiateStorageEngine();
             $CDNURI = $engine->getCDNURI($this->getStorageHandle());
-            if($CDNURI) {
+            if ($CDNURI) {
                 return $CDNURI;
             } else {
                 $path = Url::to(["/file/data/{$request_kind}",
@@ -910,7 +921,7 @@ class PhabricatorFile extends ActiveRecordPHID
      * you have more information, like you know the format of the suffix). For infix
      * URI components, use @{function:phutil_escape_uri_path_component} instead.
      *
-     * @param   string  Some string.
+     * @param string  Some string.
      * @return  string  URI encoded string, except for '/'.
      */
     function escapeUri($string)
@@ -992,7 +1003,7 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param $key
      * @param $value
      * @return PhabricatorFile
-     * @throws \Exception
+     * @throws Exception
      */
     public function setMetadata($key, $value)
     {
@@ -1184,7 +1195,7 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @return mixed
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function loadFileData()
@@ -1216,7 +1227,7 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param null $end
      * @return Iterable Iterable object which emits requested data.
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getFileDataIterator($begin = null, $end = null)
     {
@@ -1246,7 +1257,7 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @return PhabricatorFileStorageFormat
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function newStorageFormat()
@@ -1414,7 +1425,7 @@ class PhabricatorFile extends ActiveRecordPHID
                 return function_exists('imagegif');
                 break;
             default:
-                throw new Exception(\Yii::t("app", 'Unknown type matched as image MIME type.'));
+                throw new Exception(Yii::t("app", 'Unknown type matched as image MIME type.'));
         }
     }
 
@@ -1428,13 +1439,13 @@ class PhabricatorFile extends ActiveRecordPHID
      * @throws FilesystemException
      * @throws PhabricatorFileStorageConfigurationException
      * @throws PhutilAggregateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
-     * @throws \AphrontQueryException
-     * @throws \Exception
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws UnknownPropertyException
+     * @throws IntegrityException
+     * @throws AphrontQueryException
+     * @throws Throwable
      * @author 陈妙威
      */
     private static function buildFromFileData($data, array $params = array())
@@ -1448,7 +1459,7 @@ class PhabricatorFile extends ActiveRecordPHID
 
             if (!$engines) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'No configured storage engine can store this file. See ' .
                         '"Configuring File Storage" in the documentation for ' .
                         'information on configuring storage engines.'));
@@ -1457,7 +1468,7 @@ class PhabricatorFile extends ActiveRecordPHID
 
         assert_instances_of($engines, PhabricatorFileStorageEngine::class);
         if (!$engines) {
-            throw new Exception(\Yii::t("app", 'No valid storage engines are available!'));
+            throw new Exception(Yii::t("app", 'No valid storage engines are available!'));
         }
 
         $file = self::initializeNewFile();
@@ -1507,7 +1518,7 @@ class PhabricatorFile extends ActiveRecordPHID
                 // that immediately since it probably needs attention.
                 throw $ex;
             } catch (Exception $ex) {
-                \Yii::error($ex);
+                Yii::error($ex);
 
                 // If an engine doesn't work, keep trying all the other valid engines
                 // in case something else works.
@@ -1517,7 +1528,7 @@ class PhabricatorFile extends ActiveRecordPHID
 
         if (!$data_handle) {
             throw new PhutilAggregateException(
-                \Yii::t("app", 'All storage engines failed to write file:'),
+                Yii::t("app", 'All storage engines failed to write file:'),
                 $exceptions);
         }
 
@@ -1555,37 +1566,36 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param bool $save
      * @return $this
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \AphrontQueryException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws AphrontQueryException
      * @author 陈妙威
      */
     public function updateDimensions($save = true)
     {
         if (!$this->isViewableImage()) {
-            throw new Exception(\Yii::t("app", 'This file is not a viewable image.'));
+            throw new Exception(Yii::t("app", 'This file is not a viewable image.'));
         }
 
         if (!function_exists('imagecreatefromstring')) {
-            throw new Exception(\Yii::t("app", 'Cannot retrieve image information.'));
+            throw new Exception(Yii::t("app", 'Cannot retrieve image information.'));
         }
 
         if ($this->getIsChunk()) {
             throw new Exception(
-                \Yii::t("app", 'Refusing to assess image dimensions of file chunk.'));
+                Yii::t("app", 'Refusing to assess image dimensions of file chunk.'));
         }
 
         $engine = $this->instantiateStorageEngine();
         if ($engine->isChunkEngine()) {
             throw new Exception(
-                \Yii::t("app", 'Refusing to assess image dimensions of chunked file.'));
+                Yii::t("app", 'Refusing to assess image dimensions of chunked file.'));
         }
 
         $data = $this->loadFileData();
 
         $img = @imagecreatefromstring($data);
         if ($img === false) {
-            throw new Exception(\Yii::t("app", 'Error when decoding image.'));
+            throw new Exception(Yii::t("app", 'Error when decoding image.'));
         }
 
 
@@ -1602,7 +1612,7 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @param PhabricatorFile $file
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function copyDimensions(PhabricatorFile $file)
@@ -1631,10 +1641,9 @@ class PhabricatorFile extends ActiveRecordPHID
      *  for documentation.
      * @return static
      * @throws Exception
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \Exception
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws UnknownPropertyException
      */
     private function readPropertiesFromParameters(array $params)
     {
@@ -1666,12 +1675,12 @@ class PhabricatorFile extends ActiveRecordPHID
         $relative_ttl = ArrayHelper::getValue($params, 'ttl.relative');
         if ($absolute_ttl !== null && $relative_ttl !== null) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Specify an absolute TTL or a relative TTL, but not both.'));
         } else if ($absolute_ttl !== null) {
             if ($absolute_ttl < PhabricatorTime::getNow()) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Absolute TTL must be in the present or future, but TTL "%s" ' .
                         'is in the past.',
                         $absolute_ttl));
@@ -1681,7 +1690,7 @@ class PhabricatorFile extends ActiveRecordPHID
         } else if ($relative_ttl !== null) {
             if ($relative_ttl < 0) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Relative TTL must be zero or more seconds, but "%s" is ' .
                         'negative.',
                         $relative_ttl));
@@ -1690,7 +1699,7 @@ class PhabricatorFile extends ActiveRecordPHID
             $max_relative = phutil_units('365 days in seconds');
             if ($relative_ttl > $max_relative) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Relative TTL must not be more than "%s" seconds, but TTL ' .
                         '"%s" was specified.',
                         $max_relative,
@@ -1744,15 +1753,14 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param array $params
      * @return mixed|null
      * @throws ActiveRecordException
-     * @throws Exception
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
-     * @throws \PhutilInvalidStateException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      * @author 陈妙威
      */
     public static function newFileFromContentHash($hash, array $params)
@@ -1870,7 +1878,7 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @param array $properties
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function setStorageProperties(array $properties)
@@ -1907,8 +1915,7 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param array $params
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function writeToEngine(
@@ -1932,7 +1939,7 @@ class PhabricatorFile extends ActiveRecordPHID
         if (!$data_handle || strlen($data_handle) > 255) {
             // This indicates an improperly implemented storage engine.
             throw new PhabricatorFileStorageConfigurationException(
-                \Yii::t("app",
+                Yii::t("app",
                     "Storage engine '{0}' executed {1} but did not return a valid " .
                     "handle ('{2}') to the data: it must be nonempty and no longer " .
                     "than 255 characters.",
@@ -1946,7 +1953,7 @@ class PhabricatorFile extends ActiveRecordPHID
         $engine_identifier = $engine->getEngineIdentifier();
         if (!$engine_identifier || strlen($engine_identifier) > 32) {
             throw new PhabricatorFileStorageConfigurationException(
-                \Yii::t("app",
+                Yii::t("app",
                     "Storage engine '{0}' returned an improper engine identifier '{{1}}': " .
                     "it must be nonempty and no longer than 32 characters.",
                     [
@@ -1989,7 +1996,7 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @param $integrity_hash
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function setIntegrityHash($integrity_hash)
@@ -2099,8 +2106,8 @@ class PhabricatorFile extends ActiveRecordPHID
 
     /**
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     public function newDownloadResponse()
     {
@@ -2116,7 +2123,7 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @param $can_cdn
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function setCanCDN($can_cdn)
@@ -2137,7 +2144,7 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @param $value
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function setIsChunk($value)
@@ -2149,12 +2156,11 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @return $this
      * @throws ActiveRecordException
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws Throwable
      * @author 陈妙威
      */
     public function saveAndIndex()
@@ -2186,7 +2192,7 @@ class PhabricatorFile extends ActiveRecordPHID
     /**
      * @param $value
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function setIsProfileImage($value)
@@ -2265,11 +2271,12 @@ class PhabricatorFile extends ActiveRecordPHID
      * @throws Exception
      * @author 陈妙威
      */
-    public function getDragAndDropDictionary() {
+    public function getDragAndDropDictionary()
+    {
         return array(
-            'id'   => $this->getID(),
+            'id' => $this->getID(),
             'phid' => $this->getPHID(),
-            'uri'  => $this->getBestURI(),
+            'uri' => $this->getBestURI(),
         );
     }
 
@@ -2292,8 +2299,8 @@ class PhabricatorFile extends ActiveRecordPHID
      * @param $capability
      * @param PhabricatorUser $viewer
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     public function hasAutomaticCapability($capability, PhabricatorUser $viewer)
     {
@@ -2420,5 +2427,17 @@ class PhabricatorFile extends ActiveRecordPHID
     {
 
         return $timeline;
+    }
+
+
+    /* -(  PhabricatorNgramInterface  )------------------------------------------ */
+
+
+    public function newNgrams()
+    {
+        return array(
+            (new PhabricatorFileNameNgrams())
+                ->setValue($this->getName()),
+        );
     }
 }

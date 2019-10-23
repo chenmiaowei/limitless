@@ -46,9 +46,15 @@ class FileUploadTest extends \Codeception\Test\Unit
             'name' => $file_name,
         );
 
-        PhabricatorSearchWorker::setRunAllTasksInProcess(true);
         $phabricatorFile = PhabricatorFile::newFromFileData($file_data, $params);
 
+
+        PhabricatorWorker::setRunAllTasksInProcess(true);
+        PhabricatorSearchWorker::queueDocumentForIndexing(
+            $phabricatorFile->getPHID(),
+            array(
+                'force' => true,
+            ));
         !$isGuardActive && $aphrontWriteGuard->dispose();
     }
 }

@@ -4,6 +4,7 @@ namespace orangins\modules\auth\engine;
 
 use AphrontWriteGuard;
 use Filesystem;
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\lib\infrastructure\query\PhabricatorQuery;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\AphrontFormView;
@@ -13,6 +14,7 @@ use orangins\modules\auth\exception\PhabricatorAuthHighSecurityRequiredException
 use orangins\modules\auth\models\PhabricatorAuthFactorConfig;
 use orangins\modules\auth\models\PhabricatorAuthSession;
 use orangins\modules\auth\models\PhabricatorAuthTemporaryToken;
+use orangins\modules\auth\systemaction\PhabricatorAuthTryFactorAction;
 use orangins\modules\auth\tokentype\PhabricatorAuthOneTimeLoginTemporaryTokenType;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\OranginsUtil;
@@ -24,10 +26,9 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\people\models\PhabricatorUserCache;
 use orangins\modules\people\models\PhabricatorUserEmail;
 use orangins\modules\people\models\PhabricatorUserLog;
-use orangins\modules\settings\systemaction\PhabricatorAuthTryFactorAction;
 use orangins\modules\system\engine\PhabricatorSystemActionEngine;
-use PhutilOpaqueEnvelope;
 use Exception;
+use Yii;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
@@ -95,7 +96,7 @@ final class PhabricatorAuthSessionEngine extends OranginsObject
      * Get the session kind (e.g., anonymous, user, external account) from a
      * session token. Returns a `KIND_` constant.
      *
-     * @param   string  Session token.
+     * @param string  Session token.
      * @return  string   Session kind constant.
      */
     public static function getSessionKindFromToken($session_token)
@@ -477,7 +478,7 @@ final class PhabricatorAuthSessionEngine extends OranginsObject
 
         if (!$viewer->hasSession()) {
             throw new Exception(
-                \Yii::t("app", 'Requiring a high-security session from a user with no session!'));
+                Yii::t("app", 'Requiring a high-security session from a user with no session!'));
         }
 
         // TODO: If a user answers a "requireHighSecurityToken()" prompt and hits
@@ -597,7 +598,7 @@ final class PhabricatorAuthSessionEngine extends OranginsObject
     /**
      * Issue a high security token for a session, if authorized.
      *
-     * @param PhabricatorAuthSession Session to issue a token for.
+     * @param PhabricatorAuthSession $session Session to issue a token for.
      * @param bool Force token issue.
      * @return PhabricatorAuthHighSecurityToken|null Token, if authorized.
      * @task hisec
@@ -701,13 +702,13 @@ final class PhabricatorAuthSessionEngine extends OranginsObject
 
         if (!$viewer->hasSession()) {
             throw new Exception(
-                \Yii::t("app", 'Upgrading partial session of user with no session!'));
+                Yii::t("app", 'Upgrading partial session of user with no session!'));
         }
 
         $session = $viewer->getSession();
 
         if (!$session->getIsPartial()) {
-            throw new Exception(\Yii::t("app", 'Session is not partial!'));
+            throw new Exception(Yii::t("app", 'Session is not partial!'));
         }
 
         $unguarded = AphrontWriteGuard::beginScopedUnguardedWrites();
@@ -738,27 +739,23 @@ final class PhabricatorAuthSessionEngine extends OranginsObject
      * @param array LegalpadDocument objects
      * @return void
      * @throws Exception
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws PhabricatorDataNotAttachedException
      * @task partial
      */
     public function signLegalpadDocuments(PhabricatorUser $viewer, array $docs)
     {
 
         if (!$viewer->hasSession()) {
-            throw new Exception(
-                \Yii::t("app", 'Signing session legalpad documents of user with no session!'));
+            throw new Exception(Yii::t("app", 'Signing session legalpad documents of user with no session!'));
         }
 
         $session = $viewer->getSession();
-
         if ($session->getSignedLegalpadDocuments()) {
-            throw new Exception(\Yii::t("app",
-                'Session has already signed required legalpad documents!'));
+            throw new Exception(Yii::t("app", 'Session has already signed required legalpad documents!'));
         }
 
         $unguarded = AphrontWriteGuard::beginScopedUnguardedWrites();
         $session->setSignedLegalpadDocuments(1);
-
 
         PhabricatorAuthSession::updateAll([
             'signed_legalpad_documents' => 1
@@ -766,12 +763,8 @@ final class PhabricatorAuthSessionEngine extends OranginsObject
             'id' => $session->getID()
         ]);
 
-
         if (!empty($docs)) {
-            $log = PhabricatorUserLog::initializeNewLog(
-                $viewer,
-                $viewer->getPHID(),
-                PhabricatorUserLog::ACTION_LOGIN_LEGALPAD);
+            $log = PhabricatorUserLog::initializeNewLog($viewer, $viewer->getPHID(), PhabricatorUserLog::ACTION_LOGIN_LEGALPAD);
             $log->save();
         }
         unset($unguarded);

@@ -6,5 +6,6 @@
   "phpmailer.smtp-port": 465,
   "phpmailer.smtp-host": "smtp.exmail.qq.com",
   "orangins.base-uri": "http://limitless.localhost.com",
-  "storage.local-disk.path": null
+  "storage.local-disk.path": null,
+  "search.main-menu": true
 }

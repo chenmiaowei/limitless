@@ -2,7 +2,9 @@
 
 namespace orangins\modules\people\engineextension;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
+use orangins\lib\PhabricatorApplication;
 use orangins\lib\view\layout\PhabricatorActionListView;
 use orangins\lib\view\layout\PhabricatorActionView;
 use orangins\lib\view\page\menu\PhabricatorMainMenuBarExtension;
@@ -12,7 +14,8 @@ use orangins\lib\view\phui\PHUIObjectItemListView;
 use orangins\lib\view\phui\PHUIObjectItemView;
 use orangins\modules\people\assets\JavelinUserMenuTimezoneAsset;
 use orangins\modules\people\models\PhabricatorUser;
-use orangins\modules\widgets\javelin\JavelinDetectTimezoneAsset;
+use ReflectionException;
+use Yii;
 use yii\helpers\Url;
 
 /**
@@ -58,7 +61,7 @@ final class PeopleMainMenuBarExtension extends PhabricatorMainMenuBarExtension
     /**
      * @return array|mixed
      * @author 陈妙威
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function buildMainMenus()
     {
@@ -82,9 +85,10 @@ final class PeopleMainMenuBarExtension extends PhabricatorMainMenuBarExtension
 
     /**
      * @param PhabricatorUser $viewer
-     * @param $application
+     * @param PhabricatorApplication $application
      * @return PHUIButtonView
-     * @throws \ReflectionException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     private function newDefaultMainMenus(
@@ -104,10 +108,11 @@ final class PeopleMainMenuBarExtension extends PhabricatorMainMenuBarExtension
             ->addClass('navbar-nav-link dropdown-toggle')
             ->addClass('phabricator-core-user-menu')
             ->setNoCSS(true)
-            ->setAuralLabel(\Yii::t("app", 'Account Menu'));
+            ->setAuralLabel(Yii::t("app", 'Account Menu'));
 
 
         $person_to_show = (new PHUIObjectItemView())
+            ->addClass('p-0 border-0')
             ->setObjectName($viewer->getRealName())
             ->setSubHead($viewer->getUsername())
             ->setImageURI($viewer->getProfileImageURI());
@@ -133,17 +138,17 @@ final class PeopleMainMenuBarExtension extends PhabricatorMainMenuBarExtension
 
             $view->addAction(
                 (new PhabricatorActionView())
-                    ->setName(\Yii::t("app", 'Profile'))
+                    ->setName(Yii::t("app", 'Profile'))
                     ->setHref(Url::to(['/people/index/view', 'id' => $viewer->getID()])));
 
             $view->addAction(
                 (new PhabricatorActionView())
-                    ->setName(\Yii::t("app", 'Settings'))
+                    ->setName(Yii::t("app", 'Settings'))
                     ->setHref(Url::to(['/settings/index/user', 'username' => $viewer->getUsername()])));
 
             $view->addAction(
                 (new PhabricatorActionView())
-                    ->setName(\Yii::t("app", 'Manage'))
+                    ->setName(Yii::t("app", 'Manage'))
                     ->setHref(Url::to(['/people/index/manage', 'id' => $viewer->getID()])));
 
             if ($application) {
@@ -163,7 +168,7 @@ final class PeopleMainMenuBarExtension extends PhabricatorMainMenuBarExtension
 
         $view->addAction(
             (new PhabricatorActionView())
-                ->setName(\Yii::t("app", 'Log Out {0}', [$viewer->getUsername()]))
+                ->setName(Yii::t("app", 'Log Out {0}', [$viewer->getUsername()]))
                 ->addSigil('logout-item')
                 ->setHref(Url::to(['/auth/index/logout']))
                 ->setWorkflow(true));

@@ -19,6 +19,7 @@ use PhutilTypeExtraParametersException;
 use PhutilTypeMissingParametersException;
 use PhutilTypeSpec;
 use Exception;
+use Throwable;
 use Yii;
 use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
@@ -225,9 +226,10 @@ abstract class PhabricatorWorker extends OranginsObject
      * @param array $options
      * @return storage\PhabricatorWorkerTask
      * @throws AphrontQueryException
+     * @throws IntegrityException
      * @throws PhutilTypeExtraParametersException
      * @throws PhutilTypeMissingParametersException
-     * @throws IntegrityException
+     * @throws Throwable
      * @throws Exception
      * @author 陈妙威
      */
@@ -390,11 +392,10 @@ abstract class PhabricatorWorker extends OranginsObject
      * @param array $defaults
      * @return void
      * @throws AphrontQueryException
+     * @throws IntegrityException
      * @throws PhutilTypeExtraParametersException
      * @throws PhutilTypeMissingParametersException
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     * @throws IntegrityException
+     * @throws Throwable
      */
     final public function flushTaskQueue($defaults = array())
     {

@@ -4,6 +4,7 @@ namespace orangins\modules\policy\config;
 
 use PhutilJSON;
 use orangins\modules\config\option\PhabricatorApplicationConfigOptions;
+use Yii;
 
 /**
  * Class PhabricatorPolicyConfigOptions
@@ -20,7 +21,7 @@ final class PhabricatorPolicyConfigOptions
      */
     public function getName()
     {
-        return \Yii::t("app", 'Policy');
+        return Yii::t("app", 'Policy');
     }
 
     /**
@@ -29,7 +30,7 @@ final class PhabricatorPolicyConfigOptions
      */
     public function getDescription()
     {
-        return \Yii::t("app", 'Options relating to object visibility.');
+        return Yii::t("app", 'Options relating to object visibility.');
     }
 
     /**
@@ -67,12 +68,12 @@ final class PhabricatorPolicyConfigOptions
             $this->newOption('policy.allow-public', 'bool', false)
                 ->setBoolOptions(
                     array(
-                        \Yii::t("app", 'Allow Public Visibility'),
-                        \Yii::t("app", 'Require Login'),
+                        Yii::t("app", 'Allow Public Visibility'),
+                        Yii::t("app", 'Require Login'),
                     ))
-                ->setSummary(\Yii::t("app", 'Allow users to set object visibility to public.'))
+                ->setSummary(Yii::t("app", 'Allow users to set object visibility to public.'))
                 ->setDescription(
-                    \Yii::t("app",
+                    Yii::t("app",
                         "Phabricator allows you to set the visibility of objects (like " .
                         "repositories and tasks) to 'Public', which means **anyone " .
                         "on the internet can see them, without needing to log in or " .
@@ -92,16 +93,16 @@ final class PhabricatorPolicyConfigOptions
                         "users must have accounts and be logged in to view things).")),
             $this->newOption('policy.locked', $policy_locked_type, array())
                 ->setLocked(true)
-                ->setSummary(\Yii::t("app",
+                ->setSummary(Yii::t("app",
                     'Lock specific application policies so they can not be edited.'))
-                ->setDescription(\Yii::t("app",
+                ->setDescription(Yii::t("app",
                     'Phabricator has application policies which can dictate whether ' .
                     'users can take certain actions, such as creating new users. ' . "\n\n" .
                     'This setting allows for "locking" these policies such that no ' .
                     'further edits can be made on a per-policy basis.'))
                 ->addExample(
                     $policy_locked_example,
-                    \Yii::t("app", 'Lock Create User Policy To Admins')),
+                    Yii::t("app", 'Lock Create User Policy To Admins')),
         );
     }
 

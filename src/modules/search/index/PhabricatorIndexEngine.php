@@ -3,7 +3,10 @@
 namespace orangins\modules\search\index;
 
 use orangins\lib\OranginsObject;
+use orangins\modules\search\engineextension\PhabricatorFulltextIndexEngineExtension;
 use orangins\modules\search\models\PhabricatorSearchIndexVersion;
+use PhutilAggregateException;
+use yii\db\Exception;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
@@ -20,7 +23,7 @@ final class PhabricatorIndexEngine extends OranginsObject
      */
     private $object;
     /**
-     * @var PhabricatorIndexEngine[]
+     * @var PhabricatorFulltextIndexEngineExtension[]
      */
     private $extensions;
     /**
@@ -124,8 +127,9 @@ final class PhabricatorIndexEngine extends OranginsObject
 
     /**
      * @return $this
+     * @throws PhutilAggregateException
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\db\Exception
      */
     public function indexObject()
     {
@@ -173,7 +177,7 @@ final class PhabricatorIndexEngine extends OranginsObject
         $object = $this->getObject();
         $object_phid = $object->getPHID();
 
-        $table = new PhabricatorSearchIndexVersion();
+//        $table = new PhabricatorSearchIndexVersion();
 //        $conn_r = $table->establishConnection('w');
 
 //        $rows = queryfx_all(
@@ -199,7 +203,7 @@ final class PhabricatorIndexEngine extends OranginsObject
     /**
      * @param array $versions
      * @author 陈妙威
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     private function saveIndexVersions(array $versions)
     {

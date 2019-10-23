@@ -50,9 +50,9 @@ final class PhabricatorSystemActionEngine extends OranginsObject
      * If any actor is exceeding their rate limit, this method throws a
      * @{class:PhabricatorSystemActionRateLimitException}.
      *
+     * @param array $actors
+     * @param PhabricatorSystemAction $action
      * @param array<string> List of actors.
-     * @param PhabricatorSystemAction Action being taken.
-     * @param float Score or credit, see above.
      * @return void
      * @throws PhabricatorSystemActionRateLimitException
      * @throws \yii\db\Exception

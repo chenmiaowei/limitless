@@ -85,8 +85,8 @@ final class PhabricatorMainMenuView extends AphrontView
 
     /**
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private static function getFavicons()
     {
@@ -131,10 +131,10 @@ final class PhabricatorMainMenuView extends AphrontView
         $header_id = JavelinHtml::generateUniqueNodeId();
         $menu_bar = array();
         $alerts = array();
-        $search_button = '';
-        $app_button = '';
+//        $app_button = '';
         $aural = null;
         $dropdowns = null;
+        $search_menu = null;
 
         $is_full = $this->isFullSession($viewer);
 
@@ -143,20 +143,16 @@ final class PhabricatorMainMenuView extends AphrontView
             if (array_filter($menu)) {
                 $alerts[] = $menu;
             }
-            $app_button = $this->renderApplicationMenuButton();
-//            $search_button = $this->renderSearchMenuButton($header_id);
+//            $app_button = $this->renderApplicationMenuButton();
+            if (PhabricatorEnv::getEnvConfig('search.main-menu')) {
+                $search_menu = $this->renderPhabricatorSearchMenu();
+            }
         } else if (!$viewer->isLoggedIn()) {
-            $app_button = $this->renderApplicationMenuButton();
-//            if (PhabricatorEnv::getEnvConfig('policy.allow-public')) {
-//                $search_button = $this->renderSearchMenuButton($header_id);
-//            }
+//            $app_button = $this->renderApplicationMenuButton();
+            if (PhabricatorEnv::getEnvConfig('policy.allow-public') && PhabricatorEnv::getEnvConfig('search.main-menu')) {
+                $search_menu = $this->renderPhabricatorSearchMenu();
+            }
         }
-
-//        if ($search_button) {
-//        $search_menu = $this->renderPhabricatorSearchMenu();
-//        } else {
-//            $search_menu = null;
-//        }
 
         if ($alerts) {
             $alerts = JavelinHtml::phutil_tag(
@@ -227,15 +223,6 @@ final class PhabricatorMainMenuView extends AphrontView
         $classes[] = 'navbar navbar-expand-md navbar-dark fixed-top bg-' . PhabricatorEnv::getEnvConfig("ui.header-color") . ' navbar-static phabricator-main-menu';
 
 
-//        <div class="d-md-none">
-//			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-mobile">
-//				<i class="icon-tree5"></i>
-//			</button>
-//			<button class="navbar-toggler sidebar-mobile-main-toggle" type="button">
-//				<i class="icon-paragraph-justify3"></i>
-//			</button>
-//		</div>
-
         $mobileMenuButton = JavelinHtml::phutil_tag("div", [
             "class" => "d-md-none"
         ], [
@@ -251,14 +238,6 @@ final class PhabricatorMainMenuView extends AphrontView
             ], new PhutilSafeHTML('<i class="icon-paragraph-justify3"></i>')),
         ]);
 
-
-//        <ul class="navbar-nav">
-//				<li class="nav-item">
-//					<a href="#" class="navbar-nav-link sidebar-control sidebar-main-toggle d-none d-md-block legitRipple">
-//						<i class="icon-paragraph-justify3"></i>
-//					</a>
-//				</li>
-//			</ul>
 
         $toggleButton = JavelinHtml::phutil_tag("ul", [
             "class" => "navbar-nav",
@@ -291,10 +270,11 @@ final class PhabricatorMainMenuView extends AphrontView
                     "id" => "navbar-mobile"
                 ], [
                     $toggleButton,
-//                    $search_menu,
                     $alerts,
+                    JavelinHtml::phutil_tag("div", ['class' => 'nav ml-auto']),
                     $dropdowns,
-                    JavelinHtml::phutil_tag("ul", ["class" => "navbar-nav ml-auto"], $menu_bar),
+                    JavelinHtml::phutil_tag("ul", ["class" => "navbar-nav ml-3"], $menu_bar),
+                    $search_menu,
                     $aural,
                 ])
             ));
@@ -448,7 +428,7 @@ final class PhabricatorMainMenuView extends AphrontView
     {
 
         $view = new PHUIListView();
-        $view->addClass('ml-auto phabricator-search-menu');
+        $view->addClass('phabricator-search-menu ml-3');
 
         $search = $this->renderSearch();
         if ($search) {
@@ -895,9 +875,9 @@ final class PhabricatorMainMenuView extends AphrontView
     /**
      * @param PhabricatorUser $viewer
      * @return bool
-     * @author 陈妙威
      * @throws \yii\base\Exception
      * @throws Exception
+     * @author 陈妙威
      */
     private function isFullSession(PhabricatorUser $viewer)
     {
@@ -918,9 +898,9 @@ final class PhabricatorMainMenuView extends AphrontView
             return false;
         }
 
-        if (!$session->getSignedLegalpadDocuments()) {
-            return false;
-        }
+//        if (!$session->getSignedLegalpadDocuments()) {
+//            return false;
+//        }
 
         $mfa_key = 'security.require-multi-factor-auth';
         $need_mfa = PhabricatorEnv::getEnvConfig($mfa_key);

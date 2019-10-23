@@ -9,12 +9,11 @@
 
 namespace orangins\modules\typeahead\actions;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
-use PhutilURI;
 use orangins\lib\PhabricatorApplication;
-use PhutilClassMapQuery;
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontAjaxResponse;
 use orangins\lib\response\AphrontDialogResponse;
@@ -34,6 +33,11 @@ use orangins\modules\typeahead\datasource\PhabricatorTypeaheadProxyDatasource;
 use orangins\modules\typeahead\datasource\PhabricatorTypeaheadRuntimeCompositeDatasource;
 use orangins\modules\typeahead\model\PhabricatorTypeaheadResult;
 use orangins\lib\view\phui\PHUIIconView;
+use PhutilClassMapQuery;
+use PhutilURI;
+use ReflectionException;
+use Yii;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
@@ -46,11 +50,11 @@ class TypeaheadIndexAction extends TypeaheadAction
 {
     /**
      * @return mixed
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \Exception
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     public function run()
@@ -164,7 +168,7 @@ class TypeaheadIndexAction extends TypeaheadAction
                             ->setQueryParam('raw', $raw_query)
                             ->setQueryParam('format', 'html');
 
-                        $next_link = Html::tag('a', \Yii::t("app", 'More Results'), array(
+                        $next_link = Html::tag('a', Yii::t("app", 'More Results'), array(
                             'href' => $next_uri,
                             'class' => 'typeahead-browse-more',
                             'sigil' => 'typeahead-browse-more',
@@ -173,7 +177,7 @@ class TypeaheadIndexAction extends TypeaheadAction
                     } else {
                         // If the user has paged through more than 1K results, don't
                         // offer to page any further.
-                        $next_link = Html::tag('div', \Yii::t("app", 'You reach the edge of the abyss.'), array(
+                        $next_link = Html::tag('div', Yii::t("app", 'You reach the edge of the abyss.'), array(
                             'class' => 'typeahead-browse-hard-limit',
                         ));
                     }
@@ -204,7 +208,7 @@ class TypeaheadIndexAction extends TypeaheadAction
                             'value' => $value,
                             'disabled' => $disabled ? 'disabled' : null,
                         ),
-                        \Yii::t('app', 'Select'));
+                        Yii::t('app', 'Select'));
 
                     $information = $this->renderBrowseResult($result, $button);
                     $items[] = $information;
@@ -264,7 +268,7 @@ class TypeaheadIndexAction extends TypeaheadAction
                             ->setQueryParam('parameters', OranginsUtil::phutil_json_encode($parameters));
                     }
 
-                    $reference_link = Html::tag('a', \Yii::t("app", 'Reference: Advanced Functions'), array(
+                    $reference_link = Html::tag('a', Yii::t("app", 'Reference: Advanced Functions'), array(
                         'href' => $reference_uri,
                         'target' => '_blank',
                     ));
@@ -282,7 +286,7 @@ class TypeaheadIndexAction extends TypeaheadAction
                     ->addClass("wmin-600")
                     ->setTitle($source->getBrowseTitle())
                     ->appendChild($browser)
-                    ->addCancelButton(\Yii::$app->request->url);
+                    ->addCancelButton(Yii::$app->request->url);
                 $response = (new AphrontDialogResponse())
                     ->setDialog($oranginsDialogBoxView);
                 return $response;
@@ -290,7 +294,7 @@ class TypeaheadIndexAction extends TypeaheadAction
             }
 
         } else if ($is_browse) {
-            return (new Aphront404Response())->setTitle(\Yii::t("app", "Class of '{0}' is not exist.", [$class]));
+            return (new Aphront404Response())->setTitle(Yii::t("app", "Class of '{0}' is not exist.", [$class]));
         } else {
             $results = array();
         }
@@ -298,7 +302,7 @@ class TypeaheadIndexAction extends TypeaheadAction
         $content = OranginsUtil::mpull($results, 'getWireFormat');
         $content = array_values($content);
 
-        if (\Yii::$app->request->isAjax()) {
+        if (Yii::$app->request->isAjax()) {
 //            $exclude = $request->getStrList('exclude');
 //            $exclude = OranginsUtil::array_fuse($exclude);
             return (new AphrontAjaxResponse())->setContent($content);
@@ -336,26 +340,26 @@ class TypeaheadIndexAction extends TypeaheadAction
             ->setAction('/typeahead/class/')
             ->appendChild(
                 (new AphrontFormSelectControl())
-                    ->setLabel(\Yii::t("app", 'Source Class'))
+                    ->setLabel(Yii::t("app", 'Source Class'))
                     ->setName('class')
                     ->setValue($class)
                     ->setOptions($options))
             ->appendChild(
                 (new AphrontFormTextControl())
-                    ->setLabel(\Yii::t("app", 'Query'))
+                    ->setLabel(Yii::t("app", 'Query'))
                     ->setName('q')
                     ->setValue($request->getStr('q')))
             ->appendChild(
                 (new AphrontFormTextControl())
-                    ->setLabel(\Yii::t("app", 'Raw Query'))
+                    ->setLabel(Yii::t("app", 'Raw Query'))
                     ->setName('raw')
                     ->setValue($request->getStr('raw')))
             ->appendChild(
                 (new AphrontFormSubmitControl())
-                    ->setValue(\Yii::t("app", 'Query')));
+                    ->setValue(Yii::t("app", 'Query')));
 
         $form_box = (new PHUIObjectBoxView())
-            ->setHeaderText(\Yii::t("app", 'Token Query'))
+            ->setHeaderText(Yii::t("app", 'Token Query'))
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->setForm($form);
 
@@ -367,32 +371,32 @@ class TypeaheadIndexAction extends TypeaheadAction
         $table = new AphrontTableView($content);
         $table->setHeaders(
             array(
-                \Yii::t("app", 'Name'),
-                \Yii::t("app", 'URI'),
-                \Yii::t("app", 'PHID'),
-                \Yii::t("app", 'Priority'),
-                \Yii::t("app", 'Display Name'),
-                \Yii::t("app", 'Display Type'),
-                \Yii::t("app", 'Image URI'),
-                \Yii::t("app", 'Priority Type'),
-                \Yii::t("app", 'Icon'),
-                \Yii::t("app", 'Closed'),
-                \Yii::t("app", 'Sprite'),
-                \Yii::t("app", 'Color'),
-                \Yii::t("app", 'Type'),
-                \Yii::t("app", 'Unique'),
-                \Yii::t("app", 'Auto'),
-                \Yii::t("app", 'Phase'),
+                Yii::t("app", 'Name'),
+                Yii::t("app", 'URI'),
+                Yii::t("app", 'PHID'),
+                Yii::t("app", 'Priority'),
+                Yii::t("app", 'Display Name'),
+                Yii::t("app", 'Display Type'),
+                Yii::t("app", 'Image URI'),
+                Yii::t("app", 'Priority Type'),
+                Yii::t("app", 'Icon'),
+                Yii::t("app", 'Closed'),
+                Yii::t("app", 'Sprite'),
+                Yii::t("app", 'Color'),
+                Yii::t("app", 'Type'),
+                Yii::t("app", 'Unique'),
+                Yii::t("app", 'Auto'),
+                Yii::t("app", 'Phase'),
             ));
 
         $result_box = (new PHUIObjectBoxView())
-            ->setHeaderText(\Yii::t("app", 'Token Results {0}', [
+            ->setHeaderText(Yii::t("app", 'Token Results {0}', [
                 $class
             ]))
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($table);
 
-        $title = \Yii::t("app", 'Typeahead Results');
+        $title = Yii::t("app", 'Typeahead Results');
 
         $header = (new PHUIPageHeaderView())
             ->setHeader($title);
@@ -414,9 +418,9 @@ class TypeaheadIndexAction extends TypeaheadAction
      * @param PhabricatorTypeaheadResult $result
      * @param $button
      * @return mixed
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderBrowseResult(PhabricatorTypeaheadResult $result, $button)

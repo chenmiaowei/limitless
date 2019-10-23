@@ -2776,10 +2776,12 @@ abstract class PhabricatorCursorPagedPolicyAwareQuery extends PhabricatorPolicyA
     {
 
         if (strlen($value)) {
+            /** @var array $list */
+            $list = phutil_utf8v($value);
             $this->ngrams[] = array(
                 'index' => $index,
                 'value' => $value,
-                'length' => count(phutil_utf8v($value)),
+                'length' => count($list),
             );
         }
 

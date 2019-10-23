@@ -3,6 +3,7 @@
 namespace orangins\modules\auth\systemaction;
 
 use orangins\modules\system\systemaction\PhabricatorSystemAction;
+use Yii;
 
 /**
  * Class PhabricatorAuthTryFactorAction
@@ -41,7 +42,7 @@ final class PhabricatorAuthTryFactorAction extends PhabricatorSystemAction
      */
     public function getLimitExplanation()
     {
-        return \Yii::t("app",
+        return Yii::t("app",
             'You have failed to verify multi-factor authentication too often in ' .
             'a short period of time.');
     }

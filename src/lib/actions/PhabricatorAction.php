@@ -402,24 +402,24 @@ class PhabricatorAction extends Action
 //        $must_sign_docs = array();
 //        $sign_docs = array();
 //
-////        $legalpad_class = 'PhabricatorLegalpadApplication';
-////        $legalpad_installed = PhabricatorApplication::isClassInstalledForViewer(
-////            $legalpad_class,
-////            $viewer);
-////        if ($legalpad_installed) {
-////            $sign_docs = (new LegalpadDocumentQuery())
-////                ->setViewer($viewer)
-////                ->withSignatureRequired(1)
-////                ->needViewerSignatures(true)
-////                ->setOrder('oldest')
-////                ->execute();
-////
-////            foreach ($sign_docs as $sign_doc) {
-////                if (!$sign_doc->getUserSignature($viewer->getPHID())) {
-////                    $must_sign_docs[] = $sign_doc;
-////                }
-////            }
-////        }
+//        $legalpad_class = 'PhabricatorLegalpadApplication';
+//        $legalpad_installed = PhabricatorApplication::isClassInstalledForViewer(
+//            $legalpad_class,
+//            $viewer);
+//        if ($legalpad_installed) {
+//            $sign_docs = (new LegalpadDocumentQuery())
+//                ->setViewer($viewer)
+//                ->withSignatureRequired(1)
+//                ->needViewerSignatures(true)
+//                ->setOrder('oldest')
+//                ->execute();
+//
+//            foreach ($sign_docs as $sign_doc) {
+//                if (!$sign_doc->getUserSignature($viewer->getPHID())) {
+//                    $must_sign_docs[] = $sign_doc;
+//                }
+//            }
+//        }
 //
 //        if (!$must_sign_docs) {
 //            // If nothing needs to be signed (either because there are no documents
