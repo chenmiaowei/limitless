@@ -2,6 +2,7 @@
 
 namespace orangins\modules\search\models;
 
+use orangins\lib\db\ActiveRecord;
 use Yii;
 
 /**
@@ -14,7 +15,7 @@ use Yii;
  * @property string $created_at
  * @property string $updated_at
  */
-class PhabricatorSearchIndexVersion extends \orangins\lib\db\ActiveRecord
+class PhabricatorSearchIndexVersion extends ActiveRecord
 {
     /**
      * {@inheritdoc}

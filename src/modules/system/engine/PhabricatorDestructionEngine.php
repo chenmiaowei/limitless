@@ -4,8 +4,10 @@ namespace orangins\modules\system\engine;
 
 use orangins\lib\OranginsObject;
 use orangins\modules\people\models\PhabricatorUser;
+use orangins\modules\system\interfaces\PhabricatorDestructibleCodexInterface;
 use orangins\modules\system\interfaces\PhabricatorDestructibleInterface;
 use Exception;
+use orangins\modules\system\models\PhabricatorSystemDestructionLog;
 
 /**
  * Class PhabricatorDestructionEngine
@@ -59,6 +61,8 @@ final class PhabricatorDestructionEngine extends OranginsObject
 
     /**
      * @param PhabricatorDestructibleInterface $object
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     public function destroyObject(PhabricatorDestructibleInterface $object)

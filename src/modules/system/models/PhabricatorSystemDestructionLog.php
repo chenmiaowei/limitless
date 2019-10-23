@@ -2,6 +2,7 @@
 
 namespace orangins\modules\system\models;
 
+use orangins\lib\db\ActiveRecord;
 use Yii;
 
 /**
@@ -16,7 +17,7 @@ use Yii;
  * @property int $created_at
  * @property int $updated_at
  */
-class PhabricatorSystemDestructionLog extends \yii\db\ActiveRecord
+class PhabricatorSystemDestructionLog extends ActiveRecord
 {
     /**
      * {@inheritdoc}

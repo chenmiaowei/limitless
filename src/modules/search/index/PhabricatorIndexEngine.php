@@ -197,7 +197,7 @@ final class PhabricatorIndexEngine extends OranginsObject
             ])
             ->all();
 
-        return ipull($rows, 'version', 'extensionKey');
+        return ipull($rows, 'version', 'extension_key');
     }
 
     /**

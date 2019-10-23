@@ -52,13 +52,11 @@ final class PhabricatorSearchNgramsDestructionEngineExtension
         PhabricatorDestructionEngine $engine,
         $object)
     {
-
         foreach ($object->newNgrams() as $ngram) {
-            queryfx(
-                $ngram->establishConnection('w'),
-                'DELETE FROM %T WHERE objectID = %d',
-                $ngram->getTableName(),
-                $object->getID());
+
+            $ngram::deleteAll([
+                'object_id' => $object->getID()
+            ]);
         }
     }
 

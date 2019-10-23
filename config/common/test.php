@@ -7,5 +7,14 @@ return [
             'class' => 'yii\web\User',
             'identityClass' => 'common\models\Admin',
         ],
+        'log' => [
+            'traceLevel' => 3,
+            'targets' => [
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'warning', 'info'],
+                ],
+            ],
+        ],
     ],
 ];

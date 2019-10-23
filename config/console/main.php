@@ -18,13 +18,22 @@ return [
           ],
     ],
     'components' => [
+//        'log' => [
+//            'flushInterval' => 1,
+//            'targets' => [
+//                [
+//                    'class' => 'yii\log\FileTarget',
+//                    'levels' => ['error'],
+//                    'exportInterval' => 1,
+//                ],
+//            ],
+//        ],
         'log' => [
-            'flushInterval' => 1,
+            'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error'],
-                    'exportInterval' => 1,
+                    'levels' => ['error', 'warning', 'info'],
                 ],
             ],
         ],

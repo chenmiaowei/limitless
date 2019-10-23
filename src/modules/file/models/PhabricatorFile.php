@@ -24,6 +24,8 @@ use orangins\modules\file\PhabricatorFilesBuiltinFile;
 use orangins\modules\search\interfaces\PhabricatorIndexableInterface;
 use orangins\modules\search\interfaces\PhabricatorNgramsInterface;
 use orangins\modules\search\worker\PhabricatorSearchWorker;
+use orangins\modules\system\engine\PhabricatorDestructionEngine;
+use orangins\modules\system\interfaces\PhabricatorDestructibleInterface;
 use orangins\modules\transactions\interfaces\PhabricatorEditableInterface;
 use orangins\modules\transactions\view\PhabricatorApplicationTransactionView;
 use orangins\lib\infrastructure\edges\interfaces\PhabricatorEdgeInterface;
@@ -103,7 +105,8 @@ class PhabricatorFile extends ActiveRecordPHID
     PhabricatorEdgeInterface,
     PhabricatorEditableInterface,
     PhabricatorIndexableInterface,
-    PhabricatorNgramsInterface
+    PhabricatorNgramsInterface,
+    PhabricatorDestructibleInterface
 {
     use ActiveRecordAuthorTrait;
 
@@ -2433,6 +2436,10 @@ class PhabricatorFile extends ActiveRecordPHID
     /* -(  PhabricatorNgramInterface  )------------------------------------------ */
 
 
+    /**
+     * @return array|\orangins\modules\search\ngrams\PhabricatorSearchNgrams[]
+     * @author 陈妙威
+     */
     public function newNgrams()
     {
         return array(
@@ -2440,4 +2447,24 @@ class PhabricatorFile extends ActiveRecordPHID
                 ->setValue($this->getName()),
         );
     }
+
+
+    /* -(  PhabricatorDestructibleInterface  )----------------------------------- */
+
+
+    /**
+     * @param PhabricatorDestructionEngine $engine
+     * @throws Throwable
+     * @throws \yii\db\Exception
+     * @throws \yii\db\StaleObjectException
+     * @author 陈妙威
+     */
+    public function destroyObjectPermanently(
+        PhabricatorDestructionEngine $engine) {
+
+        $this->openTransaction();
+        $this->delete();
+        $this->saveTransaction();
+    }
+
 }

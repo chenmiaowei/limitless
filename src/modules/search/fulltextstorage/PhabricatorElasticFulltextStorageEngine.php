@@ -19,6 +19,8 @@ use orangins\modules\search\query\PhabricatorSearchApplicationSearchEngine;
 use PhutilAggregateException;
 use PhutilJSONParserException;
 use PhutilProxyException;
+use ReflectionClass;
+use ReflectionException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -140,6 +142,7 @@ class PhabricatorElasticFulltextStorageEngine
     /**
      * @param $class
      * @return array
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTypeConstants($class)
@@ -345,7 +348,7 @@ class PhabricatorElasticFulltextStorageEngine
      * @param PhabricatorSavedQuery $query
      * @return array
      * @throws PhutilAggregateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws Exception
      * @author 陈妙威
      */
@@ -414,7 +417,7 @@ class PhabricatorElasticFulltextStorageEngine
     /**
      * @return array
      * @author 陈妙威
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function getIndexConfiguration()
     {
@@ -534,7 +537,7 @@ class PhabricatorElasticFulltextStorageEngine
      * @throws HTTPFutureResponseStatus
      * @throws PhutilProxyException
      * @throws \orangins\lib\infrastructure\cluster\exception\PhabricatorClusterNoHostForRoleException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function indexIsSane(PhabricatorElasticsearchHost $host = null)
@@ -615,7 +618,7 @@ class PhabricatorElasticFulltextStorageEngine
      * @throws HTTPFutureResponseStatus
      * @throws PhutilProxyException
      * @throws \orangins\lib\infrastructure\cluster\exception\PhabricatorClusterNoHostForRoleException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function initIndex()
