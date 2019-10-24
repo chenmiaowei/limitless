@@ -4,6 +4,8 @@ namespace orangins\modules\metamta\adapters;
 
 use PhutilClassMapQuery;
 use PhutilEmailAddress;
+use PhutilInvalidStateException;
+use ReflectionException;
 use Yii;
 use orangins\lib\OranginsObject;
 use Exception;
@@ -12,7 +14,7 @@ use Exception;
  * Class PhabricatorMailImplementationAdapter
  * @author 陈妙威
  */
-abstract class PhabricatorMailImplementationAdapter extends OranginsObject
+abstract class PhabricatorMailAdapter extends OranginsObject
 {
     /**
      * @var
@@ -38,8 +40,7 @@ abstract class PhabricatorMailImplementationAdapter extends OranginsObject
 
     /**
      * @return mixed
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final public function getAdapterType()
@@ -48,7 +49,8 @@ abstract class PhabricatorMailImplementationAdapter extends OranginsObject
     }
 
     /**
-     * @return mixed
+     * @return PhabricatorMailAdapter[]
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getAllAdapters()

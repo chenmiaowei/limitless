@@ -9,7 +9,7 @@ use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use orangins\lib\infrastructure\edges\editor\PhabricatorEdgeEditor;
 use orangins\lib\infrastructure\edges\interfaces\PhabricatorEdgeInterface;
 use orangins\modules\file\models\PhabricatorFile;
-use orangins\modules\metamta\adapters\PhabricatorMailImplementationAdapter;
+use orangins\modules\metamta\adapters\PhabricatorMailAdapter;
 use orangins\modules\metamta\edge\PhabricatorMetaMTAMailHasRecipientEdgeType;
 use orangins\modules\metamta\models\exception\PhabricatorMetaMTAPermanentFailureException;
 use orangins\modules\metamta\query\PhabricatorMetaMTAMailQuery;
@@ -958,9 +958,9 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
 
             $execute = (new PhutilClassMapQuery())
                 ->setUniqueMethod('getClassShortName')
-                ->setAncestorClass(PhabricatorMailImplementationAdapter::className())
+                ->setAncestorClass(PhabricatorMailAdapter::className())
                 ->execute();
-            /** @var PhabricatorMailImplementationAdapter $mailer */
+            /** @var PhabricatorMailAdapter $mailer */
             $mailer = $execute[PhabricatorEnv::getEnvConfig('metamta.mail-adapter')];
 
             $defaults = $mailer->newDefaultOptions();
@@ -975,7 +975,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
 
             $mailers[] = $mailer;
         } else {
-            $adapters = PhabricatorMailImplementationAdapter::getAllAdapters();
+            $adapters = PhabricatorMailAdapter::getAllAdapters();
             $next_priority = -1;
 
             foreach ($config as $spec) {
@@ -988,7 +988,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
                 }
 
                 $key = $spec['key'];
-                /** @var PhabricatorMailImplementationAdapter $adapter */
+                /** @var PhabricatorMailAdapter $adapter */
                 $adapter = clone $adapters[$type];
                 $mailer = $adapter
                     ->setKey($key);
@@ -1177,18 +1177,17 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     }
 
     /**
-     * @param PhabricatorMailImplementationAdapter $mailer
-     * @return PhabricatorMailImplementationAdapter
+     * @param PhabricatorMailAdapter $mailer
+     * @return PhabricatorMailAdapter
      * @throws Exception
      * @throws \PhutilJSONParserException
      * @throws \ReflectionException
-
-     * @throws \yii\base\InvalidConfigException
+ * @throws \yii\base\InvalidConfigException
      * @throws \PhutilInvalidStateException
      * @throws \Exception
      * @author 陈妙威
      */
-    private function buildMailer(PhabricatorMailImplementationAdapter $mailer)
+    private function buildMailer(PhabricatorMailAdapter $mailer)
     {
         $headers = $this->generateHeaders();
 

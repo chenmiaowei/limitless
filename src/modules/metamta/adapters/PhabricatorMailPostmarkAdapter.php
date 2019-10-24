@@ -11,8 +11,8 @@ use PhutilTypeSpec;
  * @package orangins\modules\metamta\adapters
  * @author 陈妙威
  */
-final class PhabricatorMailImplementationPostmarkAdapter
-    extends PhabricatorMailImplementationAdapter
+final class PhabricatorMailPostmarkAdapter
+    extends PhabricatorMailAdapter
 {
 
     /**

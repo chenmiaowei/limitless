@@ -10,6 +10,7 @@ use orangins\modules\daemon\models\PhabricatorDaemonLockLog;
 use PhutilArgumentParser;
 use PhutilArgumentUsageException;
 use PhutilConsoleTable;
+use Yii;
 
 /**
  * Class PhabricatorLockLogManagementWorkflow
@@ -28,21 +29,21 @@ final class PhabricatorLockLogManagementWorkflow
     {
         $this
             ->setName('log')
-            ->setSynopsis(\Yii::t("app", 'Enable, disable, or show the lock log.'))
+            ->setSynopsis(Yii::t("app", 'Enable, disable, or show the lock log.'))
             ->setArguments(
                 array(
                     array(
                         'name' => 'enable',
-                        'help' => \Yii::t("app", 'Enable the lock log.'),
+                        'help' => Yii::t("app", 'Enable the lock log.'),
                     ),
                     array(
                         'name' => 'disable',
-                        'help' => \Yii::t("app", 'Disable the lock log.'),
+                        'help' => Yii::t("app", 'Disable the lock log.'),
                     ),
                     array(
                         'name' => 'name',
                         'param' => 'name',
-                        'help' => \Yii::t("app", 'Review logs for a specific lock.'),
+                        'help' => Yii::t("app", 'Review logs for a specific lock.'),
                     ),
                 ));
     }
@@ -57,6 +58,7 @@ final class PhabricatorLockLogManagementWorkflow
      * @throws \ReflectionException
      * @throws \orangins\modules\file\FilesystemException
      * @throws \yii\base\Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)
@@ -66,7 +68,7 @@ final class PhabricatorLockLogManagementWorkflow
 
         if ($is_enable && $is_disable) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",
+                Yii::t("app",
                     'You can not both "--enable" and "--disable" the lock log.'));
         }
 
@@ -75,7 +77,7 @@ final class PhabricatorLockLogManagementWorkflow
         if ($is_enable || $is_disable) {
             if (strlen($with_name)) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'You can not both "--enable" or "--disable" with search ' .
                         'parameters like "--name".'));
             }
@@ -91,24 +93,24 @@ final class PhabricatorLockLogManagementWorkflow
                 if (!$is_enabled) {
                     echo tsprintf(
                         "%s\n",
-                        \Yii::t("app", 'Lock log is already disabled.'));
+                        Yii::t("app", 'Lock log is already disabled.'));
                     return 0;
                 }
                 echo tsprintf(
                     "%s\n",
-                    \Yii::t("app", 'Disabling the lock log.'));
+                    Yii::t("app", 'Disabling the lock log.'));
 
                 unset($value[$const]);
             } else {
                 if ($is_enabled) {
                     echo tsprintf(
                         "%s\n",
-                        \Yii::t("app", 'Lock log is already enabled.'));
+                        Yii::t("app", 'Lock log is already enabled.'));
                     return 0;
                 }
                 echo tsprintf(
                     "%s\n",
-                    \Yii::t("app", 'Enabling the lock log.'));
+                    Yii::t("app", 'Enabling the lock log.'));
 
                 $value[$const] = phutil_units('24 hours in seconds');
             }
@@ -121,41 +123,45 @@ final class PhabricatorLockLogManagementWorkflow
 
             echo tsprintf(
                 "%s\n",
-                \Yii::t("app", 'Done.'));
+                Yii::t("app", 'Done.'));
 
             echo tsprintf(
                 "%s\n",
-                \Yii::t("app", 'Restart daemons to apply changes.'));
+                Yii::t("app", 'Restart daemons to apply changes.'));
 
             return 0;
         }
 
         $table = new PhabricatorDaemonLockLog();
-        $conn = $table->establishConnection('r');
-
-        $parts = array();
+//        $conn = $table->establishConnection('r');
+        $query = $table::find();
+//        $parts = array();
         if (strlen($with_name)) {
-            $parts[] = qsprintf(
-                $conn,
-                'lockName = %s',
-                $with_name);
+//            $parts[] = qsprintf(
+//                $conn,
+//                'lockName = %s',
+//                $with_name);
+
+            $query->andWhere(['lock_name' => $with_name]);
         }
 
-        if (!$parts) {
-            $constraint = qsprintf($conn, '1 = 1');
-        } else {
-            $constraint = qsprintf($conn, '%LA', $parts);
-        }
+//        if (!$parts) {
+//            $constraint = qsprintf($conn, '1 = 1');
+//        } else {
+//            $constraint = qsprintf($conn, '%LA', $parts);
+//        }
 
-        $logs = $table->loadAllWhere(
-            '%Q ORDER BY id DESC LIMIT 100',
-            $constraint);
+//        $logs = $table->loadAllWhere(
+//            '%Q ORDER BY id DESC LIMIT 100',
+//            $constraint);
+//
+        $logs = $query->orderBy("id desc")->limit(100)->all();
         $logs = array_reverse($logs);
 
         if (!$logs) {
             echo tsprintf(
                 "%s\n",
-                \Yii::t("app", 'No matching lock logs.'));
+                Yii::t("app", 'No matching lock logs.'));
             return 0;
         }
 
@@ -164,37 +170,37 @@ final class PhabricatorLockLogManagementWorkflow
             ->addColumn(
                 'id',
                 array(
-                    'title' => \Yii::t("app", 'Lock'),
+                    'title' => Yii::t("app", 'Lock'),
                 ))
             ->addColumn(
                 'name',
                 array(
-                    'title' => \Yii::t("app", 'Name'),
+                    'title' => Yii::t("app", 'Name'),
                 ))
             ->addColumn(
                 'acquired',
                 array(
-                    'title' => \Yii::t("app", 'Acquired'),
+                    'title' => Yii::t("app", 'Acquired'),
                 ))
             ->addColumn(
                 'released',
                 array(
-                    'title' => \Yii::t("app", 'Released'),
+                    'title' => Yii::t("app", 'Released'),
                 ))
             ->addColumn(
                 'held',
                 array(
-                    'title' => \Yii::t("app", 'Held'),
+                    'title' => Yii::t("app", 'Held'),
                 ))
             ->addColumn(
                 'parameters',
                 array(
-                    'title' => \Yii::t("app", 'Parameters'),
+                    'title' => Yii::t("app", 'Parameters'),
                 ))
             ->addColumn(
                 'context',
                 array(
-                    'title' => \Yii::t("app", 'Context'),
+                    'title' => Yii::t("app", 'Context'),
                 ));
 
         $viewer = $this->getViewer();

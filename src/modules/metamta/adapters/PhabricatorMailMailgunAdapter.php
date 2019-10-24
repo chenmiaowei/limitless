@@ -13,8 +13,8 @@ use yii\helpers\ArrayHelper;
 /**
  * Mail adapter that uses Mailgun's web API to deliver email.
  */
-final class PhabricatorMailImplementationMailgunAdapter
-    extends PhabricatorMailImplementationAdapter
+final class PhabricatorMailMailgunAdapter
+    extends PhabricatorMailAdapter
 {
 
     /**

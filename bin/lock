@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../scripts/init/init-script.php';
+
+$args = new PhutilArgumentParser($argv);
+$args->setTagline(pht('manage locks'));
+$args->setSynopsis(<<<EOSYNOPSIS
+**lock** __command__ [__options__]
+  Manage locks.
+
+EOSYNOPSIS
+  );
+$args->parseStandardArguments();
+
+$workflows = id(new PhutilClassMapQuery())
+  ->setAncestorClass(\orangins\modules\daemon\management\PhabricatorLockManagementWorkflow::class)
+  ->execute();
+$workflows[] = new PhutilHelpArgumentWorkflow();
+$args->parseWorkflows($workflows);

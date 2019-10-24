@@ -2,14 +2,31 @@
 
 namespace orangins\modules\transactions\bulk\management;
 
+use AphrontQueryException;
 use Filesystem;
+use orangins\lib\exception\ActiveRecordException;
 use orangins\lib\export\engine\PhabricatorExportEngine;
 use orangins\lib\export\format\PhabricatorExportFormat;
+use orangins\modules\file\exception\PhabricatorFileStorageConfigurationException;
+use orangins\modules\file\FilesystemException;
+use orangins\modules\file\uploadsource\PhabricatorFileUploadSourceByteLimitException;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
 use orangins\modules\search\models\PhabricatorSavedQuery;
+use PhutilAggregateException;
 use PhutilArgumentParser;
+use PhutilArgumentSpecificationException;
 use PhutilArgumentUsageException;
 use PhutilClassMapQuery;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Yii;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -30,37 +47,37 @@ final class PhabricatorBulkManagementExportWorkflow
             ->setName('export')
             ->setExamples('**export** [options]')
             ->setSynopsis(
-                \Yii::t("app", 'Export data to a flat file (JSON, CSV, Excel, etc).'))
+                Yii::t("app", 'Export data to a flat file (JSON, CSV, Excel, etc).'))
             ->setArguments(
                 array(
                     array(
                         'name' => 'class',
                         'param' => 'class',
-                        'help' => \Yii::t("app",
+                        'help' => Yii::t("app",
                             'SearchEngine class to export data from.'),
                     ),
                     array(
                         'name' => 'format',
                         'param' => 'format',
-                        'help' => \Yii::t("app", 'Export format.'),
+                        'help' => Yii::t("app", 'Export format.'),
                     ),
                     array(
                         'name' => 'query',
                         'param' => 'key',
-                        'help' => \Yii::t("app",
+                        'help' => Yii::t("app",
                             'Export the data selected by one or more queries.'),
                         'repeat' => true,
                     ),
                     array(
                         'name' => 'output',
                         'param' => 'path',
-                        'help' => \Yii::t("app",
+                        'help' => Yii::t("app",
                             'Write output to a file. If omitted, output will be sent to ' .
                             'stdout.'),
                     ),
                     array(
                         'name' => 'overwrite',
-                        'help' => \Yii::t("app",
+                        'help' => Yii::t("app",
                             'If the output file already exists, overwrite it instead of ' .
                             'raising an error.'),
                     ),
@@ -71,23 +88,23 @@ final class PhabricatorBulkManagementExportWorkflow
      * @param PhutilArgumentParser $args
      * @return int
      * @throws PhutilArgumentUsageException
-     * @throws \AphrontQueryException
+     * @throws AphrontQueryException
      * @throws \FilesystemException
-     * @throws \PhutilAggregateException
-     * @throws \PhutilArgumentSpecificationException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\exception\ActiveRecordException
-     * @throws \orangins\modules\file\FilesystemException
-     * @throws \orangins\modules\file\exception\PhabricatorFileStorageConfigurationException
-     * @throws \orangins\modules\file\uploadsource\PhabricatorFileUploadSourceByteLimitException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
+     * @throws PhutilAggregateException
+     * @throws PhutilArgumentSpecificationException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws ActiveRecordException
+     * @throws FilesystemException
+     * @throws PhabricatorFileStorageConfigurationException
+     * @throws PhabricatorFileUploadSourceByteLimitException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws UnknownPropertyException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)
@@ -99,7 +116,7 @@ final class PhabricatorBulkManagementExportWorkflow
         $format_key = $args->getArg('format');
         if (!strlen($format_key)) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",
+                Yii::t("app",
                     'Specify an export format with "--format".'));
         }
 
@@ -107,17 +124,21 @@ final class PhabricatorBulkManagementExportWorkflow
         $format = ArrayHelper::getValue($all_formats, $format_key);
         if (!$format) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",
-                    'Unknown export format ("%s"). Known formats are: %s.',
-                    $format_key,
-                    implode(', ', array_keys($all_formats))));
+                Yii::t("app",
+                    'Unknown export format ("{0}"). Known formats are: {1}.',
+                    [
+                        $format_key,
+                        implode(', ', array_keys($all_formats))
+                    ]));
         }
 
         if (!$format->isExportFormatEnabled()) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",
-                    'Export format ("%s") is not enabled.',
-                    $format_key));
+                Yii::t("app",
+                    'Export format ("{0}") is not enabled.',
+                    [
+                        $format_key
+                    ]));
         }
 
         $is_overwrite = $args->getArg('overwrite');
@@ -125,7 +146,7 @@ final class PhabricatorBulkManagementExportWorkflow
 
         if (!strlen($output_path)) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",
+                Yii::t("app",
                     'Use "--output <path>" to specify an output file, or "--output -" ' .
                     'to print to stdout.'));
         }
@@ -138,14 +159,14 @@ final class PhabricatorBulkManagementExportWorkflow
 
         if ($is_stdout && $is_overwrite) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",
+                Yii::t("app",
                     'Flag "--overwrite" has no effect when outputting to stdout.'));
         }
 
         if (!$is_overwrite) {
             if (!$is_stdout && Filesystem::pathExists($output_path)) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Output path already exists. Use "--overwrite" to overwrite ' .
                         'it.'));
             }
@@ -162,8 +183,8 @@ final class PhabricatorBulkManagementExportWorkflow
 
         $export_engine = (new PhabricatorExportEngine())
             ->setViewer($viewer)
-            ->setTitle(\Yii::t("app", 'Export'))
-            ->setFilename(\Yii::t("app", 'export'))
+            ->setTitle(Yii::t("app", 'Export'))
+            ->setFilename(Yii::t("app", 'export'))
             ->setSearchEngine($engine)
             ->setSavedQuery($saved_query)
             ->setExportFormat($format);
@@ -183,9 +204,11 @@ final class PhabricatorBulkManagementExportWorkflow
 
             echo tsprintf(
                 "%s\n",
-                \Yii::t("app",
-                    'Exported data to "%s".',
-                    Filesystem::readablePath($output_path)));
+                Yii::t("app",
+                    'Exported data to "{0}".',
+                    [
+                        Filesystem::readablePath($output_path)
+                    ]));
         } else {
             foreach ($iterator as $chunk) {
                 echo $chunk;
@@ -199,8 +222,10 @@ final class PhabricatorBulkManagementExportWorkflow
      * @param PhutilArgumentParser $args
      * @return array
      * @throws PhutilArgumentUsageException
-     * @throws \PhutilArgumentSpecificationException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilArgumentSpecificationException
+     * @throws PhutilInvalidStateException
+     * @throws InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     private function newQueries(PhutilArgumentParser $args)
@@ -210,11 +235,12 @@ final class PhabricatorBulkManagementExportWorkflow
         $query_keys = $args->getArg('query');
         if (!$query_keys) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",
+                Yii::t("app",
                     'Specify one or more queries to export with "--query".'));
         }
 
         $engine_classes = (new PhutilClassMapQuery())
+            ->setUniqueMethod('getClassShortName')
             ->setAncestorClass(PhabricatorApplicationSearchEngine::class)
             ->execute();
 
@@ -249,17 +275,21 @@ final class PhabricatorBulkManagementExportWorkflow
 
             if (!$matches) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app",
-                        'No search engines match "%s". Available engines which support ' .
-                        'data export are: %s.',
-                        $class,
-                        $class_list));
+                    Yii::t("app",
+                        'No search engines match "{0}". Available engines which support ' .
+                        'data export are: {1}.',
+                        [
+                            $class,
+                            $class_list
+                        ]));
             } else if (count($matches) > 1) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app",
-                        'Multiple search engines match "%s": %s.',
-                        $class,
-                        implode(', ', $matches)));
+                    Yii::t("app",
+                        'Multiple search engines match "{0}": {1}.',
+                        [
+                            $class,
+                            implode(', ', $matches)
+                        ]));
             } else {
                 $class = head($matches);
             }
@@ -287,16 +317,20 @@ final class PhabricatorBulkManagementExportWorkflow
             if (!$saved_query) {
                 if (!$engine) {
                     throw new PhutilArgumentUsageException(
-                        \Yii::t("app",
-                            'Query "%s" is unknown. To run a builtin query like "all" or ' .
+                        Yii::t("app",
+                            'Query "{0}" is unknown. To run a builtin query like "all" or ' .
                             '"active", also specify the search engine with "--class".',
-                            $query_key));
+                            [
+                                $query_key
+                            ]));
                 } else {
                     throw new PhutilArgumentUsageException(
-                        \Yii::t("app",
-                            'Query "%s" is not a recognized query for class "%s".',
-                            $query_key,
-                            get_class($engine)));
+                        Yii::t("app",
+                            'Query "{0}" is not a recognized query for class "{1}".',
+                            [
+                                $query_key,
+                                get_class($engine)
+                            ]));
                 }
             }
 
@@ -307,7 +341,7 @@ final class PhabricatorBulkManagementExportWorkflow
         // class of the first query.
         if (!$engine) {
             foreach ($queries as $query) {
-                $engine = newv($query->getEngineClassName(), array())
+                $engine = newv(get_class($engine_classes[$query->getEngineClassName()]), array())
                     ->setViewer($viewer);
                 break;
             }
@@ -316,24 +350,28 @@ final class PhabricatorBulkManagementExportWorkflow
         $engine_class = get_class($engine);
 
         foreach ($queries as $query) {
-            $query_class = $query->getEngineClassName();
+            $query_class = get_class($engine_classes[$query->getEngineClassName()]);
             if ($query_class !== $engine_class) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app",
-                        'Specified queries use different engines: query "%s" uses ' .
-                        'engine "%s", not "%s". All queries must run on the same ' .
+                    Yii::t("app",
+                        'Specified queries use different engines: query "{0}" uses ' .
+                        'engine "{1}", not "{2}". All queries must run on the same ' .
                         'engine.',
-                        $query->getQueryKey(),
-                        $query_class,
-                        $engine_class));
+                        [
+                            $query->getQueryKey(),
+                            $query_class,
+                            $engine_class
+                        ]));
             }
         }
 
         if (!$engine->canExport()) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",
-                    'SearchEngine class ("%s") does not support data export.',
-                    $engine_class));
+                Yii::t("app",
+                    'SearchEngine class ("{0}") does not support data export.',
+                    [
+                        $engine_class
+                    ]));
         }
 
         return array($engine, $queries);
@@ -343,9 +381,10 @@ final class PhabricatorBulkManagementExportWorkflow
      * @param PhabricatorApplicationSearchEngine $engine
      * @param array $queries
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws \Exception
      * @author 陈妙威
      */
     private function newUnionQuery(
@@ -386,7 +425,8 @@ final class PhabricatorBulkManagementExportWorkflow
         // to retain orders if the queries had different orders in the first place.
         rsort($ids);
 
-        return id($engine->newSavedQuery())
+        $phabricatorSavedQuery = $engine->newSavedQuery();
+        return $phabricatorSavedQuery
             ->setParameter('ids', $ids);
     }
 

@@ -3,27 +3,25 @@
 namespace orangins\modules\metamta\adapters;
 
 use orangins\lib\env\PhabricatorEnv;
-use PHPMailer;
+use PHPMailerLite;
 use PhutilTypeSpec;
 
 /**
- * Class PhabricatorMailImplementationPHPMailerAdapter
- * @package orangins\modules\metamta\adapters
- * @author 陈妙威
+ * TODO: Should be final, but inherited by SES.
  */
-final class PhabricatorMailImplementationPHPMailerAdapter
-    extends PhabricatorMailImplementationAdapter
+class PhabricatorMailPHPMailerLiteAdapter
+    extends PhabricatorMailAdapter
 {
 
     /**
      *
      */
-    const ADAPTERTYPE = 'smtp';
+    const ADAPTERTYPE = 'sendmail';
 
     /**
-     * @var PHPMailer
+     * @var
      */
-    private $mailer;
+    protected $mailer;
 
     /**
      * @param array $options
@@ -37,13 +35,7 @@ final class PhabricatorMailImplementationPHPMailerAdapter
         PhutilTypeSpec::checkMap(
             $options,
             array(
-                'host' => 'string|null',
-                'port' => 'int',
-                'user' => 'string|null',
-                'password' => 'string|null',
-                'protocol' => 'string|null',
                 'encoding' => 'string',
-                'mailer' => 'string',
             ));
     }
 
@@ -54,76 +46,39 @@ final class PhabricatorMailImplementationPHPMailerAdapter
     public function newDefaultOptions()
     {
         return array(
-            'host' => null,
-            'port' => 25,
-            'user' => null,
-            'password' => null,
-            'protocol' => null,
             'encoding' => 'base64',
-            'mailer' => 'smtp',
         );
     }
 
     /**
      * @return array|mixed
+     * @throws \Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function newLegacyOptions()
     {
         return array(
-            'host' => PhabricatorEnv::getEnvConfig('phpmailer.smtp-host'),
-            'port' => PhabricatorEnv::getEnvConfig('phpmailer.smtp-port'),
-            'user' => PhabricatorEnv::getEnvConfig('phpmailer.smtp-user'),
-            'password' => PhabricatorEnv::getEnvConfig('phpmailer.smtp-password'),
-            'protocol' => PhabricatorEnv::getEnvConfig('phpmailer.smtp-protocol'),
             'encoding' => PhabricatorEnv::getEnvConfig('phpmailer.smtp-encoding'),
-            'mailer' => PhabricatorEnv::getEnvConfig('phpmailer.mailer'),
         );
     }
 
     /**
-     * @phutil-external-symbol class PHPMailer
-     * @throws \yii\base\Exception
+     * @phutil-external-symbol class PHPMailerLite
      */
     public function prepareForSend()
     {
         $root = phutil_get_library_root('orangins');
-        require_once $root . '/../externals/phpmailer/class.phpmailer.php';
-        $this->mailer = new PHPMailer($use_exceptions = true);
+        require_once $root . '/../externals/phpmailer/class.phpmailer-lite.php';
+        $this->mailer = new PHPMailerLite($use_exceptions = true);
         $this->mailer->CharSet = 'utf-8';
 
         $encoding = $this->getOption('encoding');
         $this->mailer->Encoding = $encoding;
 
-        // By default, PHPMailer sends one mail per recipient. We handle
+        // By default, PHPMailerLite sends one mail per recipient. We handle
         // combining or separating To and Cc higher in the stack, so tell it to
         // send mail exactly like we ask.
         $this->mailer->SingleTo = false;
-
-        $mailer = $this->getOption('mailer');
-        if ($mailer == 'smtp') {
-            $this->mailer->IsSMTP();
-            $this->mailer->Host = $this->getOption('host');
-            $this->mailer->Port = $this->getOption('port');
-            $user = $this->getOption('user');
-            if ($user) {
-                $this->mailer->SMTPAuth = true;
-                $this->mailer->Username = $user;
-                $this->mailer->Password = $this->getOption('password');
-            }
-
-            $protocol = $this->getOption('protocol');
-            if ($protocol) {
-                $protocol = phutil_utf8_strtolower($protocol);
-                $this->mailer->SMTPSecure = $protocol;
-            }
-        } else if ($mailer == 'sendmail') {
-            $this->mailer->IsSendmail();
-        } else {
-            // Do nothing, by default PHPMailer send message using PHP mail()
-            // function.
-        }
     }
 
     /**
@@ -140,7 +95,6 @@ final class PhabricatorMailImplementationPHPMailerAdapter
      * @param string $name
      * @return $this|mixed
      * @author 陈妙威
-     * @throws \phpmailerException
      */
     public function setFrom($email, $name = '')
     {
@@ -226,20 +180,22 @@ final class PhabricatorMailImplementationPHPMailerAdapter
      */
     public function setBody($body)
     {
-        $this->mailer->IsHTML(false);
         $this->mailer->Body = $body;
+        $this->mailer->IsHTML(false);
         return $this;
     }
 
+
     /**
-     * @param $html_body
-     * @return $this|mixed
-     * @author 陈妙威
+     * Note: phpmailer-lite does NOT support sending messages with mixed version
+     * (plaintext and html). So for now lets just use HTML if it's available.
+     * @param $html
+     * @return PhabricatorMailPHPMailerLiteAdapter
      */
     public function setHTMLBody($html_body)
     {
-        $this->mailer->IsHTML(true);
         $this->mailer->Body = $html_body;
+        $this->mailer->IsHTML(true);
         return $this;
     }
 
@@ -266,7 +222,6 @@ final class PhabricatorMailImplementationPHPMailerAdapter
     /**
      * @return bool
      * @author 陈妙威
-     * @throws \phpmailerException
      */
     public function send()
     {

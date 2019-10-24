@@ -8,6 +8,7 @@ use orangins\modules\people\models\PhabricatorUser;
 use PhutilArgumentParser;
 use PhutilArgumentUsageException;
 use PhutilJSON;
+use Yii;
 
 /**
  * Class PhabricatorConduitCallManagementWorkflow
@@ -26,25 +27,25 @@ final class PhabricatorConduitCallManagementWorkflow
     {
         $this
             ->setName('call')
-            ->setSynopsis(\Yii::t("app",'Call a Conduit method..'))
+            ->setSynopsis(Yii::t("app",'Call a Conduit method..'))
             ->setArguments(
                 array(
                     array(
                         'name' => 'method',
                         'param' => 'method',
-                        'help' => \Yii::t("app",'Method to call.'),
+                        'help' => Yii::t("app",'Method to call.'),
                     ),
                     array(
                         'name' => 'input',
                         'param' => 'input',
-                        'help' => \Yii::t("app",
+                        'help' => Yii::t("app",
                             'File to read parameters from, or "-" to read from ' .
                             'stdin.'),
                     ),
                     array(
                         'name' => 'as',
                         'param' => 'username',
-                        'help' => \Yii::t("app",
+                        'help' => Yii::t("app",
                             'Execute the call as the given user. (If omitted, the call will ' .
                             'be executed as an omnipotent user.)'),
                     ),
@@ -70,13 +71,13 @@ final class PhabricatorConduitCallManagementWorkflow
         $method = $args->getArg('method');
         if (!strlen($method)) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",'Specify a method to call with "--method".'));
+                Yii::t("app",'Specify a method to call with "--method".'));
         }
 
         $input = $args->getArg('input');
         if (!strlen($input)) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app",'Specify a file to read parameters from with "--input".'));
+                Yii::t("app",'Specify a file to read parameters from with "--input".'));
         }
 
         $as = $args->getArg('as');
@@ -87,7 +88,7 @@ final class PhabricatorConduitCallManagementWorkflow
                 ->executeOne();
             if (!$actor) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'No such user "%s" exists.',
                         $as));
             }
@@ -96,7 +97,7 @@ final class PhabricatorConduitCallManagementWorkflow
         }
 
         if ($input === '-') {
-            fprintf(STDERR, tsprintf("%s\n", \Yii::t("app",'Reading input from stdin...')));
+            fprintf(STDERR, tsprintf("%s\n", Yii::t("app",'Reading input from stdin...')));
             $input_json = file_get_contents('php://stdin');
         } else {
             $input_json = Filesystem::readFile($input);

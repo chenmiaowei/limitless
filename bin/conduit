@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../scripts/init/init-script.php';
+
+$args = new PhutilArgumentParser($argv);
+$args->setTagline(pht('manage Conduit'));
+$args->setSynopsis(<<<EOSYNOPSIS
+**conduit** __command__ [__options__]
+    Manage Conduit.
+
+EOSYNOPSIS
+  );
+$args->parseStandardArguments();
+
+$workflows = id(new PhutilClassMapQuery())
+  ->setAncestorClass(\orangins\modules\conduit\management\PhabricatorConduitManagementWorkflow::class)
+  ->execute();
+$workflows[] = new PhutilHelpArgumentWorkflow();
+$args->parseWorkflows($workflows);

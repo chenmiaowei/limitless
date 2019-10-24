@@ -199,7 +199,7 @@ class PhabricatorMetaMTAReceivedMail extends ActiveRecord
     }
 
     /**
-     * @param string $bodies
+     * @param mixed $bodies
      * @return self
      * @throws Exception
      */

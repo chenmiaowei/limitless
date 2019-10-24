@@ -11,8 +11,8 @@ use SimpleEmailService;
  * @package orangins\modules\metamta\adapters
  * @author 陈妙威
  */
-final class PhabricatorMailImplementationAmazonSESAdapter
-    extends PhabricatorMailImplementationPHPMailerLiteAdapter
+final class PhabricatorMailAmazonSESAdapter
+    extends PhabricatorMailPHPMailerLiteAdapter
 {
 
     /**

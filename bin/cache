@@ -1,9 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-use orangins\modules\people\models\PhabricatorUser;
-use orangins\modules\phid\query\PhabricatorObjectQuery;
-
 require_once __DIR__ . '/../scripts/__init_script__.php';
 
 

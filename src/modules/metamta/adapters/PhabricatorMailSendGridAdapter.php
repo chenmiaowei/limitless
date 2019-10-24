@@ -13,8 +13,8 @@ use yii\helpers\ArrayHelper;
 /**
  * Mail adapter that uses SendGrid's web API to deliver email.
  */
-final class PhabricatorMailImplementationSendGridAdapter
-    extends PhabricatorMailImplementationAdapter
+final class PhabricatorMailSendGridAdapter
+    extends PhabricatorMailAdapter
 {
 
     /**
