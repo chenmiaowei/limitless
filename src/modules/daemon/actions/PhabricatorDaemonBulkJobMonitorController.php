@@ -12,6 +12,7 @@ use orangins\lib\response\AphrontRedirectResponse;
 use orangins\modules\daemon\assets\JavelinBulkJobReloadBehaviorAsset;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -61,7 +62,7 @@ final class PhabricatorDaemonBulkJobMonitorController
             }
         }
 
-        $title = \Yii::t("app", 'Bulk Job {0}', [$job->getID()]);
+        $title = Yii::t("app", 'Bulk Job {0}', [$job->getID()]);
 
         if ($job->getStatus() == PhabricatorWorkerBulkJob::STATUS_CONFIRM) {
             $can_edit = PhabricatorPolicyFilter::hasCapability(
@@ -88,7 +89,7 @@ final class PhabricatorDaemonBulkJobMonitorController
                         ->setURI($job->getMonitorURI());
                 } else {
                     $dialog = $this->newDialog()
-                        ->setTitle(\Yii::t("app", 'Confirm Bulk Job'));
+                        ->setTitle(Yii::t("app", 'Confirm Bulk Job'));
 
                     $confirm = $job->getDescriptionForConfirm();
                     $confirm = (array)$confirm;
@@ -98,39 +99,39 @@ final class PhabricatorDaemonBulkJobMonitorController
 
                     $dialog
                         ->appendParagraph(
-                            \Yii::t("app", 'Start work on this bulk job?'))
-                        ->addCancelButton($job->getManageURI(), \Yii::t("app", 'Details'))
-                        ->addSubmitButton(\Yii::t("app", 'Start Work'));
+                            Yii::t("app", 'Start work on this bulk job?'))
+                        ->addCancelButton($job->getManageURI(), Yii::t("app", 'Details'))
+                        ->addSubmitButton(Yii::t("app", 'Start Work'));
 
                     return $dialog;
                 }
             } else {
                 return $this->newDialog()
-                    ->setTitle(\Yii::t("app", 'Waiting For Confirmation'))
+                    ->setTitle(Yii::t("app", 'Waiting For Confirmation'))
                     ->appendParagraph(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'This job is waiting for confirmation before work begins.'))
-                    ->addCancelButton($job->getManageURI(), \Yii::t("app", 'Details'));
+                    ->addCancelButton($job->getManageURI(), Yii::t("app", 'Details'));
             }
         }
 
 
         $dialog = $this->newDialog()
-            ->setTitle(\Yii::t("app", '{0}: {1}', [$title, $job->getStatusName()]))
-            ->addCancelButton($job->getManageURI(), \Yii::t("app", 'Details'));
+            ->setTitle(Yii::t("app", '{0}: {1}', [$title, $job->getStatusName()]))
+            ->addCancelButton($job->getManageURI(), Yii::t("app", 'Details'));
 
         switch ($job->getStatus()) {
             case PhabricatorWorkerBulkJob::STATUS_WAITING:
                 $dialog->appendParagraph(
-                    \Yii::t("app", 'This job is waiting for tasks to be queued.'));
+                    Yii::t("app", 'This job is waiting for tasks to be queued.'));
                 break;
             case PhabricatorWorkerBulkJob::STATUS_RUNNING:
                 $dialog->appendParagraph(
-                    \Yii::t("app", 'This job is running.'));
+                    Yii::t("app", 'This job is running.'));
                 break;
             case PhabricatorWorkerBulkJob::STATUS_COMPLETE:
                 $dialog->appendParagraph(
-                    \Yii::t("app", 'This job is complete.'));
+                    Yii::t("app", 'This job is complete.'));
                 break;
         }
 
@@ -142,7 +143,7 @@ final class PhabricatorDaemonBulkJobMonitorController
         switch ($job->getStatus()) {
             case PhabricatorWorkerBulkJob::STATUS_COMPLETE:
                 $dialog->addHiddenInput('done', true);
-                $dialog->addSubmitButton(\Yii::t("app", 'Continue'));
+                $dialog->addSubmitButton(Yii::t("app", 'Continue'));
                 break;
             default:
                 JavelinHtml::initBehavior(new JavelinBulkJobReloadBehaviorAsset());

@@ -5,6 +5,7 @@ namespace orangins\lib\infrastructure\daemon\workers\management;
 use orangins\lib\time\PhabricatorTime;
 use PhutilArgumentParser;
 use PhutilConsole;
+use Yii;
 
 /**
  * Class PhabricatorWorkerManagementFreeWorkflow
@@ -25,7 +26,7 @@ final class PhabricatorWorkerManagementFreeWorkflow
             ->setName('free')
             ->setExamples('**free** --id __id__')
             ->setSynopsis(
-                \Yii::t("app",
+                Yii::t("app",
                     'Free leases on selected tasks. If the daemon holding the lease is ' .
                     'still working on the task, this may cause the task to execute ' .
                     'twice.'))
@@ -50,8 +51,8 @@ final class PhabricatorWorkerManagementFreeWorkflow
             if ($task->isArchived()) {
                 $console->writeOut(
                     "**<bg:yellow> %s </bg>** %s\n",
-                    \Yii::t("app", 'ARCHIVED'),
-                    \Yii::t("app",
+                    Yii::t("app", 'ARCHIVED'),
+                    Yii::t("app",
                         '{0} is archived; archived tasks do not have leases.',
                         [
                             $this->describeTask($task)
@@ -62,8 +63,8 @@ final class PhabricatorWorkerManagementFreeWorkflow
             if ($task->getLeaseOwner() === null) {
                 $console->writeOut(
                     "**<bg:yellow> %s </bg>** %s\n",
-                    \Yii::t("app", 'FREE'),
-                    \Yii::t("app",
+                    Yii::t("app", 'FREE'),
+                    Yii::t("app",
                         '{0} has no active lease.',
                         [
                             $this->describeTask($task)
@@ -77,8 +78,8 @@ final class PhabricatorWorkerManagementFreeWorkflow
 
             $console->writeOut(
                 "**<bg:green> %s </bg>** %s\n",
-                \Yii::t("app", 'LEASE FREED'),
-                \Yii::t("app",
+                Yii::t("app", 'LEASE FREED'),
+                Yii::t("app",
                     '{0} was freed from its lease.',
                     [
                         $this->describeTask($task)

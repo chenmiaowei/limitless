@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../scripts/__init_script__.php';
+
+$args = new PhutilArgumentParser($argv);
+$args->setTagline(pht('manage task queue'));
+$args->setSynopsis(<<<EOSYNOPSIS
+**worker** __command__ [__options__]
+    Manage the task queue.
+
+EOSYNOPSIS
+  );
+$args->parseStandardArguments();
+
+$workflows = id(new PhutilClassMapQuery())
+  ->setAncestorClass(\orangins\lib\infrastructure\daemon\workers\management\PhabricatorWorkerManagementWorkflow::class)
+  ->execute();
+$workflows[] = new PhutilHelpArgumentWorkflow();
+$args->parseWorkflows($workflows);

@@ -2,9 +2,15 @@
 
 namespace orangins\lib\infrastructure\daemon\workers\storage;
 
+use Exception;
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\lib\infrastructure\daemon\workers\phid\PhabricatorWorkerBulkJobPHIDType;
 use orangins\lib\infrastructure\daemon\workers\query\PhabricatorWorkerBulkJobTransactionQuery;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilJSONParserException;
+use ReflectionException;
+use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * Class PhabricatorWorkerBulkJobTransaction
@@ -48,11 +54,12 @@ final class PhabricatorWorkerBulkJobTransaction
 
     /**
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException*@throws \Exception
+     * @throws InvalidConfigException*@throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function getTitle()
@@ -66,7 +73,7 @@ final class PhabricatorWorkerBulkJobTransaction
         switch ($type) {
             case self::TYPE_STATUS:
                 if ($old === null) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} created this bulk job.',
                         [
                             $this->renderHandleLink($author_phid)
@@ -74,19 +81,19 @@ final class PhabricatorWorkerBulkJobTransaction
                 } else {
                     switch ($new) {
                         case PhabricatorWorkerBulkJob::STATUS_WAITING:
-                            return \Yii::t("app",
+                            return Yii::t("app",
                                 '{0} confirmed this job.',
                                [
                                    $this->renderHandleLink($author_phid)
                                ]);
                         case PhabricatorWorkerBulkJob::STATUS_RUNNING:
-                            return \Yii::t("app",
+                            return Yii::t("app",
                                 '{0} marked this job as running.',
                                 [
                                     $this->renderHandleLink($author_phid)
                                 ]);
                         case PhabricatorWorkerBulkJob::STATUS_COMPLETE:
-                            return \Yii::t("app",
+                            return Yii::t("app",
                                 '{0} marked this job complete.',
                                [
                                    $this->renderHandleLink($author_phid)

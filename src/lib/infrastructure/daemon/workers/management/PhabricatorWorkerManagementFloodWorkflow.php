@@ -5,6 +5,7 @@ namespace orangins\lib\infrastructure\daemon\workers\management;
 use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use PhutilArgumentParser;
 use PhutilConsole;
+use Yii;
 
 /**
  * Class PhabricatorWorkerManagementFloodWorkflow
@@ -25,7 +26,7 @@ final class PhabricatorWorkerManagementFloodWorkflow
             ->setName('flood')
             ->setExamples('**flood**')
             ->setSynopsis(
-                \Yii::t("app",
+                Yii::t("app",
                     'Flood the queue with test tasks. This command is intended for ' .
                     'use when developing and debugging Phabricator.'))
             ->setArguments(
@@ -33,7 +34,7 @@ final class PhabricatorWorkerManagementFloodWorkflow
                     array(
                         'name' => 'duration',
                         'param' => 'seconds',
-                        'help' => \Yii::t("app",
+                        'help' => Yii::t("app",
                             'Queue tasks which require a specific amount of wall time to ' .
                             'complete. By default, tasks complete as quickly as possible.'),
                         'default' => 0,
@@ -47,8 +48,7 @@ final class PhabricatorWorkerManagementFloodWorkflow
      * @throws \PhutilArgumentSpecificationException
      * @throws \PhutilTypeExtraParametersException
      * @throws \PhutilTypeMissingParametersException
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
+     * @throws \Throwable
      * @throws \yii\db\IntegrityException
      * @author 陈妙威
      */
@@ -60,7 +60,7 @@ final class PhabricatorWorkerManagementFloodWorkflow
 
         $console->writeOut(
             "%s\n",
-            \Yii::t("app", 'Adding many test tasks to worker queue. Use ^C to exit.'));
+            Yii::t("app", 'Adding many test tasks to worker queue. Use ^C to exit.'));
 
         $n = 0;
         while (true) {

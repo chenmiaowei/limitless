@@ -660,6 +660,8 @@ class PhabricatorUser extends ActiveRecordPHID
         return $this->profile_image_phid;
     }
 
+
+
     /**
      * @return PhabricatorAuthSession
      * @throws PhabricatorDataNotAttachedException
@@ -1488,6 +1490,15 @@ class PhabricatorUser extends ActiveRecordPHID
         $this->default_profile_image_version = $default_profile_image_version;
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getDefaultProfileImageVersion()
+    {
+        return $this->default_profile_image_version;
+    }
+
 
     /**
      * @return bool

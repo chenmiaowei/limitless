@@ -2,6 +2,7 @@
 
 namespace orangins\modules\search\management;
 
+use orangins\modules\search\ferret\PhabricatorFerretInterface;
 use PhutilArgumentParser;
 use PhutilArgumentUsageException;
 use PhutilClassMapQuery;
@@ -48,6 +49,7 @@ final class PhabricatorSearchManagementNgramsWorkflow
      * @throws PhutilArgumentUsageException
      * @throws \AphrontCountQueryException
      * @throws \PhutilArgumentSpecificationException
+     * @throws \PhutilInvalidStateException
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)
@@ -81,7 +83,7 @@ final class PhabricatorSearchManagementNgramsWorkflow
         }
 
         $all_objects = (new PhutilClassMapQuery())
-            ->setAncestorClass('PhabricatorFerretInterface')
+            ->setAncestorClass(PhabricatorFerretInterface::class)
             ->execute();
 
         foreach ($all_objects as $object) {

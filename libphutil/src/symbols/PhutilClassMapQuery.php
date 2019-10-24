@@ -166,12 +166,13 @@ final class PhutilClassMapQuery extends Phobject {
 /* -(  Executing the Query  )------------------------------------------------ */
 
 
-  /**
-   * Execute the query as configured.
-   *
-   * @return array<string, object> Realized class map.
-   * @task exec
-   */
+    /**
+     * Execute the query as configured.
+     *
+     * @return array<string, object> Realized class map.
+     * @throws PhutilInvalidStateException
+     * @task exec
+     */
   public function execute() {
     $cache_key = $this->getCacheKey();
 
@@ -194,14 +195,16 @@ final class PhutilClassMapQuery extends Phobject {
   }
 
 
-  /**
-   * Generate the core query results.
-   *
-   * This method is used to fill the cache.
-   *
-   * @return array<string, object> Realized class map.
-   * @task exec
-   */
+    /**
+     * Generate the core query results.
+     *
+     * This method is used to fill the cache.
+     *
+     * @return array<string, object> Realized class map.
+     * @throws PhutilInvalidStateException
+     * @throws Exception
+     * @task exec
+     */
   private function loadMap() {
     $ancestor = $this->ancestorClass;
     if (!strlen($ancestor)) {

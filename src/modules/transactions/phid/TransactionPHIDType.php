@@ -78,7 +78,9 @@ final class TransactionPHIDType extends PhabricatorPHIDType
     /**
      * @param PhabricatorObjectQuery $object_query
      * @param array $phids
-     * @return array|\dict|null
+     * @return array
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
      * @author 陈妙威
      */
     public function loadObjects(

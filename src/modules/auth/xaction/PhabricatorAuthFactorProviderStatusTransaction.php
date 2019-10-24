@@ -2,6 +2,9 @@
 
 namespace orangins\modules\auth\xaction;
 
+use orangins\modules\auth\constants\PhabricatorAuthFactorProviderStatus;
+use orangins\modules\people\models\PhabricatorUser;
+
 /**
  * Class PhabricatorAuthFactorProviderStatusTransaction
  * @package orangins\modules\auth\xaction

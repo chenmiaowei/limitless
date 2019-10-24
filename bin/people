@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../scripts/__init_script__.php';
+
+$args = new PhutilArgumentParser($argv);
+$args->setSynopsis(<<<EOSYNOPSIS
+**people** __command__ [__options__]
+    Manage user profiles and accounts.
+
+EOSYNOPSIS
+  );
+$args->parseStandardArguments();
+
+$workflows = id(new PhutilClassMapQuery())
+  ->setAncestorClass(\orangins\modules\people\management\PhabricatorPeopleManagementWorkflow::class)
+  ->execute();
+$workflows[] = new PhutilHelpArgumentWorkflow();
+$args->parseWorkflows($workflows);

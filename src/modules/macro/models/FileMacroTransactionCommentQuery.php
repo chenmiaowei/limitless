@@ -1,13 +1,13 @@
 <?php
 
-namespace orangins\modules\file\models;
+namespace orangins\modules\macro\models;
 
 /**
- * This is the ActiveQuery class for [[FileImagemacro]].
+ * This is the ActiveQuery class for [[FileMacroTransactionComment]].
  *
- * @see FileImagemacro
+ * @see FileMacroTransactionComment
  */
-class FileImagemacroQuery extends \yii\db\ActiveQuery
+class FileMacroTransactionCommentQuery extends \yii\db\ActiveQuery
 {
     /*public function active()
     {
@@ -16,7 +16,7 @@ class FileImagemacroQuery extends \yii\db\ActiveQuery
 
     /**
      * {@inheritdoc}
-     * @return FileImagemacro[]|array
+     * @return FileMacroTransactionComment[]|array
      */
     public function all($db = null)
     {
@@ -25,7 +25,7 @@ class FileImagemacroQuery extends \yii\db\ActiveQuery
 
     /**
      * {@inheritdoc}
-     * @return FileImagemacro|array|null
+     * @return FileMacroTransactionComment|array|null
      */
     public function one($db = null)
     {

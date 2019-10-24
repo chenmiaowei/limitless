@@ -1,7 +1,8 @@
 <?php
 
-namespace orangins\modules\file\models;
+namespace orangins\modules\macro\models;
 
+use orangins\lib\db\ActiveRecordPHID;
 use Yii;
 
 /**
@@ -19,7 +20,7 @@ use Yii;
  * @property string $created_at
  * @property string $updated_at
  */
-class FileImagemacro extends \yii\db\ActiveRecord
+class PhabricatorFileImageMacro extends ActiveRecordPHID
 {
     /**
      * {@inheritdoc}
@@ -73,5 +74,15 @@ class FileImagemacro extends \yii\db\ActiveRecord
     public static function find()
     {
         return new FileImagemacroQuery(get_called_class());
+    }
+
+    /**
+     * PHIDType class name
+     * @return string
+     * @author 陈妙威
+     */
+    public function getPHIDTypeClassName()
+    {
+        // TODO: Implement getPHIDTypeClassName() method.
     }
 }

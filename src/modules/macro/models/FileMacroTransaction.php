@@ -1,6 +1,6 @@
 <?php
 
-namespace orangins\modules\file\models;
+namespace orangins\modules\macro\models;
 
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use Yii;
@@ -56,5 +56,14 @@ class FileMacroTransaction extends PhabricatorApplicationTransaction
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
+    }
+
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
+    public function getApplicationTransactionType()
+    {
+        // TODO: Implement getApplicationTransactionType() method.
     }
 }

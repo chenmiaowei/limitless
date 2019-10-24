@@ -6,6 +6,7 @@ use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerTrigger;
 use orangins\lib\infrastructure\management\PhabricatorManagementWorkflow;
 use PhutilArgumentParser;
 use PhutilArgumentUsageException;
+use Yii;
 
 /**
  * Class PhabricatorWorkerTriggerManagementWorkflow
@@ -27,7 +28,7 @@ abstract class PhabricatorWorkerTriggerManagementWorkflow
                 'name' => 'id',
                 'param' => 'id',
                 'repeat' => true,
-                'help' => \Yii::t("app", 'Select one or more triggers by ID.'),
+                'help' => Yii::t("app", 'Select one or more triggers by ID.'),
             ),
         );
     }
@@ -46,7 +47,7 @@ abstract class PhabricatorWorkerTriggerManagementWorkflow
         $ids = $args->getArg('id');
         if (!$ids) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app", 'Use {0} to select triggers by ID.', [
+                Yii::t("app", 'Use {0} to select triggers by ID.', [
                     '--id'
                 ]));
         }
@@ -61,7 +62,7 @@ abstract class PhabricatorWorkerTriggerManagementWorkflow
         foreach ($ids as $id) {
             if (empty($triggers[$id])) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app", 'No trigger exists with id "{0}"!', [
+                    Yii::t("app", 'No trigger exists with id "{0}"!', [
                         $id
                     ]));
             }
@@ -77,7 +78,7 @@ abstract class PhabricatorWorkerTriggerManagementWorkflow
      */
     protected function describeTrigger(PhabricatorWorkerTrigger $trigger)
     {
-        return \Yii::t("app", 'Trigger %d', $trigger->getID());
+        return Yii::t("app", 'Trigger %d', $trigger->getID());
     }
 
 }

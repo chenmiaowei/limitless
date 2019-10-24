@@ -1,6 +1,6 @@
 <?php
 
-namespace orangins\modules\file\models;
+namespace orangins\modules\macro\models;
 
 use Yii;
 

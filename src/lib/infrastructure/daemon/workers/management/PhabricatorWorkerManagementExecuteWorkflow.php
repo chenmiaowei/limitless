@@ -2,10 +2,12 @@
 
 namespace orangins\lib\infrastructure\daemon\workers\management;
 
+use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerActiveTask;
 use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerTaskData;
 use orangins\lib\time\PhabricatorTime;
 use PhutilArgumentParser;
 use PhutilConsole;
+use Yii;
 
 /**
  * Class PhabricatorWorkerManagementExecuteWorkflow
@@ -26,7 +28,7 @@ final class PhabricatorWorkerManagementExecuteWorkflow
             ->setName('execute')
             ->setExamples('**execute** --id __id__')
             ->setSynopsis(
-                \Yii::t("app",
+                Yii::t("app",
                     'Execute a task explicitly. This command ignores leases, is ' .
                     'dangerous, and may cause work to be performed twice.'))
             ->setArguments($this->getTaskSelectionArguments());
@@ -35,15 +37,16 @@ final class PhabricatorWorkerManagementExecuteWorkflow
     /**
      * @param PhutilArgumentParser $args
      * @return int|void
-     * @throws \AphrontQueryException
      * @throws \PhutilArgumentSpecificationException
      * @throws \PhutilArgumentUsageException
-     * @throws \yii\db\IntegrityException
+     * @throws \Throwable
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)
     {
         $console = PhutilConsole::getConsole();
+
+        /** @var PhabricatorWorkerActiveTask[] $tasks */
         $tasks = $this->loadTasks($args);
 
         foreach ($tasks as $task) {
@@ -51,8 +54,8 @@ final class PhabricatorWorkerManagementExecuteWorkflow
             if (!$can_execute) {
                 $console->writeOut(
                     "**<bg:yellow> %s </bg>** %s\n",
-                    \Yii::t("app", 'ARCHIVED'),
-                    \Yii::t("app",
+                    Yii::t("app", 'ARCHIVED'),
+                    Yii::t("app",
                         '{0} is already archived, and can not be executed.',
                         [
                             $this->describeTask($task)
@@ -74,7 +77,7 @@ final class PhabricatorWorkerManagementExecuteWorkflow
 
             echo tsprintf(
                 "%s\n",
-                \Yii::t("app",
+                Yii::t("app",
                     'Executing task {0} ({1})...',
                     [
                         $task->getID(),

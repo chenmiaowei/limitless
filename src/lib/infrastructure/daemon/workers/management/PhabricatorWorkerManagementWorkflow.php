@@ -9,6 +9,7 @@ use orangins\lib\infrastructure\management\PhabricatorManagementWorkflow;
 use orangins\lib\time\PhabricatorTime;
 use PhutilArgumentParser;
 use PhutilArgumentUsageException;
+use Yii;
 
 /**
  * Class PhabricatorWorkerManagementWorkflow
@@ -30,17 +31,17 @@ abstract class PhabricatorWorkerManagementWorkflow
                 'name' => 'id',
                 'param' => 'id',
                 'repeat' => true,
-                'help' => \Yii::t("app", 'Select one or more tasks by ID.'),
+                'help' => Yii::t("app", 'Select one or more tasks by ID.'),
             ),
             array(
                 'name' => 'class',
                 'param' => 'name',
-                'help' => \Yii::t("app", 'Select all tasks of a given class.'),
+                'help' => Yii::t("app", 'Select all tasks of a given class.'),
             ),
             array(
                 'name' => 'min-failure-count',
                 'param' => 'int',
-                'help' => \Yii::t("app", 'Limit to tasks with at least this many failures.'),
+                'help' => Yii::t("app", 'Limit to tasks with at least this many failures.'),
             ),
         );
     }
@@ -60,7 +61,7 @@ abstract class PhabricatorWorkerManagementWorkflow
 
         if (!$ids && !$class && !$min_failures) {
             throw new PhutilArgumentUsageException(
-                \Yii::t("app", 'Use --id, --class, or --min-failure-count to select tasks.'));
+                Yii::t("app", 'Use --id, --class, or --min-failure-count to select tasks.'));
         }
 
         $active_query = PhabricatorWorkerActiveTask::find();
@@ -94,7 +95,7 @@ abstract class PhabricatorWorkerManagementWorkflow
             foreach ($ids as $id) {
                 if (empty($tasks[$id])) {
                     throw new PhutilArgumentUsageException(
-                        \Yii::t("app", 'No task exists with id "{0}"!', [
+                        Yii::t("app", 'No task exists with id "{0}"!', [
                             $id
                         ]));
                 }
@@ -103,7 +104,7 @@ abstract class PhabricatorWorkerManagementWorkflow
         if ($class && $min_failures) {
             if (!$tasks) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app", 'No task exists with class "{0}" and at least {1} failures!',
+                    Yii::t("app", 'No task exists with class "{0}" and at least {1} failures!',
                         [
                             $class,
                             $min_failures
@@ -112,14 +113,14 @@ abstract class PhabricatorWorkerManagementWorkflow
         } else if ($class) {
             if (!$tasks) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app", 'No task exists with class "{0}"!', [
+                    Yii::t("app", 'No task exists with class "{0}"!', [
                         $class
                     ]));
             }
         } else if ($min_failures) {
             if (!$tasks) {
                 throw new PhutilArgumentUsageException(
-                    \Yii::t("app", 'No tasks exist with at least {1} failures!', [
+                    Yii::t("app", 'No tasks exist with at least {1} failures!', [
                         $min_failures
                     ]));
             }
@@ -144,7 +145,7 @@ abstract class PhabricatorWorkerManagementWorkflow
      */
     protected function describeTask(PhabricatorWorkerTask $task)
     {
-        return \Yii::t("app", 'Task {0} ({1})', [
+        return Yii::t("app", 'Task {0} ({1})', [
             $task->getID(), $task->getTaskClass()
         ]);
     }

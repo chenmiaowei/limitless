@@ -7,6 +7,7 @@ use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use orangins\lib\time\PhabricatorTime;
 use PhutilArgumentParser;
 use PhutilConsole;
+use Yii;
 
 /**
  * Class PhabricatorWorkerTriggerManagementFireWorkflow
@@ -26,7 +27,7 @@ final class PhabricatorWorkerTriggerManagementFireWorkflow
             ->setName('fire')
             ->setExamples('**fire** --id __id__')
             ->setSynopsis(
-                \Yii::t("app",
+                Yii::t("app",
                     'Activates selected triggers, firing them immediately.'))
             ->setArguments(
                 array_merge(
@@ -34,7 +35,7 @@ final class PhabricatorWorkerTriggerManagementFireWorkflow
                         array(
                             'name' => 'now',
                             'param' => 'time',
-                            'help' => \Yii::t("app",
+                            'help' => Yii::t("app",
                                 'Fire the trigger as though the current time is a given ' .
                                 'time. This allows you to test how a trigger would behave ' .
                                 'if activated in the past or future. Defaults to the actual ' .
@@ -43,14 +44,14 @@ final class PhabricatorWorkerTriggerManagementFireWorkflow
                         array(
                             'name' => 'last',
                             'param' => 'time',
-                            'help' => \Yii::t("app",
+                            'help' => Yii::t("app",
                                 'Fire the trigger as though the last event occurred at a ' .
                                 'given time. Defaults to the actual last event time.'),
                         ),
                         array(
                             'name' => 'next',
                             'param' => 'time',
-                            'help' => \Yii::t("app",
+                            'help' => Yii::t("app",
                                 'Fire the trigger as though the next event was scheduled ' .
                                 'at a given time. Defaults to the actual time when the ' .
                                 'event is next scheduled to fire.'),
@@ -85,7 +86,7 @@ final class PhabricatorWorkerTriggerManagementFireWorkflow
 
         $console->writeOut(
             "%s\n",
-            \Yii::t("app",
+            Yii::t("app",
                 'Set current time to {0}.',
                 [
                     OranginsViewUtil::phabricator_datetime(PhabricatorTime::getNow(), $viewer)
@@ -99,7 +100,7 @@ final class PhabricatorWorkerTriggerManagementFireWorkflow
         foreach ($triggers as $trigger) {
             $console->writeOut(
                 "%s\n",
-                \Yii::t("app", 'Executing trigger {0}.', [
+                Yii::t("app", 'Executing trigger {0}.', [
                     $this->describeTrigger($trigger)
                 ]));
 
@@ -116,14 +117,14 @@ final class PhabricatorWorkerTriggerManagementFireWorkflow
             if (!$next_time) {
                 $console->writeOut(
                     "%s\n",
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Trigger is not scheduled to execute. Use --next to simulate ' .
                         'a scheduled event.'));
                 continue;
             } else {
                 $console->writeOut(
                     "%s\n",
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Executing event as though it was scheduled to execute at {0}.',
                         [
                             OranginsViewUtil::phabricator_datetime($next_time, $viewer)
@@ -133,12 +134,12 @@ final class PhabricatorWorkerTriggerManagementFireWorkflow
             if (!$last_time) {
                 $console->writeOut(
                     "%s\n",
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Executing event as though it never previously executed.'));
             } else {
                 $console->writeOut(
                     "%s\n",
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Executing event as though it previously executed at {0}.',
                         [
                             OranginsViewUtil::phabricator_datetime($last_time, $viewer)
@@ -154,13 +155,13 @@ final class PhabricatorWorkerTriggerManagementFireWorkflow
             if (!$reschedule_time) {
                 $console->writeOut(
                     "%s\n",
-                    \Yii::t("app",
+                    Yii::t("app",
                         'After executing under these conditions, this event would never ' .
                         'execute again.'));
             } else {
                 $console->writeOut(
                     "%s\n",
-                    \Yii::t("app",
+                    Yii::t("app",
                         'After executing under these conditions, this event would ' .
                         'next execute at %s.',
                         OranginsViewUtil::phabricator_datetime($reschedule_time, $viewer)));
