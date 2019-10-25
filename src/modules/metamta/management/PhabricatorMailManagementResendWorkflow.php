@@ -2,12 +2,19 @@
 
 namespace orangins\modules\metamta\management;
 
+use AphrontQueryException;
 use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use orangins\modules\metamta\constants\PhabricatorMailOutboundStatus;
 use orangins\modules\metamta\models\PhabricatorMetaMTAMail;
 use PhutilArgumentParser;
+use PhutilArgumentSpecificationException;
 use PhutilArgumentUsageException;
 use PhutilConsole;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use Throwable;
+use yii\db\Exception;
+use yii\db\IntegrityException;
 
 /**
  * Class PhabricatorMailManagementResendWorkflow
@@ -43,13 +50,13 @@ final class PhabricatorMailManagementResendWorkflow
     /**
      * @param PhutilArgumentParser $args
      * @throws PhutilArgumentUsageException
-     * @throws \AphrontQueryException
-     * @throws \PhutilArgumentSpecificationException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \Throwable
-     * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws AphrontQueryException
+     * @throws PhutilArgumentSpecificationException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws Throwable
+     * @throws Exception
+     * @throws IntegrityException
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)

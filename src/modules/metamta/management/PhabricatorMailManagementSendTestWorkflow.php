@@ -2,7 +2,10 @@
 
 namespace orangins\modules\metamta\management;
 
+use AphrontQueryException;
+use Exception;
 use Filesystem;
+use FilesystemException;
 use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use orangins\modules\metamta\message\PhabricatorMailAttachment;
 use orangins\modules\metamta\message\PhabricatorMailEmailMessage;
@@ -10,8 +13,15 @@ use orangins\modules\metamta\message\PhabricatorMailExternalMessage;
 use orangins\modules\metamta\models\PhabricatorMetaMTAMail;
 use orangins\modules\people\models\PhabricatorUser;
 use PhutilArgumentParser;
+use PhutilArgumentSpecificationException;
 use PhutilArgumentUsageException;
 use PhutilConsole;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\InvalidConfigException;
+use yii\db\IntegrityException;
 
 /**
  * Class PhabricatorMailManagementSendTestWorkflow
@@ -96,17 +106,16 @@ final class PhabricatorMailManagementSendTestWorkflow
     /**
      * @param PhutilArgumentParser $args
      * @throws PhutilArgumentUsageException
-     * @throws \AphrontQueryException
-     * @throws \FilesystemException
-     * @throws \PhutilArgumentSpecificationException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
-     * @throws \Exception
+     * @throws AphrontQueryException
+     * @throws FilesystemException
+     * @throws PhutilArgumentSpecificationException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
+     * @throws IntegrityException
+     * @throws Exception
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)

@@ -4,7 +4,6 @@ namespace orangins\modules\metamta\management;
 
 use orangins\modules\metamta\constants\PhabricatorMailOutboundStatus;
 use orangins\modules\metamta\models\PhabricatorMetaMTAMail;
-use orangins\modules\metamta\models\PhabricatorMetaMTAReceivedMail;
 use PhutilArgumentParser;
 use PhutilConsole;
 use PhutilConsoleTable;

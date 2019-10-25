@@ -14,7 +14,7 @@ EOSYNOPSIS
 $args->parseStandardArguments();
 
 $workflows = id(new PhutilClassMapQuery())
-  ->setAncestorClass(PhabricatorMailManagementWorkflow)
+  ->setAncestorClass(\orangins\modules\metamta\management\PhabricatorMailManagementWorkflow::class)
   ->execute();
 $workflows[] = new PhutilHelpArgumentWorkflow();
 $args->parseWorkflows($workflows);

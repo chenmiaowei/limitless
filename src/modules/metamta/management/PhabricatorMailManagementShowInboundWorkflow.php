@@ -4,8 +4,11 @@ namespace orangins\modules\metamta\management;
 
 use orangins\modules\metamta\models\PhabricatorMetaMTAReceivedMail;
 use PhutilArgumentParser;
+use PhutilArgumentSpecificationException;
 use PhutilArgumentUsageException;
 use PhutilConsole;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
 
 /**
  * Class PhabricatorMailManagementShowInboundWorkflow
@@ -41,9 +44,9 @@ final class PhabricatorMailManagementShowInboundWorkflow
     /**
      * @param PhutilArgumentParser $args
      * @throws PhutilArgumentUsageException
-     * @throws \PhutilArgumentSpecificationException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
+     * @throws PhutilArgumentSpecificationException
+     * @throws InvalidConfigException
+     * @throws UnknownPropertyException
      * @author 陈妙威
      */
     public function execute(PhutilArgumentParser $args)
