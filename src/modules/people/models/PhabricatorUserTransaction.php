@@ -2,14 +2,18 @@
 
 namespace orangins\modules\people\models;
 
+use Exception;
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\modules\people\phid\PhabricatorPeopleUserPHIDType;
 use orangins\modules\people\query\PhabricatorPeopleTransactionQuery;
 use orangins\modules\people\xaction\PhabricatorUserTransactionType;
 use orangins\modules\phid\PhabricatorPHIDType;
 use orangins\modules\phid\helpers\PhabricatorPHID;
-use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use orangins\modules\transactions\models\PhabricatorModularTransaction;
+use PhutilJSONParserException;
+use ReflectionException;
 use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * This is the model class for table "admin_transactions".
@@ -87,12 +91,11 @@ class PhabricatorUserTransaction extends PhabricatorModularTransaction
 
     /**
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function getTitle()
@@ -164,15 +167,15 @@ class PhabricatorUserTransaction extends PhabricatorModularTransaction
      * @param bool $insert
      * @return bool
      * @throws \yii\base\Exception
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function beforeSave($insert)
     {
         if ($insert && !$this->getAttribute("phid")) {
             /** @var PhabricatorPHIDType $PHIDType */
-            $PHIDType = \Yii::createObject($this->getPHIDTypeClassName());
+            $PHIDType = Yii::createObject($this->getPHIDTypeClassName());
             $this->setAttribute("phid", PhabricatorPHID::generateNewPHID($PHIDType->getTypeConstant() . "-USER"));
         }
         return parent::beforeSave($insert);

@@ -52,6 +52,7 @@ use Exception;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
+use yii\helpers\Url;
 
 /**
  * Class OranginsApplicationTransaction
@@ -751,7 +752,6 @@ abstract class PhabricatorApplicationTransaction extends ActiveRecordPHID
     /**
      * @return null|string
      * @throws Exception
-     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getColor()
@@ -1420,7 +1420,7 @@ abstract class PhabricatorApplicationTransaction extends ActiveRecordPHID
     }
 
     /**
-     * @throws PhutilMethodNotImplementedException|null
+     * @return PhabricatorApplicationTransactionComment
      * @author 陈妙威
      */
     public function getApplicationTransactionCommentObject()
@@ -2231,7 +2231,7 @@ abstract class PhabricatorApplicationTransaction extends ActiveRecordPHID
      */
     public function getChangeDetailsURI()
     {
-        return '/transactions/detail/' . $this->getPHID() . '/';
+        return Url::to(['/transactions/index/detail', 'phid' => $this->getPHID()]);
     }
 
     /**

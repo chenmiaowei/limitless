@@ -27,7 +27,6 @@ class JavelinRemarkAssistAsset extends JavelinBehaviorAsset
     }
 
     public $css = [
-        "css/phabricator-remarkup.css"
     ];
 
     /**

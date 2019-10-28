@@ -131,7 +131,7 @@ class Generator extends \yii\gii\Generator
     {
         return array_merge(parent::rules(), [
             [['applicationName', 'applicationDir', 'applicationClass'], 'required'],
-            [['applicationName', 'applicationDir'], 'match', 'pattern' => '/^[a-z]+$/'],
+            [['applicationName', 'applicationDir'], 'match', 'pattern' => '/^[a-z\/]+$/'],
             [['applicationClass'], 'validateClass', 'params' => ['extends' => PhabricatorApplication::className()]],
 
             ['tablePrefix', 'string'],
@@ -272,8 +272,8 @@ class Generator extends \yii\gii\Generator
      */
     public function generate()
     {
-        $this->ns = $this->applicationDir . "\\" . $this->applicationName . "\\" . 'models';
-        $this->queryNs = $this->applicationDir . "\\" . $this->applicationName . "\\" . 'query';
+        $this->ns = str_replace("/", "\\", $this->applicationDir) . "\\" . $this->applicationName . "\\" . 'models';
+        $this->queryNs = str_replace("/", "\\", $this->applicationDir) . "\\" . $this->applicationName . "\\" . 'query';
 
 
         $files = [];

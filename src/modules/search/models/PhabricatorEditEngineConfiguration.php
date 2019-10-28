@@ -756,6 +756,7 @@ class PhabricatorEditEngineConfiguration extends ActiveRecordPHID
     public function getCreateURI() {
         $form_key = $this->getIdentifier();
         $engine = $this->getEngine();
-        return $engine->getCreateURI($form_key);
+        $createURI = $engine->getCreateURI($form_key);
+        return $createURI;
     }
 }

@@ -3,10 +3,13 @@
 namespace orangins\modules\transactions\editors;
 
 use AphrontDuplicateKeyQueryException;
+use AphrontObjectMissingQueryException;
+use AphrontQueryException;
 use orangins\lib\db\ActiveRecord;
 use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\exception\ActiveRecordException;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use orangins\lib\infrastructure\edges\editor\PhabricatorEdgeEditor;
 use orangins\lib\infrastructure\edges\query\PhabricatorEdgeQuery;
@@ -23,7 +26,19 @@ use orangins\lib\infrastructure\contentsource\PhabricatorContentSource;
 use orangins\lib\request\AphrontRequest;
 use orangins\modules\feed\PhabricatorFeedStoryPublisher;
 use orangins\modules\file\edge\PhabricatorObjectHasFileEdgeType;
+use orangins\modules\herald\adapter\HeraldAdapter;
 use orangins\modules\herald\application\PhabricatorHeraldApplication;
+use orangins\modules\herald\contentsource\PhabricatorHeraldContentSource;
+use orangins\modules\herald\engine\HeraldEngine;
+use orangins\modules\herald\models\HeraldTranscript;
+use orangins\modules\herald\models\HeraldWebhook;
+use orangins\modules\herald\models\HeraldWebhookRequest;
+use orangins\modules\herald\query\HeraldWebhookQuery;
+use orangins\modules\herald\state\HeraldCoreStateReasons;
+use orangins\modules\herald\state\HeraldMailableState;
+use orangins\modules\metamta\engine\PhabricatorMailEngineExtension;
+use orangins\modules\metamta\herald\PhabricatorMailOutboundMailHeraldAdapter;
+use orangins\modules\metamta\replyhandler\PhabricatorMailTarget;
 use orangins\modules\metamta\view\PhabricatorMetaMTAMailBody;
 use orangins\modules\search\worker\PhabricatorSearchWorker;
 use orangins\modules\transactions\edges\PhabricatorObjectHasUnsubscriberEdgeType;
@@ -64,9 +79,18 @@ use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionIn
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use orangins\modules\transactions\models\PhabricatorModularTransaction;
 use PhutilInvalidStateException;
+use PhutilJSONParserException;
 use PhutilMarkupEngine;
 use PhutilMethodNotImplementedException;
 use Exception;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -625,7 +649,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param $object
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTransactionTypesForObject($object)
@@ -644,6 +668,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
     /**
      * @return array
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTransactionTypes()
@@ -701,9 +727,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction $xaction
      * @throws Exception
      * @throws PhutilMethodNotImplementedException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function adjustTransactionValues(ActiveRecordPHID $object, PhabricatorApplicationTransaction $xaction)
@@ -723,10 +748,9 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction $xaction
      * @return array|null
      * @throws Exception
-     * @throws \ReflectionException
-
+     * @throws ReflectionException
      * @throws PhutilMethodNotImplementedException
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
@@ -771,8 +795,10 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                 if ($this->getIsNewObject()) {
                     return null;
                 }
+                /** @var PhabricatorSpacesInterface $object */
                 $space_phid = $object->getSpacePHID();
                 if ($space_phid === null) {
+                    /** @var PhabricatorSpacesInterface $default_space */
                     $default_space = PhabricatorSpacesNamespaceQuery::getDefaultSpace();
                     if ($default_space) {
                         $space_phid = $default_space->getPHID();
@@ -784,7 +810,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                 $edge_type = $xaction->getMetadataValue('edge:type');
                 if (!$edge_type) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             "Edge transaction has no '{0}'!",
                             [
                                 'edge:type'
@@ -820,8 +846,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction $xaction
      * @return mixed
      * @throws Exception
-
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     private function getTransactionNewValue(
@@ -892,7 +917,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         ActiveRecordPHID $object,
         PhabricatorApplicationTransaction $xaction)
     {
-        throw new Exception(\Yii::t("app", 'Capability not supported!'));
+        throw new Exception(Yii::t("app", 'Capability not supported!'));
     }
 
     /**
@@ -905,7 +930,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         ActiveRecordPHID $object,
         PhabricatorApplicationTransaction $xaction)
     {
-        throw new Exception(\Yii::t("app", 'Capability not supported!'));
+        throw new Exception(Yii::t("app", 'Capability not supported!'));
     }
 
     /**
@@ -913,7 +938,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction $xaction
      * @return bool
      * @throws Exception
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function transactionHasEffect(
@@ -994,8 +1019,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param ActiveRecordPHID $object
      * @param array $xactions
-     * @author 陈妙威
      * @throws PhutilMethodNotImplementedException
+     * @author 陈妙威
      */
     protected function applyInitialEffects(
         ActiveRecordPHID $object,
@@ -1008,7 +1033,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction $xaction
      * @throws Exception
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     private function applyInternalEffects(
@@ -1055,13 +1080,12 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @throws PhabricatorApplicationTransactionValidationException
      * @throws PhabricatorApplicationTransactionWarningException
      * @throws PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilJSONParserException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws InvalidConfigException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     private function applyExternalEffects(ActiveRecordPHID $object, PhabricatorApplicationTransaction $xaction)
@@ -1135,7 +1159,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     {
         $type = $xaction->getTransactionType();
         throw new Exception(
-            \Yii::t("app",
+            Yii::t("app",
                 "Transaction type '{0}' is missing an internal apply implementation!",
                 [
                     $type
@@ -1154,7 +1178,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     {
         $type = $xaction->getTransactionType();
         throw new Exception(
-            \Yii::t("app",
+            Yii::t("app",
                 "Transaction type '{0}' is missing an external apply implementation!",
                 [
                     $type
@@ -1173,7 +1197,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * See also @{method:applyBuiltinExternalTransaction}.
      * @param ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction $xaction
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      */
     protected function applyBuiltinInternalTransaction(
         ActiveRecordPHID $object,
@@ -1194,6 +1218,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                 $object->setSpacePHID($xaction->getNewValue());
                 break;
             case PhabricatorTransactions::TYPE_SUBTYPE:
+                /** @var PhabricatorEditEngineSubtypeInterface $object */
                 $object->setEditEngineSubtype($xaction->getNewValue());
                 break;
         }
@@ -1208,12 +1233,11 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @throws PhabricatorApplicationTransactionValidationException
      * @throws PhabricatorApplicationTransactionWarningException
      * @throws PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-
-     * @throws \yii\base\InvalidConfigException
-     * @throws \Exception
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
+     * @throws Exception
      */
     protected function applyBuiltinExternalTransaction(ActiveRecordPHID $object, PhabricatorApplicationTransaction $xaction)
     {
@@ -1288,8 +1312,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction $xaction
      * @return PhabricatorApplicationTransaction
      * @throws Exception
-
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      */
     protected function populateTransaction(ActiveRecordPHID $object, PhabricatorApplicationTransaction $xaction)
     {
@@ -1359,7 +1382,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction[] $xactions
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     final protected function didCommitTransactions(ActiveRecordPHID $object, array $xactions)
@@ -1394,7 +1417,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param AphrontRequest $request
      * @return PhabricatorApplicationTransactionEditor
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function setContentSourceFromRequest(AphrontRequest $request)
@@ -1415,19 +1438,21 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param ActiveRecord|ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction[] $xactions
      * @return array
-     * @throws Exception
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
      * @throws PhabricatorApplicationTransactionStructureException
      * @throws PhabricatorApplicationTransactionValidationException
      * @throws PhabricatorApplicationTransactionWarningException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilTypeExtraParametersException
+     * @throws PhutilJSONParserException
      * @throws PhutilMethodNotImplementedException
-     * @throws \Exception
-     * @throws \PhutilJSONParserException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws AphrontObjectMissingQueryException
+     * @throws Throwable
      * @author 陈妙威
      */
     final public function applyTransactions(ActiveRecordPHID $object, $xactions)
@@ -1541,7 +1566,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             // TODO: Remove this check after some time has passed.
             if (method_exists($this, 'requireCapabilities')) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Editor (of class "{0}") implements obsolete policy method ' .
                         'requireCapabilities(). The implementation for this Editor ' .
                         'MUST be updated. See <{1}> for discussion.',
@@ -1595,7 +1620,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
             try {
                 if (!$object->save()) {
-                    throw new ActiveRecordException(\Yii::t("app", "{0} create error. ", [get_class($object)]), $object->getErrorSummary(true));
+                    throw new ActiveRecordException(Yii::t("app", "{0} create error. ", [get_class($object)]), $object->getErrorSummary(true));
                 }
             } catch (AphrontDuplicateKeyQueryException $ex) {
                 // This callback has an opportunity to throw a better exception,
@@ -1634,7 +1659,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                         $xaction->setNewValue($bulky_new);
                     } else {
                         if (!$xaction->save()) {
-                            throw new ActiveRecordException(\Yii::t("app", "{0} create error. ", [get_class($xaction)]), $xaction->getErrorSummary(true));
+                            throw new ActiveRecordException(Yii::t("app", "{0} create error. ", [get_class($xaction)]), $xaction->getErrorSummary(true));
                         }
                     }
                 }
@@ -1733,7 +1758,9 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                 $herald_source = PhabricatorContentSource::newForSource(
                     PhabricatorHeraldContentSource::SOURCECONST);
 
-                $herald_editor = newv(get_class($this), array())
+                /** @var PhabricatorApplicationTransactionEditor $newv */
+                $newv = newv(get_class($this), array());
+                $herald_editor = $newv
                     ->setContinueOnNoEffect(true)
                     ->setContinueOnMissingFields(true)
                     ->setParentMessageID($this->getParentMessageID())
@@ -1876,8 +1903,15 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param ActiveRecordPHID $object
      * @param array $xactions
      * @return array
-     * @throws Exception
-     * @throws \PhutilInvalidStateException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws Throwable
+     * @throws UnknownPropertyException
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      * @author 陈妙威
      */
     public function publishTransactions(
@@ -1954,7 +1988,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param array $xactions
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function loadHandles(array $xactions)
@@ -1979,7 +2013,6 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param ActiveRecordPHID $object
      * @throws Exception
-
      * @author 陈妙威
      */
     private function loadSubscribers(ActiveRecordPHID $object)
@@ -2020,13 +2053,13 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if ($xaction->getPHID() || $xaction->getID()) {
                 throw new PhabricatorApplicationTransactionStructureException(
                     $xaction,
-                    \Yii::t("app", 'You can not apply transactions which already have IDs/PHIDs!'));
+                    Yii::t("app", 'You can not apply transactions which already have IDs/PHIDs!'));
             }
 
             if ($xaction->getObjectPHID()) {
                 throw new PhabricatorApplicationTransactionStructureException(
                     $xaction,
-                    \Yii::t("app",
+                    Yii::t("app",
                         'You can not apply transactions which already have {0}!',
                         [
                             'objectPHIDs'
@@ -2036,7 +2069,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if ($xaction->comment_phid) {
                 throw new PhabricatorApplicationTransactionStructureException(
                     $xaction,
-                    \Yii::t("app",
+                    Yii::t("app",
                         'You can not apply transactions which already have {0}!',
                         [
                             'commentPHIDs'
@@ -2046,7 +2079,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if ($xaction->comment_version !== 0) {
                 throw new PhabricatorApplicationTransactionStructureException(
                     $xaction,
-                    \Yii::t("app",
+                    Yii::t("app",
                         'You can not apply transactions which already have {0}',
                         [
                             'commentVersions!'
@@ -2059,7 +2092,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if ($expect_value && !$has_value) {
                 throw new PhabricatorApplicationTransactionStructureException(
                     $xaction,
-                    \Yii::t("app",
+                    Yii::t("app",
                         'This transaction is supposed to have an {0} set, but it does not!',
                         [
                             'oldValue'
@@ -2069,7 +2102,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if ($has_value && !$expect_value) {
                 throw new PhabricatorApplicationTransactionStructureException(
                     $xaction,
-                    \Yii::t("app",
+                    Yii::t("app",
                         'This transaction should generate its {0} automatically, ' .
                         'but has already had one set!',
                         [
@@ -2081,7 +2114,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if (empty($types[$type])) {
                 throw new PhabricatorApplicationTransactionStructureException(
                     $xaction,
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Transaction has type "{0}", but that transaction type is not ' .
                         'supported by this editor ({1}).',
                         [
@@ -2097,8 +2130,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param array $xactions
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     private function applyCapabilityChecks(
@@ -2163,9 +2196,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return null
+     * @throws PhutilJSONParserException
      * @author 陈妙威
-
-     * @throws \PhutilJSONParserException
      */
     private function getLegacyRequiredCapabilities(
         PhabricatorApplicationTransaction $xaction)
@@ -2204,8 +2236,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return null
-
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     private function getLegacyRequiredEdgeCapabilities(
@@ -2269,9 +2300,9 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param array $changes
      * @return null
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws PhutilInvalidStateException
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function buildSubscribeTransaction(
@@ -2356,8 +2387,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction $u
      * @param PhabricatorApplicationTransaction $v
      * @return PhabricatorApplicationTransaction|null
-
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function mergeTransactions(
@@ -2433,8 +2463,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @throws Exception
      * @throws PhutilInvalidStateException
      * @throws PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getExpandedSupportTransactions(
@@ -2468,8 +2497,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @throws Exception
      * @throws PhutilInvalidStateException
      * @throws PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function expandSupportTransactions(
@@ -2508,8 +2536,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param array $xactions
      * @return array
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function getRemarkupChanges(array $xactions)
     {
@@ -2527,8 +2555,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param PhabricatorApplicationTransaction $transaction
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function getRemarkupChangesFromTransaction(
         PhabricatorApplicationTransaction $transaction)
@@ -2543,7 +2571,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhutilMarkupEngine $engine
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
@@ -2602,7 +2630,10 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
         if ($mentionable_phids) {
             $edge_type = PhabricatorObjectMentionsObjectEdgeType::EDGECONST;
-            $block_xactions[] = newv(get_class(head($xactions)), array())
+
+            /** @var PhabricatorApplicationTransaction $newv */
+            $newv = newv(get_class(head($xactions)), array());
+            $block_xactions[] = $newv
                 ->setIgnoreOnNoEffect(true)
                 ->setTransactionType(PhabricatorTransactions::TYPE_EDGE)
                 ->setMetadataValue('edge:type', $edge_type)
@@ -2637,9 +2668,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param array $xactions
      * @return PhabricatorApplicationTransaction[]
      * @throws Exception
-     * @throws \PhutilJSONParserException
-
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
      */
     private function combineTransactions(array $xactions)
     {
@@ -2698,9 +2727,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction $u
      * @param PhabricatorApplicationTransaction $v
      * @return PhabricatorApplicationTransaction
+     * @throws PhutilJSONParserException
      * @author 陈妙威
-
-     * @throws \PhutilJSONParserException
      */
     public function mergePHIDOrEdgeTransactions(
         PhabricatorApplicationTransaction $u,
@@ -2783,7 +2811,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param null $old
      * @return array
      * @throws Exception
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function getPHIDTransactionNewValue(
@@ -2822,7 +2850,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
         if ($new) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     "Invalid '{0}' value for PHID transaction. Value should contain only " .
                     "keys '{1}' (add PHIDs), '{2}' (remove PHIDs) and '{3}' (set PHIDS).",
                     [
@@ -2863,8 +2891,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction $xaction
      * @return array
      * @throws Exception
-
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function getEdgeTransactionNewValue(
@@ -2881,7 +2908,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
         if ($new) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     "Invalid '{0}' value for Edge transaction. Value should contain only " .
                     "keys '{1}' (add edges), '{2}' (remove edges) and '{3}' (set edges).",
                     [
@@ -2947,7 +2974,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         foreach ($list as $key => $item) {
             if (PhabricatorPHID::phid_get_type($key) === PhabricatorPHIDConstants::PHID_TYPE_UNKNOWN) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Edge transactions must have destination PHIDs as in edge ' .
                         'lists (found key "{0}" on transaction of type "{1}").',
                         [
@@ -2957,7 +2984,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             }
             if (!is_array($item) && $item !== $key) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Edge transactions must have PHIDs or edge specs as values ' .
                         '(found value "{0}" on transaction of type "{1}").',
                         [
@@ -2974,8 +3001,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param $dst_phid
      * @return array
      * @throws Exception
-
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      *
      */
@@ -2988,7 +3014,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         if (!is_array($edge)) {
             if ($edge != $dst_phid) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Transaction edge data must either be the edge PHID or an edge ' .
                         'specification dictionary.'));
             }
@@ -3007,7 +3033,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                         break;
                     default:
                         throw new Exception(
-                            \Yii::t("app",
+                            Yii::t("app",
                                 'Transaction edge specification contains unexpected key "{0}".',
                                 [
                                     $key
@@ -3025,7 +3051,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if ($edge['type'] != $edge_type) {
                 $this_type = $edge['type'];
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         "Edge transaction includes edge of type '{0}', but " .
                         "transaction is of type '{1}'. Each edge transaction " .
                         "must alter edges of only one type.",
@@ -3072,7 +3098,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorApplicationTransaction[] $xactions
      * @return array
      * @throws Exception
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function filterTransactions(ActiveRecordPHID $object, array $xactions)
@@ -3142,10 +3168,9 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      *   validation errors.
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-
+     * @throws ReflectionException
      * @throws PhutilMethodNotImplementedException
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      */
     protected function validateTransaction(
         ActiveRecordPHID $object,
@@ -3221,10 +3246,9 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param $transaction_type
      * @param $capability
      * @return array
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @throws Exception
-     * @throws \ReflectionException
-
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function validatePolicyTransaction(
@@ -3254,8 +3278,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             } catch (PhabricatorPolicyException $ex) {
                 $errors[] = new PhabricatorApplicationTransactionValidationError(
                     $transaction_type,
-                    \Yii::t("app", 'Invalid'),
-                    \Yii::t("app",
+                    Yii::t("app", 'Invalid'),
+                    Yii::t("app",
                         'You can not select this {0} policy, because you would no longer ' .
                         'be able to {1} the object.',
                         [
@@ -3275,8 +3299,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                 if (!$has_capability) {
                     $errors[] = new PhabricatorApplicationTransactionValidationError(
                         $transaction_type,
-                        \Yii::t("app", 'Invalid'),
-                        \Yii::t("app",
+                        Yii::t("app", 'Invalid'),
+                        Yii::t("app",
                             'The selected {0} policy excludes you. Choose a {1} policy ' .
                             'which allows you to {2} the object.',
                             [
@@ -3298,11 +3322,10 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param $transaction_type
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
-
-     * @throws \yii\base\InvalidConfigException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @throws PhutilMethodNotImplementedException
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     private function validateSpaceTransactions(
@@ -3331,8 +3354,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                 // in a valid space.
                 $errors[] = new PhabricatorApplicationTransactionValidationError(
                     $transaction_type,
-                    \Yii::t("app", 'Invalid'),
-                    \Yii::t("app", 'You must choose a space for this object.'),
+                    Yii::t("app", 'Invalid'),
+                    Yii::t("app", 'You must choose a space for this object.'),
                     $xaction);
                 continue;
             }
@@ -3342,8 +3365,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if (empty($actor_spaces[$space_phid])) {
                 $errors[] = new PhabricatorApplicationTransactionValidationError(
                     $transaction_type,
-                    \Yii::t("app", 'Invalid'),
-                    \Yii::t("app",
+                    Yii::t("app", 'Invalid'),
+                    Yii::t("app",
                         'You can not shift this object in the selected space, because ' .
                         'the space does not exist or you do not have access to it.'),
                     $xaction);
@@ -3358,8 +3381,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
                 $errors[] = new PhabricatorApplicationTransactionValidationError(
                     $transaction_type,
-                    \Yii::t("app", 'Archived'),
-                    \Yii::t("app",
+                    Yii::t("app", 'Archived'),
+                    Yii::t("app",
                         'You can not shift this object into the selected space, because ' .
                         'the space is archived. Objects can not be created inside (or ' .
                         'moved into) archived spaces.'),
@@ -3396,8 +3419,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             if (!isset($map[$new])) {
                 $errors[] = new PhabricatorApplicationTransactionValidationError(
                     $transaction_type,
-                    \Yii::t("app", 'Invalid'),
-                    \Yii::t("app",
+                    Yii::t("app", 'Invalid'),
+                    Yii::t("app",
                         'The subtype "{0}" is not a valid subtype.',
                         [
                             $new
@@ -3415,8 +3438,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param array $xactions
      * @return PhabricatorPolicyInterface
      * @throws Exception
-
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function adjustObjectForPolicyChecks(
@@ -3500,7 +3522,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param object Current field value.
      * @param array $xactions
      * @return bool True if the field will be an empty text field after edits.
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      */
     protected function validateIsEmptyTextField($field_value, array $xactions)
     {
@@ -3527,7 +3549,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param array $xactions
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws PhutilMethodNotImplementedException
      */
     final public function applyImplicitCC(
@@ -3597,8 +3619,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction $xaction
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     protected function shouldImplyCC(
         ActiveRecordPHID $object,
@@ -3665,7 +3687,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param array $email_to
      * @param array $email_cc
      * @param array $unexpandable
-     * @return array
+     * @return PhabricatorMetaMTAMail[]
      * @throws Exception
      * @author 陈妙威
      */
@@ -3741,10 +3763,10 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param ActiveRecordPHID $object
      * @param array $xactions
      * @param PhabricatorMailTarget $target
-     * @return mixed
+     * @return PhabricatorMetaMTAMail
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     private function buildMailForTarget(
@@ -3910,13 +3932,13 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
 
     /**
-     * @task mail
+     * @return PhabricatorFeedStoryPublisher
      * @param ActiveRecordPHID $object
      * @throws Exception
      */
     protected function buildReplyHandler(ActiveRecordPHID $object)
     {
-        throw new Exception(\Yii::t("app", 'Capability not supported.'));
+        throw new Exception(Yii::t("app", 'Capability not supported.'));
     }
 
     /**
@@ -3925,7 +3947,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      */
     protected function getMailSubjectPrefix()
     {
-        throw new Exception(\Yii::t("app", 'Capability not supported.'));
+        throw new Exception(Yii::t("app", 'Capability not supported.'));
     }
 
 
@@ -3980,7 +4002,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      */
     protected function buildMailTemplate(ActiveRecordPHID $object)
     {
-        throw new Exception(\Yii::t("app", 'Capability not supported.'));
+        throw new Exception(Yii::t("app", 'Capability not supported.'));
     }
 
 
@@ -3992,7 +4014,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      */
     protected function getMailTo(ActiveRecordPHID $object)
     {
-        throw new Exception(\Yii::t("app", 'Capability not supported.'));
+        throw new Exception(Yii::t("app", 'Capability not supported.'));
     }
 
 
@@ -4072,7 +4094,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
         if (!$has_support) {
             throw new Exception(
-                \Yii::t("app", 'The object being edited does not implement any standard ' .
+                Yii::t("app", 'The object being edited does not implement any standard ' .
                     'interfaces (like PhabricatorSubscribableInterface) which allow ' .
                     'CCs to be generated automatically. Override the "getMailCC()" ' .
                     'method and generate CCs explicitly.'));
@@ -4089,7 +4111,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @return PhabricatorMetaMTAMailBody
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     protected function buildMailBody(
         ActiveRecordPHID $object,
@@ -4112,7 +4134,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param PhabricatorMetaMTAMailBody $body
      * @param ActiveRecordPHID $object
      * @param array $xactions
-     * @throws \Exception
+     * @throws Exception
      */
     protected function addEmailPreferenceSectionToMailBody(
         PhabricatorMetaMTAMailBody $body,
@@ -4122,7 +4144,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
         $href = PhabricatorEnv::getProductionURI(
             '/settings/panel/emailpreferences/');
-        $body->addLinkSection(\Yii::t("app", 'EMAIL PREFERENCES'), $href);
+        $body->addLinkSection(Yii::t("app", 'EMAIL PREFERENCES'), $href);
     }
 
 
@@ -4302,7 +4324,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
             return $xtype->getMailDiffSectionHeader();
         }
 
-        return \Yii::t("app", 'EDIT DETAILS');
+        return Yii::t("app", 'EDIT DETAILS');
     }
 
     /**
@@ -4311,7 +4333,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param ActiveRecordPHID $object
      * @param array $xactions
      * @throws Exception
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     protected function addCustomFieldsToMailBody(
         PhabricatorMetaMTAMailBody $body,
@@ -4449,13 +4471,13 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param ActiveRecordPHID $object
      * @param array $xactions
      * @param array $mailed_phids
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws \yii\base\Exception
-     * @throws \yii\base\UnknownPropertyException
+     * @throws UnknownPropertyException
      * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws IntegrityException
      */
     protected function publishFeedStory(ActiveRecordPHID $object, array $xactions, array $mailed_phids)
     {
@@ -4542,7 +4564,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         ActiveRecordPHID $object,
         array $xactions)
     {
-        throw new Exception(\Yii::t("app", 'No herald adapter specified.'));
+        throw new Exception(Yii::t("app", 'No herald adapter specified.'));
     }
 
     /**
@@ -4692,7 +4714,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         $field_key = $xaction->getMetadataValue('customfield:key');
         if (!$field_key) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     "Custom field transaction has no '{0}'!",
                     [
                         'customfield:key'
@@ -4706,7 +4728,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
         if (!$field) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     "Custom field transaction has invalid '{0}'; field '{1}' " .
                     "is disabled or does not exist.",
                     [
@@ -4717,7 +4739,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
         if (!$field->shouldAppearInApplicationTransactions()) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     "Custom field transaction '{0}' does not implement " .
                     "integration for {1}.",
                     [
@@ -4743,8 +4765,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param array $xactions
      * @return array
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      */
     private function extractFilePHIDs(ActiveRecordPHID $object, $xactions)
     {
@@ -4833,16 +4855,21 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction $xaction
      * @param $inverse_type
-     * @throws Exception
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
      * @throws PhabricatorApplicationTransactionStructureException
      * @throws PhabricatorApplicationTransactionValidationException
      * @throws PhabricatorApplicationTransactionWarningException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     private function applyInverseEdgeTransactions(
@@ -4921,6 +4948,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * to publishing transactions (like email "To" and "CC" lists), and again in
      * the worker before publishing occurs.
      *
+     * @param ActiveRecordPHID $object
+     * @param array $xactions
      * @return object Publishable object.
      * @task workers
      */
@@ -4993,7 +5022,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      *
      * This method is used to load state when running worker operations.
      *
-     * @param array<string, wild> Editor state, from @{method:getWorkerState}.
+     * @param array $state Editor state, from @{method:getWorkerState}.
      * @return static
      * @task workers
      * @throws Exception
@@ -5021,7 +5050,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * Hook; set custom properties on the editor from data emitted by
      * @{method:getCustomWorkerState}.
      *
-     * @param array<string, wild> Custom state,
+     * @param array $state Custom state,
      *   from @{method:getCustomWorkerState}.
      * @return static
      * @task workers
@@ -5071,9 +5100,9 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      *
      * See @{method:getCustomWorkerStateEncoding}.
      *
-     * @param array<string, wild> Map of values to encode.
-     * @param array<string, string> Map of encodings to apply.
-     * @return array<string, wild> Map of encoded values.
+     * @param array $state Map of values to encode.
+     * @param array $encodings Map of encodings to apply.
+     * @return array Map of encoded values.
      * @task workers
      * @throws Exception
      */
@@ -5093,7 +5122,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                     $value = @serialize($value);
                     if ($value === false) {
                         throw new Exception(
-                            \Yii::t("app",
+                            Yii::t("app",
                                 'Failed to serialize() value for key "{0}".',
                                 [
                                     $key
@@ -5103,7 +5132,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                     $value = base64_encode($value);
                     if ($value === false) {
                         throw new Exception(
-                            \Yii::t("app",
+                            Yii::t("app",
                                 'Failed to base64 encode value for key "{0}".',
                                 [
                                     $key
@@ -5123,9 +5152,9 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      *
      * See @{method:getCustomWorkerStateEncoding}.
      *
-     * @param array<string, wild> Map of encoded values.
-     * @param array<string, string> Map of encodings.
-     * @return array<string, wild> Map of decoded values.
+     * @param array $state Map of encoded values.
+     * @param array $encodings  Map of encodings.
+     * @return array Map of decoded values.
      * @task workers
      * @throws Exception
      */
@@ -5141,7 +5170,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                     $value = base64_decode($value);
                     if ($value === false) {
                         throw new Exception(
-                            \Yii::t("app",
+                            Yii::t("app",
                                 'Failed to base64_decode() value for key "{0}".',
                                 [
                                     $key
@@ -5285,9 +5314,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * When the view policy for an object is changed, scramble the secret keys
      * for attached files to invalidate existing URIs.
      * @param $object
-     * @throws Exception
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
      */
     private function scrambleFileSecrets($object)
     {
@@ -5404,6 +5432,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
     /**
      * @return array
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function getModularTransactionTypes()
@@ -5430,6 +5459,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param $type
      * @return PhabricatorModularTransactionType
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function getModularTransactionType($type)
@@ -5442,7 +5472,6 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param $object
      * @param array $xactions
      * @throws Exception
-     * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
     private function willApplyTransactions($object, array $xactions)
@@ -5467,7 +5496,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      */
     public function getCreateObjectTitle($author, $object)
     {
-        return \Yii::t("app", '{0} created this object.', [$author]);
+        return Yii::t("app", '{0} created this object.', [$author]);
     }
 
     /**
@@ -5478,7 +5507,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      */
     public function getCreateObjectTitleForFeed($author, $object)
     {
-        return \Yii::t("app", '{0} created an object: {1}.', [
+        return Yii::t("app", '{0} created an object: {1}.', [
             $author, $object
         ]);
     }
@@ -5521,6 +5550,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      */
     private function newQueueEditor()
     {
+        /** @var PhabricatorApplicationTransactionEditor $newv */
         $newv = newv(get_class($this), array());
         $editor = $newv
             ->setActor($this->getActor())
@@ -5558,7 +5588,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
                 $key = $stamp->getKey();
                 if (isset($templates[$key])) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Mail extension ("{0}") defines a stamp template with the ' .
                             'same key ("{1}") as another template. Each stamp template ' .
                             'must have a unique key.',
@@ -5591,7 +5621,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
         if (!isset($this->stampTemplates[$key])) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Editor ("{0}") has no mail stamp template with provided key ("{1}").',
                     [
                         get_class($this),
@@ -5627,6 +5657,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param $object
      * @return array
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function newMailExtensions($object)
@@ -5716,11 +5747,8 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
      * @param $object
      * @param $xactions
      * @return $this
-     * @throws Exception
-     * @throws PhutilInvalidStateException
      * @throws PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-
+     * @throws Exception
      * @author 陈妙威
      */
     private function buildOldRecipientLists($object, $xactions)
@@ -5789,6 +5817,11 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param $object
      * @param array $xactions
+     * @throws InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
+     * @throws Throwable
      * @author 陈妙威
      */
     private function queueWebhooks($object, array $xactions)
@@ -5801,12 +5834,12 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         }
 
         // Add any "Firehose" hooks to the list of hooks we're going to call.
-        $firehose_hooks = (new HeraldWebhookQuery())
+        $firehose_hooks =  HeraldWebhook::find()
             ->setViewer($hook_viewer)
             ->withStatuses(
-                array(
+                [
                     HeraldWebhook::HOOKSTATUS_FIREHOSE,
-                ))
+                ])
             ->execute();
         foreach ($firehose_hooks as $firehose_hook) {
             // This is "the hook itself is the reason this hook is being called",
@@ -5832,16 +5865,16 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         foreach ($call_hooks as $call_hook) {
             $trigger_phids = ArrayHelper::getValue($webhook_map, $call_hook->getPHID());
 
-            $request = HeraldWebhookRequest::initializeNewWebhookRequest($call_hook)
+            $heraldWebhookRequest = HeraldWebhookRequest::initializeNewWebhookRequest($call_hook)
                 ->setObjectPHID($object->getPHID())
                 ->setTransactionPHIDs(OranginsUtil::mpull($xactions, 'getPHID'))
                 ->setTriggerPHIDs($trigger_phids)
                 ->setRetryMode(HeraldWebhookRequest::RETRY_FOREVER)
                 ->setIsSilentAction((bool)$this->getIsSilent())
-                ->setIsSecureAction((bool)$this->getMustEncrypt())
-                ->save();
+                ->setIsSecureAction((bool)$this->getMustEncrypt());
+            $heraldWebhookRequest->save();
 
-            $request->queueCall();
+            $heraldWebhookRequest->queueCall();
         }
     }
 

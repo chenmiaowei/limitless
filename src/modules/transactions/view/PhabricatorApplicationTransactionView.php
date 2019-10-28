@@ -2,6 +2,7 @@
 
 namespace orangins\modules\transactions\view;
 
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\markup\PhabricatorMarkupEngine;
 use orangins\lib\view\AphrontView;
@@ -15,6 +16,13 @@ use orangins\modules\transactions\constants\PhabricatorTransactions;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use orangins\modules\transactions\models\PhabricatorApplicationTransactionComment;
 use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilSafeHTML;
+use ReflectionException;
+use Throwable;
+use Yii;
+use Exception;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -24,7 +32,7 @@ class PhabricatorApplicationTransactionView extends AphrontView
 {
 
     /**
-     * @var
+     * @var PhabricatorApplicationTransaction[]
      */
     private $transactions;
     /**
@@ -292,13 +300,12 @@ class PhabricatorApplicationTransactionView extends AphrontView
     /**
      * @param bool $with_hiding
      * @return array
+     * @throws InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
      * @throws PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     public function buildEvents($with_hiding = false)
@@ -353,6 +360,7 @@ class PhabricatorApplicationTransactionView extends AphrontView
                 $set_next_page_id = true;
             }
 
+            /** @var PHUITimelineEventView $group_event */
             $group_event = null;
             foreach ($group as $xaction) {
                 $event = $this->renderEvent($xaction, $group);
@@ -379,13 +387,12 @@ class PhabricatorApplicationTransactionView extends AphrontView
 
     /**
      * @return mixed
+     * @throws InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
      * @throws PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     public function render()
@@ -406,13 +413,12 @@ class PhabricatorApplicationTransactionView extends AphrontView
     /**
      * @param bool $with_hiding
      * @return mixed
+     * @throws InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
      * @throws PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     public function buildPHUITimelineView($with_hiding = true)
@@ -445,13 +451,12 @@ class PhabricatorApplicationTransactionView extends AphrontView
 
     /**
      * @return bool
+     * @throws InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
      * @throws PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     public function isTimelineEmpty()
@@ -462,6 +467,7 @@ class PhabricatorApplicationTransactionView extends AphrontView
     /**
      * @return PhabricatorMarkupEngine
      * @throws PhutilInvalidStateException
+     * @throws Throwable
      * @author 陈妙威
      */
     protected function getOrBuildEngine()
@@ -488,8 +494,8 @@ class PhabricatorApplicationTransactionView extends AphrontView
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     private function buildChangeDetailsLink(
         PhabricatorApplicationTransaction $xaction)
@@ -501,13 +507,13 @@ class PhabricatorApplicationTransactionView extends AphrontView
                 'href' => $xaction->getChangeDetailsURI(),
                 'sigil' => 'workflow',
             ),
-            \Yii::t("app",'(Show Details)'));
+            Yii::t("app",'(Show Details)'));
     }
 
     /**
      * @param PhabricatorApplicationTransaction $xaction
-     * @return null|\PhutilSafeHTML
-     * @throws \Exception
+     * @return null|PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function buildExtraInformationLink(
@@ -543,8 +549,8 @@ class PhabricatorApplicationTransactionView extends AphrontView
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return null
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws Throwable
      * @author 陈妙威
      */
     protected function renderTransactionContent(
@@ -564,7 +570,7 @@ class PhabricatorApplicationTransactionView extends AphrontView
                         'sigil' => 'transaction-comment',
                         'meta' => array('phid' => $comment->getTransactionPHID()),
                     ),
-                    \Yii::t("app",
+                    Yii::t("app",
                         'This comment was removed by %s.',
                         $xaction->getHandle($comment->getAuthorPHID())->renderLink()));
             } else if ($comment->getIsDeleted()) {
@@ -575,7 +581,7 @@ class PhabricatorApplicationTransactionView extends AphrontView
                         'sigil' => 'transaction-comment',
                         'meta' => array('phid' => $comment->getTransactionPHID()),
                     ),
-                    \Yii::t("app",'This comment has been deleted.'));
+                    Yii::t("app",'This comment has been deleted.'));
             } else if ($xaction->hasComment()) {
 
                 $content = $engine->getOutput($comment, $field);
@@ -670,6 +676,7 @@ class PhabricatorApplicationTransactionView extends AphrontView
             // chronological order. This makes sure that multiple actions of the
             // same type (like a close, then a reopen) render in the order they
             // were performed.
+            /** @var array $strength_groups */
             $strength_groups = mgroup($group, 'getActionStrength');
             krsort($strength_groups);
             foreach ($strength_groups as $strength_group) {
@@ -688,13 +695,12 @@ class PhabricatorApplicationTransactionView extends AphrontView
      * @param PhabricatorApplicationTransaction $xaction
      * @param array $group
      * @return mixed
+     * @throws InvalidConfigException *@throws \Exception
+     * @throws PhabricatorDataNotAttachedException
      * @throws PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     private function renderEvent(

@@ -191,7 +191,7 @@ abstract class ConpherenceAction extends PhabricatorAction
                     'button',
                     array(
                         'type' => 'SUBMIT',
-                        'class' => 'button button-green mlr',
+                        'class' => 'btn btn-success btn-xs mlr',
                     ),
                     \Yii::t("app", 'Join Room'));
 

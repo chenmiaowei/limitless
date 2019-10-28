@@ -418,11 +418,12 @@ final class PHUITimelineEventView extends AphrontView
     /**
      * @param $title
      * @return $this
+     * @throws Exception
      * @author 陈妙威
      */
     public function setTitle($title)
     {
-        $this->title = new PhutilSafeHTML($title);
+        $this->title = is_string($title) ? new PhutilSafeHTML($title) : JavelinHtml::phutil_implode_html("\n", $title);
         return $this;
     }
 
@@ -660,7 +661,7 @@ final class PHUITimelineEventView extends AphrontView
             ),
             array($icon, $token, $title, $extra));
 
-        return $title;
+        return new PhutilSafeHTML($title);
     }
 
     /**

@@ -247,7 +247,7 @@ final class PhabricatorPolicyEditAction extends PhabricatorPolicyAction
                         'a',
                         array(
                             'href' => '#',
-                            'class' => 'button button-green',
+                            'class' => 'btn btn-success btn-xs',
                             'sigil' => 'create-rule',
                             'mustcapture' => true,
                         ),

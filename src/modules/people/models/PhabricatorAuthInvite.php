@@ -75,7 +75,7 @@ class PhabricatorAuthInvite extends \yii\db\ActiveRecord
     /**
      * @return string
      */
-    public function getPhid()
+    public function getPHID()
     {
         return $this->phid;
     }
@@ -84,7 +84,7 @@ class PhabricatorAuthInvite extends \yii\db\ActiveRecord
      * @param string $phid
      * @return self
      */
-    public function setPhid($phid)
+    public function setPHID($phid)
     {
         $this->phid = $phid;
         return $this;
@@ -93,7 +93,7 @@ class PhabricatorAuthInvite extends \yii\db\ActiveRecord
     /**
      * @return string
      */
-    public function getAuthorPhid()
+    public function getAuthorPHID()
     {
         return $this->author_phid;
     }
@@ -102,7 +102,7 @@ class PhabricatorAuthInvite extends \yii\db\ActiveRecord
      * @param string $author_phid
      * @return self
      */
-    public function setAuthorPhid($author_phid)
+    public function setAuthorPHID($author_phid)
     {
         $this->author_phid = $author_phid;
         return $this;
@@ -147,7 +147,7 @@ class PhabricatorAuthInvite extends \yii\db\ActiveRecord
     /**
      * @return string
      */
-    public function getAcceptedByPhid()
+    public function getAcceptedByPHID()
     {
         return $this->accepted_by_phid;
     }
@@ -156,7 +156,7 @@ class PhabricatorAuthInvite extends \yii\db\ActiveRecord
      * @param string $accepted_by_phid
      * @return self
      */
-    public function setAcceptedByPhid($accepted_by_phid)
+    public function setAcceptedByPHID($accepted_by_phid)
     {
         $this->accepted_by_phid = $accepted_by_phid;
         return $this;

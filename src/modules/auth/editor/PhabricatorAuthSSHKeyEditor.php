@@ -2,7 +2,10 @@
 
 namespace orangins\modules\auth\editor;
 
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\modules\auth\application\PhabricatorAuthApplication;
+use orangins\modules\auth\mail\PhabricatorAuthSSHKeyReplyHandler;
+use orangins\modules\auth\models\PhabricatorAuthSSHKey;
 use orangins\modules\auth\models\PhabricatorAuthSSHKeyTransaction;
 use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\env\PhabricatorEnv;
@@ -11,8 +14,14 @@ use orangins\modules\metamta\models\PhabricatorMetaMTAMail;
 use orangins\modules\auth\sshkey\PhabricatorAuthSSHPublicKey;
 use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
 use orangins\modules\transactions\error\PhabricatorApplicationTransactionValidationError;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use Exception;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
+use ReflectionException;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -64,14 +73,13 @@ final class PhabricatorAuthSSHKeyEditor
      */
     public function getEditorObjectsDescription()
     {
-        return \Yii::t("app",'SSH Keys');
+        return Yii::t("app",'SSH Keys');
     }
 
     /**
      * @return array
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTransactionTypes()
@@ -86,7 +94,7 @@ final class PhabricatorAuthSSHKeyEditor
     }
 
     /**
-     * @param ActiveRecordPHID $object
+     * @param ActiveRecordPHID|PhabricatorAuthSSHKey $object
      * @param PhabricatorApplicationTransaction $xaction
      * @return bool
      * @author 陈妙威
@@ -108,10 +116,10 @@ final class PhabricatorAuthSSHKeyEditor
     }
 
     /**
-     * @param ActiveRecordPHID $object
+     * @param ActiveRecordPHID|PhabricatorAuthSSHKey $object
      * @param PhabricatorApplicationTransaction $xaction
      * @return array|bool|string
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function getCustomTransactionNewValue(
@@ -129,9 +137,9 @@ final class PhabricatorAuthSSHKeyEditor
     }
 
     /**
-     * @param ActiveRecordPHID $object
+     * @param ActiveRecordPHID|PhabricatorAuthSSHKey $object
      * @param PhabricatorApplicationTransaction $xaction
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function applyCustomInternalTransaction(
@@ -184,10 +192,10 @@ final class PhabricatorAuthSSHKeyEditor
      * @param $type
      * @param array $xactions
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function validateTransaction(
@@ -208,8 +216,8 @@ final class PhabricatorAuthSSHKeyEditor
                 if ($missing) {
                     $error = new PhabricatorApplicationTransactionValidationError(
                         $type,
-                        \Yii::t("app",'Required'),
-                        \Yii::t("app",'SSH key name is required.'),
+                        Yii::t("app",'Required'),
+                        Yii::t("app",'SSH key name is required.'),
                         nonempty(last($xactions), null));
 
                     $error->setIsMissingFieldError(true);
@@ -225,8 +233,8 @@ final class PhabricatorAuthSSHKeyEditor
                 if ($missing) {
                     $error = new PhabricatorApplicationTransactionValidationError(
                         $type,
-                        \Yii::t("app",'Required'),
-                        \Yii::t("app",'SSH key material is required.'),
+                        Yii::t("app",'Required'),
+                        Yii::t("app",'SSH key material is required.'),
                         nonempty(last($xactions), null));
 
                     $error->setIsMissingFieldError(true);
@@ -240,7 +248,7 @@ final class PhabricatorAuthSSHKeyEditor
                         } catch (Exception $ex) {
                             $errors[] = new PhabricatorApplicationTransactionValidationError(
                                 $type,
-                                \Yii::t("app",'Invalid'),
+                                Yii::t("app",'Invalid'),
                                 $ex->getMessage(),
                                 $xaction);
                             continue;
@@ -261,8 +269,8 @@ final class PhabricatorAuthSSHKeyEditor
                         if ($revoked_keys) {
                             $errors[] = new PhabricatorApplicationTransactionValidationError(
                                 $type,
-                                \Yii::t("app",'Revoked'),
-                                \Yii::t("app",
+                                Yii::t("app",'Revoked'),
+                                Yii::t("app",
                                     'This key has been revoked. Choose or generate a new, ' .
                                     'unique key.'),
                                 $xaction);
@@ -277,8 +285,8 @@ final class PhabricatorAuthSSHKeyEditor
                     if (!$xaction->getNewValue()) {
                         $errors[] = new PhabricatorApplicationTransactionValidationError(
                             $type,
-                            \Yii::t("app",'Invalid'),
-                            \Yii::t("app",'SSH keys can not be reactivated.'),
+                            Yii::t("app",'Invalid'),
+                            Yii::t("app",'SSH keys can not be reactivated.'),
                             $xaction);
                     }
                 }
@@ -292,6 +300,7 @@ final class PhabricatorAuthSSHKeyEditor
      * @param ActiveRecordPHID $object
      * @param array $xactions
      * @param Exception $ex
+     * @throws PhabricatorApplicationTransactionValidationException
      * @author 陈妙威
      */
     protected function didCatchDuplicateKeyException(
@@ -303,8 +312,8 @@ final class PhabricatorAuthSSHKeyEditor
         $errors = array();
         $errors[] = new PhabricatorApplicationTransactionValidationError(
             PhabricatorAuthSSHKeyTransaction::TYPE_KEY,
-            \Yii::t("app",'Duplicate'),
-            \Yii::t("app",
+            Yii::t("app",'Duplicate'),
+            Yii::t("app",
                 'This public key is already associated with another user or device. ' .
                 'Each key must unambiguously identify a single unique owner.'),
             null);
@@ -331,7 +340,7 @@ final class PhabricatorAuthSSHKeyEditor
      */
     protected function getMailSubjectPrefix()
     {
-        return \Yii::t("app",'[SSH Key]');
+        return Yii::t("app",'[SSH Key]');
     }
 
     /**
@@ -407,7 +416,7 @@ final class PhabricatorAuthSSHKeyEditor
         $name = $object->getName();
 
         $mail = (new PhabricatorMetaMTAMail())
-            ->setSubject(\Yii::t("app",'SSH Key %d: %s', $id, $name));
+            ->setSubject(Yii::t("app",'SSH Key %d: %s', $id, $name));
 
         // The primary value of this mail is alerting users to account compromises,
         // so force delivery. In particular, this mail should still be delivered
@@ -421,8 +430,9 @@ final class PhabricatorAuthSSHKeyEditor
      * @param ActiveRecordPHID $object
      * @param array $xactions
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhutilInvalidStateException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildMailBody(
@@ -434,8 +444,8 @@ final class PhabricatorAuthSSHKeyEditor
 
         if (!$this->getIsAdministrativeEdit()) {
             $body->addTextSection(
-                \Yii::t("app",'SECURITY WARNING'),
-                \Yii::t("app",
+                Yii::t("app",'SECURITY WARNING'),
+                Yii::t("app",
                     'If you do not recognize this change, it may indicate your account ' .
                     'has been compromised.'));
         }
@@ -443,7 +453,7 @@ final class PhabricatorAuthSSHKeyEditor
         $detail_uri = $object->getURI();
         $detail_uri = PhabricatorEnv::getProductionURI($detail_uri);
 
-        $body->addLinkSection(\Yii::t("app",'SSH KEY DETAIL'), $detail_uri);
+        $body->addLinkSection(Yii::t("app",'SSH KEY DETAIL'), $detail_uri);
 
         return $body;
     }

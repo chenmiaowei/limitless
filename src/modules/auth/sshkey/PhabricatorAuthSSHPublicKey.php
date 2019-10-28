@@ -4,6 +4,7 @@ namespace orangins\modules\auth\sshkey;
 
 use CommandException;
 use Filesystem;
+use FilesystemException;
 use orangins\lib\infrastructure\util\PhabricatorHash;
 use orangins\lib\OranginsObject;
 use orangins\modules\auth\models\PhabricatorAuthSSHKey;
@@ -11,6 +12,7 @@ use orangins\modules\cache\PhabricatorCaches;
 use PhutilProxyException;
 use TempFile;
 use Exception;
+use Yii;
 
 /**
  * Data structure representing a raw public key.
@@ -57,7 +59,7 @@ final class PhabricatorAuthSSHPublicKey extends OranginsObject
     {
         $entire_key = trim($entire_key);
         if (!strlen($entire_key)) {
-            throw new Exception(\Yii::t("app",'No public key was provided.'));
+            throw new Exception(Yii::t("app",'No public key was provided.'));
         }
 
         $parts = str_replace("\n", '', $entire_key);
@@ -69,13 +71,13 @@ final class PhabricatorAuthSSHPublicKey extends OranginsObject
         if (preg_match('/private\s*key/i', $entire_key)) {
             // Try to give the user a better error message if it looks like
             // they uploaded a private key.
-            throw new Exception(\Yii::t("app",'Provide a public key, not a private key!'));
+            throw new Exception(Yii::t("app",'Provide a public key, not a private key!'));
         }
 
         switch (count($parts)) {
             case 1:
                 throw new Exception(
-                    \Yii::t("app",'Provided public key is not properly formatted.'));
+                    Yii::t("app",'Provided public key is not properly formatted.'));
             case 2:
                 // Add an empty comment part.
                 $parts[] = '';
@@ -100,7 +102,7 @@ final class PhabricatorAuthSSHPublicKey extends OranginsObject
         if (!in_array($type, $recognized_keys)) {
             $type_list = implode(', ', $recognized_keys);
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Public key type should be one of: %s',
                     $type_list));
         }
@@ -169,7 +171,7 @@ final class PhabricatorAuthSSHPublicKey extends OranginsObject
      * @return mixed
      * @author 陈妙威
      * @throws Exception
-     * @throws \FilesystemException
+     * @throws FilesystemException
      * @throws PhutilProxyException
      */
     public function toPKCS8()
@@ -192,7 +194,7 @@ final class PhabricatorAuthSSHPublicKey extends OranginsObject
         } catch (CommandException $ex) {
             unset($tmp);
             throw new PhutilProxyException(
-                \Yii::t("app",
+                Yii::t("app",
                     'Failed to convert public key into PKCS8 format. If you are ' .
                     'developing on OSX, you may be able to use `%s` ' .
                     'to work around this issue. %s',

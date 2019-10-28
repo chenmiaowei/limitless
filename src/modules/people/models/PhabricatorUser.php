@@ -1475,7 +1475,7 @@ class PhabricatorUser extends ActiveRecordPHID
      * @param string $default_profile_image_phid
      * @return self
      */
-    public function setDefaultProfileImagePhid($default_profile_image_phid)
+    public function setDefaultProfileImagePHID($default_profile_image_phid)
     {
         $this->default_profile_image_phid = $default_profile_image_phid;
         return $this;

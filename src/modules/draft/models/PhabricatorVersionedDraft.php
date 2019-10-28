@@ -172,7 +172,7 @@ class PhabricatorVersionedDraft extends \yii\db\ActiveRecord
     /**
      * @return string
      */
-    public function getObjectPhid()
+    public function getObjectPHID()
     {
         return $this->object_phid;
     }
@@ -181,7 +181,7 @@ class PhabricatorVersionedDraft extends \yii\db\ActiveRecord
      * @param string $object_phid
      * @return self
      */
-    public function setObjectPhid($object_phid)
+    public function setObjectPHID($object_phid)
     {
         $this->object_phid = $object_phid;
         return $this;

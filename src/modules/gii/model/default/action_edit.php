@@ -34,10 +34,10 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
 
 use AphrontQueryException;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>;
 use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\response\AphrontRedirectResponse;
@@ -56,7 +56,7 @@ use Yii;
 
 /**
  * Class <?= $modelClassName ?>EditAction
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions
  * @author 陈妙威
  */
 class <?= $modelClassName ?>EditAction extends <?= $modelClassName ?>Action

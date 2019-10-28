@@ -33,17 +33,17 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\controllers;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\controllers;
 
 use orangins\lib\controllers\PhabricatorController;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>ListAction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>EditAction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>ViewAction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>DeleteAction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>ListAction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>EditAction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>ViewAction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName ?>DeleteAction;
 
 /**
  * Class IndexController
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\controllers
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\controllers
  */
 
 class <?= ucfirst(preg_replace_callback('/([-_]+([a-z]{1}))/i',function($matches){

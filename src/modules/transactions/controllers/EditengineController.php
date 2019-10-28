@@ -22,6 +22,7 @@ use orangins\modules\transactions\actions\PhabricatorEditEngineConfigurationSave
 use orangins\modules\transactions\actions\PhabricatorEditEngineConfigurationSortController;
 use orangins\modules\transactions\actions\PhabricatorEditEngineConfigurationSubtypeController;
 use orangins\modules\transactions\actions\PhabricatorEditEngineConfigurationViewController;
+use orangins\modules\transactions\actions\PhabricatorEditEngineListController;
 
 /**
  * Class EditengineController
@@ -37,6 +38,7 @@ class EditengineController extends PhabricatorController
     public function actions()
     {
         return [
+            'query' => PhabricatorEditEngineListController::class,
             'edit' => PhabricatorEditEngineConfigurationEditController::class,
             'sort' => PhabricatorEditEngineConfigurationSortController::class,
             'view' => PhabricatorEditEngineConfigurationViewController::class,

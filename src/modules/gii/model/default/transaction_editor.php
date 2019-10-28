@@ -34,14 +34,14 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\editors;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\editors;
 
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskContentTransaction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskNameTransaction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskStatusTransaction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskTypeTransaction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskUserTransaction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskContentTransaction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskNameTransaction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskStatusTransaction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskTypeTransaction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\PhabricatorTaskUserTransaction;
 use orangins\lib\db\ActiveRecordPHID;
 use orangins\modules\transactions\constants\PhabricatorTransactions;
 use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
@@ -49,7 +49,7 @@ use Yii;
 
 /**
  * Class FileEditor
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\editors
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\editors
  */
 class <?= $modelClassName ?>Editor extends PhabricatorApplicationTransactionEditor
 {

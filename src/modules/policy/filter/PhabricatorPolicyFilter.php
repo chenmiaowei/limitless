@@ -28,6 +28,7 @@ use orangins\modules\policy\models\PhabricatorPolicyQuery;
 use orangins\modules\policy\phid\PhabricatorPolicyPHIDTypePolicy;
 use orangins\modules\spaces\query\PhabricatorSpacesNamespaceQuery;
 use Exception;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -88,7 +89,7 @@ final class PhabricatorPolicyFilter extends OranginsObject
 
         if (!self::hasCapability($user, $object, $capability)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     "You can not make that edit, because it would remove your ability " .
                     "to '%s' the object.",
                     $capability));
@@ -311,7 +312,7 @@ final class PhabricatorPolicyFilter extends OranginsObject
             foreach ($capabilities as $capability) {
                 if (!in_array($capability, $object_capabilities)) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             "Testing for capability '{0}' on an object which does " .
                             "not have that capability!", [
                                 $capability
@@ -762,7 +763,7 @@ final class PhabricatorPolicyFilter extends OranginsObject
         if (!$rejection) {
             // We couldn't find the capability object, or it doesn't provide a
             // tailored rejection string.
-            $rejection = \Yii::t("app",
+            $rejection = Yii::t("app",
                 'You do not have the required capability ("{0}") to do whatever you ' .
                 'are trying to do.', [
                     $capability
@@ -783,7 +784,7 @@ final class PhabricatorPolicyFilter extends OranginsObject
 
         $access_denied = $this->renderAccessDenied($object);
 
-        $full_message = \Yii::t("app",
+        $full_message = Yii::t("app",
             '[{0}] ({1}) {2} // {3]',
             [
                 $access_denied,
@@ -1026,11 +1027,11 @@ final class PhabricatorPolicyFilter extends OranginsObject
 
         $is_serious = PhabricatorEnv::getEnvConfig('orangins.serious-business');
         if ($is_serious) {
-            $access_denied = \Yii::t("app",
+            $access_denied = Yii::t("app",
                 'Access Denied: %s',
                 $object_name);
         } else {
-            $access_denied = \Yii::t("app",
+            $access_denied = Yii::t("app",
                 'You Shall Not Pass: {0}', [
                     $object_name
                 ]);
@@ -1105,9 +1106,9 @@ final class PhabricatorPolicyFilter extends OranginsObject
 
         $access_denied = $this->renderAccessDenied($object);
 
-        $rejection = \Yii::t("app",
+        $rejection = Yii::t("app",
             'This object is in a space you do not have permission to access.');
-        $full_message = \Yii::t("app", '[%s] %s', $access_denied, $rejection);
+        $full_message = Yii::t("app", '[%s] %s', $access_denied, $rejection);
 
         $exception = (new PhabricatorPolicyException($full_message))
             ->setTitle($access_denied)

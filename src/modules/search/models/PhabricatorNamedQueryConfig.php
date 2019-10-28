@@ -112,7 +112,7 @@ class PhabricatorNamedQueryConfig extends ActiveRecord
     /**
      * @return string
      */
-    public function getScopePhid()
+    public function getScopePHID()
     {
         return $this->scope_phid;
     }
@@ -121,7 +121,7 @@ class PhabricatorNamedQueryConfig extends ActiveRecord
      * @param string $scope_phid
      * @return self
      */
-    public function setScopePhid($scope_phid)
+    public function setScopePHID($scope_phid)
     {
         $this->scope_phid = $scope_phid;
         return $this;

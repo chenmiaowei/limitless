@@ -11,23 +11,22 @@ namespace orangins\lib\actions;
 
 use orangins\lib\controllers\PhabricatorController;
 use orangins\lib\db\ActiveRecordPHID;
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
-use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\markup\PhabricatorMarkupEngine;
 use orangins\lib\view\extension\PHUICurtainExtension;
 use orangins\lib\view\layout\AphrontSideNavFilterView;
 use orangins\lib\view\layout\PhabricatorActionListView;
 use orangins\lib\view\layout\PHUICurtainView;
-use orangins\modules\auth\engine\PhabricatorAuthSessionEngine;
+use orangins\lib\view\phui\PHUIIconView;
 use orangins\modules\home\application\PhabricatorHomeApplication;
 use orangins\modules\home\engine\PhabricatorHomeProfileMenuEngine;
 use orangins\modules\meta\query\PhabricatorApplicationQuery;
+use orangins\modules\phid\query\PhabricatorHandleQuery;
 use orangins\modules\transactions\engine\PhabricatorTimelineEngine;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use orangins\modules\transactions\models\PhabricatorApplicationTransactionComment;
-use PhutilURI;
-use orangins\lib\PhabricatorApplication;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\AphrontDialogView;
 use orangins\lib\view\control\AphrontCursorPagerView;
@@ -38,9 +37,14 @@ use orangins\modules\people\models\PhabricatorUserEmail;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface;
 use orangins\modules\transactions\query\PhabricatorApplicationTransactionQuery;
+use PhutilInvalidStateException;
+use PhutilURI;
+use PhutilMethodNotImplementedException;
+use ReflectionException;
 use Yii;
 use yii\base\Action;
 use Exception;
+use yii\helpers\Url;
 
 /**
  * Class PhabricatorAction
@@ -196,8 +200,8 @@ class PhabricatorAction extends Action
      * 代理执行其他的Action
      * @param PhabricatorAction $action
      * @return mixed
-     * @author 陈妙威
      * @throws \yii\base\InvalidConfigException
+     * @author 陈妙威
      */
     final public function delegateToAction(PhabricatorAction $action)
     {
@@ -257,8 +261,8 @@ class PhabricatorAction extends Action
 
     /**
      * @return mixed
-     * @author 陈妙威
      * @throws \yii\base\Exception
+     * @author 陈妙威
      */
     public function shouldRequireEmailVerification()
     {
@@ -324,7 +328,7 @@ class PhabricatorAction extends Action
     /**
      * @return PHUICrumbsView
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     public function buildApplicationCrumbsForEditEngine()
@@ -336,7 +340,7 @@ class PhabricatorAction extends Action
      * 创建面包屑
      * @return PHUICrumbsView
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     protected function buildApplicationCrumbs()
@@ -351,7 +355,7 @@ class PhabricatorAction extends Action
      * @param $params
      * @return string
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     public function getApplicationURI($path = null, $params = [])
@@ -471,8 +475,8 @@ class PhabricatorAction extends Action
      * @param $capability
      * @return bool
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function hasApplicationCapability($capability)
@@ -496,8 +500,8 @@ class PhabricatorAction extends Action
     /**
      * @param $capability
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function requireApplicationCapability($capability)
@@ -573,9 +577,9 @@ class PhabricatorAction extends Action
      * @param null $object
      * @return mixed
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
      * @throws \yii\base\InvalidConfigException
      * @author 陈妙威
      */
@@ -619,15 +623,15 @@ class PhabricatorAction extends Action
      * @param $name
      * @param null $uri
      * @param null $icon
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function addNavFilter(AphrontSideNavFilterView $nav, $capability, $key, $name, $uri = null, $icon = null)
     {
         $hasCapability = PhabricatorPolicyFilter::hasCapability($this->getViewer(), $this->controller->getCurrentApplication(), $capability);
-        if($hasCapability)  {
+        if ($hasCapability) {
             $nav->addFilter($key, $name, $uri, $icon);
         }
     }
@@ -635,16 +639,17 @@ class PhabricatorAction extends Action
     /**
      * @param PhabricatorUser $viewer
      * @param $item_identifier
-     * @return \orangins\lib\view\layout\AphrontSideNavFilterView
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \Exception
+     * @return AphrontSideNavFilterView
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws Exception
      * @author 陈妙威
      */
     final protected function newNavigation(
         PhabricatorUser $viewer,
-        $item_identifier = null) {
+        $item_identifier = null)
+    {
         $home_app = (new PhabricatorApplicationQuery())
             ->setViewer($viewer)
             ->withShortName(false)
@@ -666,5 +671,81 @@ class PhabricatorAction extends Action
         $navigation = $view_list->newNavigationView();
 
         return $navigation;
+    }
+
+
+    /**
+     * @param $capability
+     * @param $positive_message
+     * @param $negative_message
+     * @return array
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
+     * @author 陈妙威
+     */
+    protected function explainApplicationCapability(
+        $capability,
+        $positive_message,
+        $negative_message)
+    {
+
+        $can_act = $this->hasApplicationCapability($capability);
+        if ($can_act) {
+            $message = $positive_message;
+            $icon_name = 'fa-play-circle-o lightgreytext';
+        } else {
+            $message = $negative_message;
+            $icon_name = 'fa-lock';
+        }
+
+        $icon = (new PHUIIconView())
+            ->addClass("mr-1")
+            ->setIcon($icon_name);
+
+//        require_celerity_resource('policy-css');
+        $phid = $this->controller->getCurrentApplication()->getPHID();
+//        $explain_uri = "/policy/explain/{$phid}/{$capability}/";
+        $explain_uri = Url::to(['/policy/index/explain',
+            'phid' => $phid,
+            'capability' => $capability,
+        ]);
+
+
+        $message = JavelinHtml::phutil_tag(
+            'div',
+            array(
+                'class' => 'policy-capability-explanation',
+            ),
+            array(
+                $icon,
+                JavelinHtml::phutil_tag(
+                    'a',
+                    array(
+                        'href' => $explain_uri,
+                        'sigil' => 'workflow',
+                    ),
+                    $message),
+            ));
+
+        return array($can_act, $message);
+    }
+
+
+    /**
+     * WARNING: Do not call this in new code.
+     *
+     * @param array $phids
+     * @return array
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @deprecated See "Handles Technical Documentation".
+     */
+    protected function loadViewerHandles(array $phids)
+    {
+        return (new PhabricatorHandleQuery())
+            ->setViewer($this->getRequest()->getViewer())
+            ->withPHIDs($phids)
+            ->execute();
     }
 }

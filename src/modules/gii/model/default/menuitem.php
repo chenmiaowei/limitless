@@ -34,7 +34,7 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\menuitem;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\menuitem;
 
 use orangins\lib\view\phui\PHUIListItemView;
 use orangins\modules\search\menuitems\PhabricatorProfileMenuItem;

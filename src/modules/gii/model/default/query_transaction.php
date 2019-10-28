@@ -29,9 +29,9 @@ echo "<?php\n";
 
 
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\query;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\query;
 
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>Transaction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>Transaction;
 use orangins\modules\file\models\PhabricatorFileTransaction;
 use orangins\modules\transactions\query\PhabricatorApplicationTransactionQuery;
 

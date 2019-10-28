@@ -27,6 +27,7 @@ use ReflectionException;
 use Yii;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * Class PHUIHeaderView
@@ -805,7 +806,10 @@ class PHUIHeaderView extends AphrontTagView
             'a',
             array(
                 'class' => 'policy-link',
-                'href' => '/policy/explain/' . $phid . '/' . $view_capability . '/',
+                'href' => $explain_uri = Url::to(['/policy/index/explain',
+                    'phid' => $phid,
+                    'capability' => $view_capability,
+                ]),
                 'sigil' => 'workflow',
             ),
             $policy_name);

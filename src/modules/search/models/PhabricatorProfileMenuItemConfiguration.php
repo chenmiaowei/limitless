@@ -159,7 +159,7 @@ class PhabricatorProfileMenuItemConfiguration extends ActiveRecordPHID
     /**
      * @return string
      */
-    public function getProfilePhid()
+    public function getProfilePHID()
     {
         return $this->profile_phid;
     }
@@ -168,7 +168,7 @@ class PhabricatorProfileMenuItemConfiguration extends ActiveRecordPHID
      * @param string $profile_phid
      * @return self
      */
-    public function setProfilePhid($profile_phid)
+    public function setProfilePHID($profile_phid)
     {
         $this->profile_phid = $profile_phid;
         return $this;

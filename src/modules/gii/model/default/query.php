@@ -37,14 +37,14 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\
     /**
     * @var array
     */
-    <?= "private \${$indexColumn};" . "\n" ?>
+    <?= "private \${$indexColumn} = [];" . "\n" ?>
 
     /**
     * @param array $<?= str_replace("_phid", "PHID", $indexColumn) . PHP_EOL ?>
     * @return $this
     * @author 陈妙威
     */
-    public function with<?= ucfirst(str_replace("_phid", "PHID", $indexColumn)) ?>($<?= str_replace("_phid", "PHID", $indexColumn) ?>)
+    public function with<?= str_replace("Id", "ID", str_replace("Phid", "PHID",  str_replace(' ', '', \yii\helpers\Inflector::camel2words($indexColumn)))) ?>($<?= str_replace("_phid", "PHID", $indexColumn) ?>)
     {
         $this-><?= $indexColumn ?>[] = $<?= str_replace("_phid", "PHID", $indexColumn) ?>;
         return $this;
@@ -54,7 +54,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\
     * @return $this
     * @author 陈妙威
     */
-    public function with<?= ucfirst(str_replace("_phid", "PHID", $indexColumn)) . "s" ?>($<?= str_replace("_phid", "PHID", $indexColumn) . "s" ?>)
+    public function with<?= str_replace("Id", "ID", str_replace("Phid", "PHID",  str_replace(' ', '', \yii\helpers\Inflector::camel2words($indexColumn)))) . "s" ?>($<?= str_replace("_phid", "PHID", $indexColumn) . "s" ?>)
     {
         $this-><?= $indexColumn?> = $<?= str_replace("_phid", "PHID", $indexColumn) . "s"?>;
         return $this;
@@ -92,7 +92,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\
         parent::buildWhereClauseParts();
 
 <?php foreach ($indexColumns as $indexColumn): ?>
-        if ($this-><?= $indexColumn ?> !== null) {
+        if (!empty($this-><?= $indexColumn ?>)) {
             $this->andWhere(['IN', '<?= $indexColumn ?>', $this-><?= $indexColumn ?>]);
         }
 <?php endforeach; ?>

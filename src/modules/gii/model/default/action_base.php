@@ -33,14 +33,14 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
 
 
 use orangins\lib\actions\PhabricatorAction;
 
 /**
  * Class <?= $modelClassName ?>Action
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions
  * @author 陈妙威
  */
 class <?= $modelClassName ?>Action extends PhabricatorAction

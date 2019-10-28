@@ -54,7 +54,8 @@ class PhabricatorProfileMenuItemConfigurationTransaction extends PhabricatorAppl
      * @return mixed|string
      * @author 陈妙威
      */
-    public function getApplicationTransactionType() {
+    public function getApplicationTransactionType()
+    {
         return PhabricatorProfileMenuItemPHIDType::TYPECONST;
     }
 
@@ -62,7 +63,8 @@ class PhabricatorProfileMenuItemConfigurationTransaction extends PhabricatorAppl
      * @return null|void
      * @author 陈妙威
      */
-    public function getApplicationTransactionCommentObject() {
+    public function getApplicationTransactionCommentObject()
+    {
         return null;
     }
 

@@ -7,7 +7,6 @@ use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQu
 use PhutilMethodNotImplementedException;
 use orangins\lib\helpers\OranginsUtf8;
 use orangins\lib\helpers\OranginsUtil;
-use PhutilURI;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\phid\helpers\PhabricatorPHID;
 use orangins\modules\phid\PhabricatorPHIDConstants;

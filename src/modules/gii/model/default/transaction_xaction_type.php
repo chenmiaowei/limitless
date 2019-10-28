@@ -34,7 +34,7 @@ echo "<?php\n";
 ?>
 
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace("_", '', $tableName) ?>;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace("_", '', $tableName) ?>;
 
 use orangins\modules\transactions\models\PhabricatorModularTransactionType;
 

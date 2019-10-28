@@ -2,12 +2,16 @@
 
 namespace orangins\modules\dashboard\models;
 
+use Exception;
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\modules\dashboard\phid\PhabricatorDashboardDashboardPHIDType;
 use orangins\modules\dashboard\query\PhabricatorDashboardTransactionQuery;
 use orangins\modules\dashboard\xaction\dashboard\PhabricatorDashboardTransactionType;
-use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use orangins\modules\transactions\models\PhabricatorModularTransaction;
+use PhutilJSONParserException;
+use ReflectionException;
 use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * This is the model class for table "dashboard_transactions".
@@ -57,15 +61,13 @@ class PhabricatorDashboardTransaction extends PhabricatorModularTransaction
     }
 
 
-
     /**
      * @return mixed|string
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws Exception
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function getTitle()

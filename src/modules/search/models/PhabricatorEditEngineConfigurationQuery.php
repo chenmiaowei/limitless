@@ -6,6 +6,8 @@ use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQu
 use orangins\modules\transactions\application\PhabricatorTransactionsApplication;
 use orangins\modules\transactions\editengine\PhabricatorEditEngine;
 use orangins\modules\transactions\query\PhabricatorEditEngineQuery;
+use PhutilInvalidStateException;
+use ReflectionException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -177,7 +179,8 @@ class PhabricatorEditEngineConfigurationQuery extends PhabricatorCursorPagedPoli
 
     /**
      * @return array
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -319,8 +322,8 @@ class PhabricatorEditEngineConfigurationQuery extends PhabricatorCursorPagedPoli
     /**
      * @param PhabricatorEditEngineConfiguration[] $configs
      * @return array
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function willFilterPage(array $configs)

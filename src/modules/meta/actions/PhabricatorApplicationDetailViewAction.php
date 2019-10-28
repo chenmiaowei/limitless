@@ -8,6 +8,7 @@ use orangins\lib\PhabricatorApplication;
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\view\AphrontView;
 use orangins\lib\view\layout\PhabricatorActionView;
+use orangins\lib\view\page\PhabricatorStandardPageView;
 use orangins\lib\view\phui\PHUIHeaderView;
 use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\lib\view\phui\PHUIPageHeaderView;
@@ -18,6 +19,13 @@ use orangins\modules\meta\query\PhabricatorApplicationQuery;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use orangins\modules\policy\models\PhabricatorPolicyQuery;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -40,11 +48,13 @@ final class PhabricatorApplicationDetailViewAction
     }
 
     /**
-     * @return Aphront404Response|\orangins\lib\view\page\PhabricatorStandardPageView
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @return Aphront404Response|PhabricatorStandardPageView
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function run()
@@ -75,9 +85,9 @@ final class PhabricatorApplicationDetailViewAction
             ->setHeaderIcon($selected->getIcon());
 
         if ($selected->isInstalled()) {
-            $header->setStatus('fa-check', AphrontView::COLOR_SUCCESS, \Yii::t("app", 'Installed'));
+            $header->setStatus('fa-check', AphrontView::COLOR_SUCCESS, Yii::t("app", 'Installed'));
         } else {
-            $header->setStatus('fa-ban', 'dark', \Yii::t("app", 'Uninstalled'));
+            $header->setStatus('fa-ban', 'dark', Yii::t("app", 'Uninstalled'));
         }
 
         $timeline = $this->buildTransactionTimeline(
@@ -110,7 +120,7 @@ final class PhabricatorApplicationDetailViewAction
                 $panels,
                 $timeline,
             ))
-            ->addPropertySection(\Yii::t("app", 'Details'), $details);
+            ->addPropertySection(Yii::t("app", 'Details'), $details);
 
         return $this->newPage()
             ->setTitle($title)
@@ -135,7 +145,7 @@ final class PhabricatorApplicationDetailViewAction
         $properties = (new PHUIPropertyListView());
 
         $properties->addProperty(
-            \Yii::t("app", 'Description'),
+            Yii::t("app", 'Description'),
             $application->getShortDescription());
 
         if ($application->getFlavorText()) {
@@ -153,11 +163,11 @@ final class PhabricatorApplicationDetailViewAction
                     'href' => $proto_href,
                     'target' => '_blank',
                 ),
-                \Yii::t("app", 'Learn More'));
+                Yii::t("app", 'Learn More'));
 
             $properties->addProperty(
-                \Yii::t("app", 'Prototype'),
-                \Yii::t("app",
+                Yii::t("app", 'Prototype'),
+                Yii::t("app",
                     'This application is a prototype. {0}', [
                         $learn_more
                     ]));
@@ -167,7 +177,7 @@ final class PhabricatorApplicationDetailViewAction
         if (strlen($overview)) {
             $overview = new PHUIRemarkupView($viewer, $overview);
             $properties->addSectionHeader(
-                \Yii::t("app", 'Overview'), PHUIPropertyListView::ICON_SUMMARY);
+                Yii::t("app", 'Overview'), PHUIPropertyListView::ICON_SUMMARY);
             $properties->addTextContent($overview);
         }
 
@@ -177,8 +187,9 @@ final class PhabricatorApplicationDetailViewAction
     /**
      * @param PhabricatorApplication $application
      * @return PHUIObjectBoxView
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     private function buildPolicyView(
@@ -189,7 +200,7 @@ final class PhabricatorApplicationDetailViewAction
         $properties = (new PHUIPropertyListView());
 
         $header = (new PHUIHeaderView())
-            ->setHeader(\Yii::t("app", 'Policies'));
+            ->setHeader(Yii::t("app", 'Policies'));
 
         $descriptions = PhabricatorPolicyQuery::renderPolicyDescriptions(
             $viewer,
@@ -211,11 +222,12 @@ final class PhabricatorApplicationDetailViewAction
     /**
      * @param PhabricatorApplication $application
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     private function buildCurtain(PhabricatorApplication $application)
@@ -236,7 +248,7 @@ final class PhabricatorApplicationDetailViewAction
 
         $curtain->addAction(
             (new PhabricatorActionView())
-                ->setName(\Yii::t("app", 'Edit Policies'))
+                ->setName(Yii::t("app", 'Edit Policies'))
                 ->setIcon('fa-pencil')
                 ->setDisabled(!$can_edit)
                 ->setWorkflow(!$can_edit)
@@ -246,14 +258,14 @@ final class PhabricatorApplicationDetailViewAction
             if ($application->isInstalled()) {
                 $curtain->addAction(
                     (new PhabricatorActionView())
-                        ->setName(\Yii::t("app", 'Uninstall'))
+                        ->setName(Yii::t("app", 'Uninstall'))
                         ->setIcon('fa-times')
                         ->setDisabled(!$can_edit)
                         ->setWorkflow(true)
                         ->setHref($uninstall_uri));
             } else {
                 $action = (new PhabricatorActionView())
-                    ->setName(\Yii::t("app", 'Install'))
+                    ->setName(Yii::t("app", 'Install'))
                     ->setIcon('fa-plus')
                     ->setDisabled(!$can_edit)
                     ->setWorkflow(true)
@@ -270,7 +282,7 @@ final class PhabricatorApplicationDetailViewAction
         } else {
             $curtain->addAction(
                 (new PhabricatorActionView())
-                    ->setName(\Yii::t("app", 'Uninstall'))
+                    ->setName(Yii::t("app", 'Uninstall'))
                     ->setIcon('fa-times')
                     ->setWorkflow(true)
                     ->setDisabled(true)

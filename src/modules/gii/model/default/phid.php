@@ -16,7 +16,7 @@
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\phid;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\phid;
 
 use <?= $generator->queryNs ?>\<?= $className ?>;
 use <?= $generator->ns ?>\<?= $modelClassName ?>;
@@ -26,7 +26,7 @@ use orangins\modules\phid\query\PhabricatorObjectQuery;
 
 /**
 * Class <?= $className ?>PHIDType
-* @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\phid
+* @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\phid
 * @author 陈妙威
 */
 class <?= $modelClassName ?>PHIDType extends \orangins\modules\phid\PhabricatorPHIDType

@@ -37,6 +37,7 @@ use orangins\modules\auth\application\PhabricatorAuthApplication;
 use orangins\modules\celerity\CelerityAPI;
 use orangins\modules\meta\query\PhabricatorApplicationQuery;
 use orangins\modules\people\models\PhabricatorUser;
+use PhutilMethodNotImplementedException;
 use Yii;
 use Exception;
 use yii\base\InvalidRouteException;
@@ -189,7 +190,7 @@ class PhabricatorController extends Controller
      * 创建面包屑
      * @return PHUICrumbsView
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     public function buildApplicationCrumbs()
@@ -221,7 +222,7 @@ class PhabricatorController extends Controller
     /**
      * @return PHUICrumbsView
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     public function buildApplicationCrumbsForEditEngine()
@@ -238,7 +239,7 @@ class PhabricatorController extends Controller
      * @param string $path
      * @return string
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     public function getApplicationURI($path = '')
@@ -252,7 +253,7 @@ class PhabricatorController extends Controller
     /**
      * @param AphrontResponse $response
      * @return AphrontAjaxResponse|AphrontResponse
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @throws \yii\base\Exception
      * @throws \Exception
      * @author 陈妙威
@@ -331,7 +332,7 @@ class PhabricatorController extends Controller
      * @param AphrontResponse $response
      * @return string
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      */
     final public function writeResponse(AphrontResponse $response)
     {
@@ -547,7 +548,7 @@ class PhabricatorController extends Controller
     /**
      * @param $action
      * @return string
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @throws \ReflectionException
      * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
      * @throws \yii\base\Exception
@@ -731,7 +732,7 @@ class PhabricatorController extends Controller
      * @return string
      * @author 陈妙威
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      */
     public function afterAction($action, $response)
     {
@@ -744,7 +745,7 @@ class PhabricatorController extends Controller
      * @param $response
      * @return string
      * @throws Exception
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     public function processActionResponse($response)

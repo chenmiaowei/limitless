@@ -33,7 +33,7 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
 
 use <?= $modelFullClassName ?>;
 use orangins\lib\response\Aphront404Response;
@@ -47,7 +47,7 @@ use Yii;
 
 /**
  * Class <?= $modelClassName ?>DeleteAction
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions
  * @author 陈妙威
  */
 class <?= $modelClassName ?>DeleteAction extends <?= $modelClassName ?>Action

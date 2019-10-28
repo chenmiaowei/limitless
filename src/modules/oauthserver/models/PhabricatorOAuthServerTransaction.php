@@ -2,10 +2,15 @@
 
 namespace orangins\modules\oauthserver\models;
 
+use Exception;
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\modules\oauthserver\phid\PhabricatorOAuthServerClientPHIDType;
 use orangins\modules\oauthserver\query\PhabricatorOAuthServerTransactionQuery;
 use orangins\modules\transactions\constants\PhabricatorTransactions;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilJSONParserException;
+use ReflectionException;
+use yii\base\InvalidConfigException;
 
 /**
  * Class PhabricatorOAuthServerTransaction
@@ -60,11 +65,11 @@ final class PhabricatorOAuthServerTransaction
 
     /**
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \Exception
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     public function getTitle()

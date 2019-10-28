@@ -146,7 +146,7 @@ class PhabricatorAuthProviderConfig extends ActiveRecordPHID
     /**
      * @return string
      */
-    public function getPhid()
+    public function getPHID()
     {
         return $this->phid;
     }
@@ -155,7 +155,7 @@ class PhabricatorAuthProviderConfig extends ActiveRecordPHID
      * @param string $phid
      * @return self
      */
-    public function setPhid($phid)
+    public function setPHID($phid)
     {
         $this->phid = $phid;
         return $this;

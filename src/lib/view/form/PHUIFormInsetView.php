@@ -129,6 +129,7 @@ final class PHUIFormInsetView extends AphrontView
                 'input',
                 array(
                     'type' => 'hidden',
+                    'class' => 'form-control',
                     'name' => $key,
                     'value' => $value,
                 ));
@@ -139,7 +140,7 @@ final class PHUIFormInsetView extends AphrontView
                 'div',
                 array(),
                 $this->rightButton);
-            $right_button = JavelinHtml::phutil_tag_div('grouped', $right_button);
+            $right_button = JavelinHtml::phutil_tag_div('text-right grouped', $right_button);
         }
 
         if ($this->description) {
@@ -150,7 +151,7 @@ final class PHUIFormInsetView extends AphrontView
         }
 
         $div_attributes = $this->divAttributes;
-        $classes = array('phui-form-inset');
+        $classes = array('card border-top-1 border-top-success rounded-top-0 phui-form-inset');
         if (isset($div_attributes['class'])) {
             $classes[] = $div_attributes['class'];
         }
@@ -161,10 +162,16 @@ final class PHUIFormInsetView extends AphrontView
         $content[] = $right_button;
         $content[] = $desc;
 
+
+        $header = null;
         if ($this->title != '') {
-            array_unshift($content, JavelinHtml::phutil_tag('h1', array(
-                "class" => "font-size-lg"
-            ), $this->title));
+            $header = JavelinHtml::phutil_tag("div", [
+                "class" => "card-header bg-light",
+            ], [
+                JavelinHtml::phutil_tag('h6', array(
+                    "class" => "card-title"
+                ), $this->title)
+            ]);
         }
 
         if ($this->content) {
@@ -173,6 +180,17 @@ final class PHUIFormInsetView extends AphrontView
 
         $content = array_merge($content, $this->renderChildren());
 
-        return JavelinHtml::phutil_tag('div', $div_attributes, $content);
+        $content = JavelinHtml::phutil_tag("div", [
+            "class" => "card-body"
+        ], [
+            $content
+        ]);
+        return JavelinHtml::phutil_tag_div("row", [
+            JavelinHtml::phutil_tag_div('col-md-2'),
+            JavelinHtml::phutil_tag_div('col-md-8', JavelinHtml::phutil_tag('div', $div_attributes, [
+                $header,
+                $content
+            ]))
+        ]);
     }
 }

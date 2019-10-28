@@ -9,13 +9,10 @@
 namespace orangins\modules\metamta\tests\unit;
 
 
-use orangins\lib\env\PhabricatorEnv;
-use orangins\lib\infrastructure\daemon\workers\PhabricatorWorker;
 use orangins\modules\config\fixtures\ConfigFixture;
 use orangins\modules\people\fixtures\UserEmailFixture;
 use orangins\modules\people\fixtures\UserFixture;
 use orangins\modules\metamta\fixtures\MetaMTAMailFixture;
-use orangins\modules\metamta\models\PhabricatorMetaMTAMail;
 
 class MetaMTAMailTest extends \Codeception\Test\Unit
 {

@@ -34,11 +34,11 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
 
 
 use orangins\modules\search\actions\PhabricatorApplicationSearchAction;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\query\<?= $modelClassName ?>SearchEngine;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\query\<?= $modelClassName ?>SearchEngine;
 use orangins\lib\view\phui\PHUICrumbsView;
 use orangins\lib\view\phui\PHUIListItemView;
 use PhutilMethodNotImplementedException;
@@ -46,7 +46,7 @@ use Yii;
 
 /**
  * Class <?= $modelClassName ?>ListAction
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions
  */
 class <?= $modelClassName ?>ListAction extends <?= $modelClassName ?>Action
 {

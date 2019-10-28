@@ -23,17 +23,17 @@ $hasAuthor = in_array('author_phid', \yii\helpers\ArrayHelper::getColumn($tableS
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\models;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\models;
 
 
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\phid\<?= $modelClassName ?>PHIDType;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\query\<?= $modelClassName ?>TransactionQuery;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace("_", '', $tableName) ?>\<?= $modelClassName ?>TransactionType;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\phid\<?= $modelClassName ?>PHIDType;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\query\<?= $modelClassName ?>TransactionQuery;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace("_", '', $tableName) ?>\<?= $modelClassName ?>TransactionType;
 use orangins\modules\transactions\models\PhabricatorModularTransaction;
 
 /**
  * Class <?= $modelClassName ?>Transaction
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\models
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\models
  * @author 陈妙威
  */
 class <?= $modelClassName ?>Transaction  extends PhabricatorModularTransaction

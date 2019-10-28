@@ -2,17 +2,24 @@
 
 namespace orangins\modules\transactions\editengine;
 
+use AphrontDuplicateKeyQueryException;
+use AphrontObjectMissingQueryException;
+use AphrontQueryException;
 use orangins\lib\actions\PhabricatorAction;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\OranginsObject;
 use orangins\lib\db\ActiveRecord;
 use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;;
 use orangins\lib\editor\PhabricatorEditEngineExtension;
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\view\page\PhabricatorStandardPageView;
+use orangins\modules\conduit\protocol\ConduitAPIRequest;
 use orangins\modules\draft\models\PhabricatorVersionedDraft;
 use orangins\modules\transactions\bulk\PhabricatorBulkEditGroup;
 use orangins\modules\transactions\draft\PhabricatorBuiltinDraftEngine;
 use orangins\modules\transactions\draft\PhabricatorDraftInterface;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException;
 use orangins\modules\transactions\response\PhabricatorApplicationTransactionResponse;
 use orangins\lib\PhabricatorApplication;
 use orangins\lib\request\AphrontRequest;
@@ -59,12 +66,23 @@ use orangins\modules\transactions\response\PhabricatorApplicationTransactionWarn
 use orangins\modules\transactions\view\PhabricatorApplicationTransactionCommentView;
 use orangins\lib\view\form\control\AphrontFormSubmitControl;
 use orangins\lib\view\form\AphrontFormView;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
 use PhutilSortVector;
 use PhutilProxyException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
 use PhutilTypeSpec;
 use PhutilURI;
 use PhutilClassMapQuery;
 use Exception;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -184,14 +202,14 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return mixed
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     final public function getEngineKey()
     {
         $key = $this->getPhobjectClassConstant('ENGINECONST', 64);
         if (strpos($key, '/') !== false) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'EditEngine ("%s") contains an invalid key character "/".',
                     get_class($this)));
         }
@@ -251,7 +269,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return array
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getDefaultQuickCreateFormKeys()
     {
@@ -280,8 +298,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return mixed
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function getQuickCreateOrderVector()
     {
@@ -369,7 +387,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param PhabricatorEditEngineConfiguration $config
      * @return PhabricatorEditField[]
      * @throws Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function getFieldsForConfig(PhabricatorEditEngineConfiguration $config)
@@ -389,7 +407,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $object
      * @return PhabricatorEditField[]
      * @throws Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     final protected function buildEditFields($object)
@@ -553,7 +571,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      */
     protected function getObjectEditButtonText($object)
     {
-        return \Yii::t("app", 'Save Changes');
+        return Yii::t("app", 'Save Changes');
     }
 
 
@@ -562,7 +580,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      */
     protected function getCommentViewSeriousHeaderText($object)
     {
-        return \Yii::t("app", 'Take Action');
+        return Yii::t("app", 'Take Action');
     }
 
 
@@ -571,7 +589,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      */
     protected function getCommentViewSeriousButtonText($object)
     {
-        return \Yii::t("app", 'Submit');
+        return Yii::t("app", 'Submit');
     }
 
 
@@ -646,7 +664,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return mixed
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function newConfigurationQuery()
     {
@@ -660,8 +678,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $sort_method
      * @return null
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function loadEditEngineConfigurationWithQuery(
@@ -690,8 +708,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return PhabricatorEditEngineConfiguration
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     private function loadEditEngineConfigurationWithIdentifier($identifier)
     {
@@ -705,8 +723,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return PhabricatorEditEngineConfiguration
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     private function loadDefaultConfiguration()
     {
@@ -724,8 +742,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return PhabricatorEditEngineConfiguration
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     private function loadDefaultCreateConfiguration()
     {
@@ -742,8 +760,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return PhabricatorEditEngineConfiguration
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     public function loadDefaultEditConfiguration($object)
     {
@@ -769,14 +787,14 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return PhabricatorEditEngineConfiguration[]
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     final public function getBuiltinEngineConfigurations()
     {
         $configurations = $this->newBuiltinEngineConfigurations();
         if (!$configurations) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'EditEngine ("{0}") returned no builtin engine configurations, but ' .
                     'an edit engine must have at least one configuration.', [
                         get_class($this)
@@ -805,7 +823,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
                 }
             } else {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'EditEngine ("{0}") returned builtin engine configurations, ' .
                         'but none are marked as default and the first configuration has ' .
                         'a different builtin key already. Mark a builtin as default or ' .
@@ -821,7 +839,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             if ($builtin_key === null) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'EditEngine ("{0}") returned builtin engine configurations, ' .
                         'but one (with key "{1}") is missing a builtin key. Provide a ' .
                         'builtin key for each configuration (you can omit it from the ' .
@@ -834,7 +852,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             if (isset($builtins[$builtin_key])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'EditEngine ("{0}") returned builtin engine configurations, ' .
                         'but at least two specify the same builtin key ("{1}"). Engines ' .
                         'must have unique builtin keys.', [
@@ -853,7 +871,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @return PhabricatorEditEngineConfiguration[]
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function newBuiltinEngineConfigurations()
@@ -866,7 +884,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @return PhabricatorEditEngineConfiguration
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final protected function newConfiguration()
@@ -940,7 +958,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param ActiveRecord $object
      * @param array $params
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public function getEditURI($object = null, $params = [])
     {
@@ -1086,8 +1104,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return object Corresponding editable object.
      * @task load
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     private function newObjectFromIdentifier(
         $identifier,
@@ -1098,7 +1116,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             if (!$object) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'No object exists with ID "%s".',
                         $identifier));
             }
@@ -1112,7 +1130,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             if (!$object) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'No object exists with PHID "%s".',
                         $identifier));
             }
@@ -1126,7 +1144,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
             ->executeOne();
         if (!$target) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Monogram "{0}" does not identify a valid object.', [
                         $identifier
                     ]));
@@ -1137,7 +1155,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         $target_class = get_class($target);
         if ($expect_class !== $target_class) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Monogram "%s" identifies an object of the wrong type. Loaded ' .
                     'object has class "%s", but this editor operates on objects of ' .
                     'type "%s".',
@@ -1153,7 +1171,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         $object = $this->newObjectFromPHID($target->getPHID(), $capabilities);
         if (!$object) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Failed to reload object identified by monogram "{0}" when ' .
                     'querying by PHID.',
                     $identifier));
@@ -1169,8 +1187,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param array $capabilities
      * @return object|null Object, or null if no such object exists.
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @task load
      */
     private function newObjectFromID($id, array $capabilities = array())
@@ -1190,8 +1208,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param array $capabilities
      * @return object|null Object, or null if no such object exists.
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @task load
      */
     private function newObjectFromPHID($phid, array $capabilities = array())
@@ -1211,8 +1229,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      *  defaults.
      * @return object|null Object, or null if no such object exists.
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @task load
      */
     private function newObjectFromQuery(
@@ -1253,7 +1271,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     {
         if (!$object || !is_object($object)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'EditEngine "{0}" created or loaded an invalid object: object must ' .
                     'actually be an object, but is of some other type ("{0}").',
                     get_class($this),
@@ -1262,7 +1280,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
         if (!($object instanceof PhabricatorApplicationTransactionInterface)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'EditEngine "{0}" created or loaded an invalid object: object (of ' .
                     'class "{1}") must implement "{2}", but does not.',
                     [
@@ -1281,16 +1299,16 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return mixed
      * @throws Exception
      * @throws PhabricatorApplicationTransactionWarningException
-     * @throws \AphrontDuplicateKeyQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
+     * @throws AphrontDuplicateKeyQueryException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
 
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     final public function buildResponse()
@@ -1414,7 +1432,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $object
      * @param bool $final
-     * @return \orangins\lib\view\phui\PHUICrumbsView
+     * @return PHUICrumbsView
      * @author 陈妙威
      * @throws Exception
      */
@@ -1436,7 +1454,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
                 $this->getObjectEditShortText($object),
                 $this->getEffectiveObjectViewURI($object));
 
-            $edit_text = \Yii::t("app", 'Edit');
+            $edit_text = Yii::t("app", 'Edit');
             if ($final) {
                 $crumbs->addTextCrumb($edit_text);
             } else {
@@ -1451,17 +1469,20 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param PhabricatorApplicationTransactionInterface|ActiveRecordPHID $object
      * @return mixed
-     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws PhabricatorApplicationTransactionStructureException
      * @throws PhabricatorApplicationTransactionWarningException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilJSONParserException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws Throwable
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     private function buildEditResponse($object)
@@ -1754,9 +1775,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param ActiveRecord $object
      * @param PhabricatorEditField[] $fields
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     private function buildEditForm($object, $fields)
     {
@@ -1817,8 +1838,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $object
      * @return null
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function buildEditFormActionButton($object)
@@ -1838,7 +1859,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
         $action_button = (new PHUIButtonView())
             ->setTag('a')
-            ->setText(\Yii::t("app",'Configure Form'))
+            ->setText(Yii::t("app",'Configure Form'))
             ->setHref('#')
             ->setIcon('fa-gear')
             ->setDropdownMenu($action_view);
@@ -1850,9 +1871,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $object
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     private function buildEditFormActions($object)
@@ -1878,15 +1899,15 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             $actions[] = (new PhabricatorActionView())
                 ->setLabel(true)
-                ->setName(\Yii::t("app",'Configuration'));
+                ->setName(Yii::t("app",'Configuration'));
 
             $actions[] = (new PhabricatorActionView())
-                ->setName(\Yii::t("app",'View Form Configurations'))
+                ->setName(Yii::t("app",'View Form Configurations'))
                 ->setIcon('fa-list-ul')
                 ->setHref($view_uri);
 
             $actions[] = (new PhabricatorActionView())
-                ->setName(\Yii::t("app",'Edit Form Configuration'))
+                ->setName(Yii::t("app",'Edit Form Configuration'))
                 ->setIcon('fa-pencil')
                 ->setHref($manage_uri)
                 ->setDisabled(!$can_manage)
@@ -1895,16 +1916,16 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
         $actions[] = (new PhabricatorActionView())
             ->setLabel(true)
-            ->setName(\Yii::t("app",'Documentation'));
+            ->setName(Yii::t("app",'Documentation'));
 
         $actions[] = (new PhabricatorActionView())
-            ->setName(\Yii::t("app",'Using HTTP Parameters'))
+            ->setName(Yii::t("app",'Using HTTP Parameters'))
             ->setIcon('fa-book')
             ->setHref($this->getEditURI($object, ['editAction' => 'parameters']));
 
         $doc_href = PhabricatorEnv::getDoclink('User Guide: Customizing Forms');
         $actions[] = (new PhabricatorActionView())
-            ->setName(\Yii::t("app",'User Guide: Customizing Forms'))
+            ->setName(Yii::t("app",'User Guide: Customizing Forms'))
             ->setIcon('fa-book')
             ->setHref($doc_href);
 
@@ -1917,8 +1938,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return mixed
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     public function newNUXButton($text)
     {
@@ -1940,8 +1961,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param array $parameters
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     final public function addActionToCrumbs(PHUICrumbsView $crumbs, array $parameters = array())
     {
@@ -2001,9 +2022,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param array $parameters
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      */
     public function newCreateActionSpecifications(array $parameters)
     {
@@ -2071,10 +2092,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $object
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
+     *@author 陈妙威
      */
     final public function buildEditEngineCommentView($object)
     {
@@ -2170,7 +2191,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param PhabricatorApplicationTransactionInterface $object
      * @return int|null
      * @author 陈妙威
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     protected function loadDraftVersion($object)
     {
@@ -2200,9 +2221,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * Respond to a request for documentation on HTTP parameters.
      *
      * @param object Editable object.
-     * @return \orangins\lib\view\page\PhabricatorStandardPageView Response object.
+     * @return PhabricatorStandardPageView Response object.
      * @throws Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @task http
      */
     private function buildParametersResponse($object)
@@ -2213,10 +2234,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
         $fields = $this->buildEditFields($object);
 
         $crumbs = $this->buildCrumbs($object);
-        $crumbs->addTextCrumb(\Yii::t("app", 'HTTP Parameters'));
+        $crumbs->addTextCrumb(Yii::t("app", 'HTTP Parameters'));
         $crumbs->setBorder(true);
 
-        $header_text = \Yii::t("app", 'HTTP Parameters: {0}', [
+        $header_text = Yii::t("app", 'HTTP Parameters: {0}', [
             $this->getObjectCreateShortText()
         ]);
 
@@ -2233,7 +2254,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
         return $controller->newPage()
             ->setHeader($header)
-            ->setTitle(\Yii::t("app", 'HTTP Parameters'))
+            ->setTitle(Yii::t("app", 'HTTP Parameters'))
             ->setCrumbs($crumbs)
             ->appendChild($document);
     }
@@ -2278,8 +2299,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     {
         return $this->buildError(
             $object,
-            \Yii::t("app", 'No Default Create Forms'),
-            \Yii::t("app",
+            Yii::t("app", 'No Default Create Forms'),
+            Yii::t("app",
                 'This application is not configured with any forms for creating ' .
                 'objects that are visible to you and enabled.'));
     }
@@ -2294,8 +2315,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     {
         return $this->buildError(
             $object,
-            \Yii::t("app", 'No Create Permission'),
-            \Yii::t("app", 'You do not have permission to create these objects.'));
+            Yii::t("app", 'No Create Permission'),
+            Yii::t("app", 'You do not have permission to create these objects.'));
     }
 
     /**
@@ -2308,8 +2329,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     {
         return $this->buildError(
             $object,
-            \Yii::t("app", 'No Manage Permission'),
-            \Yii::t("app",
+            Yii::t("app", 'No Manage Permission'),
+            Yii::t("app",
                 'You do not have permission to configure forms for this ' .
                 'application.'));
     }
@@ -2324,8 +2345,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     {
         return $this->buildError(
             $object,
-            \Yii::t("app", 'No Edit Forms'),
-            \Yii::t("app",
+            Yii::t("app", 'No Edit Forms'),
+            Yii::t("app",
                 'You do not have access to any forms which are enabled and marked ' .
                 'as edit forms.'));
     }
@@ -2341,8 +2362,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     {
         return $this->buildError(
             $object,
-            \Yii::t("app", 'Not an Edit Form'),
-            \Yii::t("app",
+            Yii::t("app", 'Not an Edit Form'),
+            Yii::t("app",
                 'This form ("{0}") is not marked as an edit form, so ' .
                 'it can not be used to edit objects.',
                 [
@@ -2361,8 +2382,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     {
         return $this->buildError(
             $object,
-            \Yii::t("app", 'Form Disabled'),
-            \Yii::t("app",
+            Yii::t("app", 'Form Disabled'),
+            Yii::t("app",
                 'This form ("{0}") has been disabled, so it can not be used.',
                 [
                     $config->getName()
@@ -2387,17 +2408,21 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param PhabricatorApplicationTransactionInterface $object
      * @return mixed
-     * @throws Exception
-     * @throws \AphrontDuplicateKeyQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \yii\base\InvalidConfigException
+     * @throws AphrontDuplicateKeyQueryException
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      * @author 陈妙威
      */
     private function buildCommentResponse($object)
@@ -2624,10 +2649,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return array
      * @throws Exception
      * @throws PhutilProxyException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \ReflectionException
-
-     * @throws \PhutilInvalidStateException
+     * @throws InvalidConfigException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     final public function buildConduitResponse()
     {
@@ -2636,7 +2660,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         $config = $this->loadDefaultConfiguration();
         if (!$config) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Unable to load configuration for this EditEngine ("%s").',
                     get_class($this)));
         }
@@ -2679,6 +2703,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
             $types,
             $template);
 
+        /** @var PhabricatorApplicationTransactionEditor $editor */
         $editor = $object->getApplicationTransactionEditor()
             ->setActor($viewer)
             ->setContentSource($this->getAction()->getRequest()->newContentSource())
@@ -2717,7 +2742,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         $xactions = $this->getAction()->getRequest()->getValue($transactions_key);
         if (!is_array($xactions)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Parameter "%s" is not a list of transactions.',
                     $transactions_key));
         }
@@ -2725,7 +2750,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         foreach ($xactions as $key => $xaction) {
             if (!is_array($xaction)) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Parameter "%s" must contain a list of transaction descriptions, ' .
                         'but item with key "%s" is not a dictionary.',
                         $transactions_key,
@@ -2734,7 +2759,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             if (!array_key_exists('type', $xaction)) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Parameter "%s" must contain a list of transaction descriptions, ' .
                         'but item with key "%s" is missing a "type" field. Each ' .
                         'transaction must have a type field.',
@@ -2751,29 +2776,30 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * Generate transactions which can be applied from edit actions in a Conduit
      * request.
      *
-     * @param array $xactions
-     * @param array $types
+     * @param ConduitAPIRequest $request The request.
+     * @param array $xactions Raw conduit transactions.
+     * @param PhabricatorEditType[] $types Supported edit types.
      * @param PhabricatorApplicationTransaction $template Template transaction.
      * @return array
-     * @throws Exception
      * @throws PhutilProxyException
+     * @throws Exception
      * @task conduit
      */
     private function getConduitTransactions(
+        ConduitAPIRequest $request,
         array $xactions,
         array $types,
-        PhabricatorApplicationTransaction $template)
-    {
+        PhabricatorApplicationTransaction $template) {
 
-        $viewer = $this->getAction()->getRequest()->getViewer();
+        $viewer = $request->getUser();
         $results = array();
 
         foreach ($xactions as $key => $xaction) {
             $type = $xaction['type'];
             if (empty($types[$type])) {
                 throw new Exception(
-                    \Yii::t("app",
-                        'Transaction with key "%s" has invalid type "%s". This type is ' .
+                    pht(
+                        'Transaction with key "%s" has invalid type "%s". This type is '.
                         'not recognized. Valid types are: %s.',
                         $key,
                         $type,
@@ -2782,12 +2808,11 @@ abstract class PhabricatorEditEngine extends OranginsObject
         }
 
         if ($this->getIsCreate()) {
-            $phabricatorApplicationTransaction = clone $template;
-            $results[] = $phabricatorApplicationTransaction
+            $results[] = id(clone $template)
                 ->setTransactionType(PhabricatorTransactions::TYPE_CREATE);
         }
 
-        $is_strict = $this->getAction()->getRequest()->getIsStrictlyTyped();
+        $is_strict = $request->getIsStrictlyTyped();
 
         foreach ($xactions as $xaction) {
             $type = $types[$xaction['type']];
@@ -2805,7 +2830,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
                 $xaction['value'] = $value;
             } catch (Exception $ex) {
                 throw new PhutilProxyException(
-                    \Yii::t("app",
+                    pht(
                         'Exception when processing transaction of type "%s": %s',
                         $xaction['type'],
                         $ex->getMessage()),
@@ -2824,13 +2849,12 @@ abstract class PhabricatorEditEngine extends OranginsObject
         return $results;
     }
 
-
     /**
      * @param PhabricatorEditEngine[] $fields
      * @return array<string, PhabricatorEditType>
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @task conduit
      */
     private function getConduitEditTypesFromFields(array $fields)
@@ -2853,8 +2877,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @return PhabricatorEditField[]
      * @throws Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \ReflectionException
+     * @throws InvalidConfigException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getConduitEditTypes()
@@ -2871,6 +2895,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return PhabricatorEditEngine[]
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getAllEditEngines()
@@ -2886,8 +2911,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $key
      * @return mixed
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getByKey(PhabricatorUser $viewer, $key)
@@ -2913,8 +2938,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @return PhabricatorEditEngineConfiguration[]
      * @author 陈妙威
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     private function loadUsableConfigurationsForCreate()
     {
@@ -2927,6 +2952,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
             ->withIsDisabled(false)
             ->execute();
 
+        /** @var PhabricatorEditEngineConfiguration[] $configs */
         $configs = msort($configs, 'getCreateSortKey');
 
         // Attach this specific engine to configurations we load so they can access
@@ -2969,8 +2995,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function requireCreateCapability()
@@ -2981,8 +3007,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @return mixed
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function hasCreateCapability()
@@ -3181,7 +3207,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @return array
      * @throws Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     final public function newBulkEditGroupMap()
@@ -3194,7 +3220,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             if (isset($map[$key])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Two bulk edit groups have the same key ("%s"). Each bulk edit ' .
                         'group must have a unique key.',
                         $key));
@@ -3216,7 +3242,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
                 if (isset($map[$key])) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Extension "%s" defines a bulk edit group with the same key ' .
                             '("%s") as the main editor or another extension. Each bulk ' .
                             'edit group must have a unique key.'));
@@ -3238,18 +3264,18 @@ abstract class PhabricatorEditEngine extends OranginsObject
         return array(
             (new PhabricatorBulkEditGroup())
                 ->setKey('default')
-                ->setLabel(\Yii::t("app", 'Primary Fields')),
+                ->setLabel(Yii::t("app", 'Primary Fields')),
             (new PhabricatorBulkEditGroup())
                 ->setKey('extension')
-                ->setLabel(\Yii::t("app", 'Support Applications')),
+                ->setLabel(Yii::t("app", 'Support Applications')),
         );
     }
 
     /**
      * @return array
      * @throws Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \ReflectionException
+     * @throws InvalidConfigException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final public function newBulkEditMap()
@@ -3257,7 +3283,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         $config = $this->loadDefaultConfiguration();
         if (!$config) {
             throw new Exception(
-                \Yii::t("app", 'No default edit engine configuration for bulk edit.'));
+                Yii::t("app", 'No default edit engine configuration for bulk edit.'));
         }
 
         $object = $this->newEditableObject();
@@ -3285,7 +3311,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             if (!isset($groups[$group_key])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Field "%s" has a bulk edit group key ("%s") with no ' .
                         'corresponding bulk edit group.',
                         $key,
@@ -3311,10 +3337,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param array $xactions
      * @return array
      * @throws Exception
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     final public function newRawBulkTransactions(array $xactions)
@@ -3322,7 +3348,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         $config = $this->loadDefaultConfiguration();
         if (!$config) {
             throw new Exception(
-                \Yii::t("app", 'No default edit engine configuration for bulk edit.'));
+                Yii::t("app", 'No default edit engine configuration for bulk edit.'));
         }
 
         $object = $this->newEditableObject();
@@ -3343,7 +3369,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
             $type = $xaction['type'];
             if (!isset($edit_types[$type])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Unsupported bulk edit type "%s".',
                         $type));
             }
@@ -3416,7 +3442,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return string
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getPHID()

@@ -5,10 +5,16 @@ namespace orangins\modules\transactions\models;
 // TODO: Some "final" modifiers have been VERY TEMPORARILY moved aside to
 // allow DifferentialTransaction to extend this class without converting
 // fully to ModularTransactions.
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\modules\transactions\xaction\PhabricatorCoreTransactionType;
 use PhutilClassMapQuery;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\transactions\xaction\PhabricatorCoreVoidTransaction;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
+use ReflectionException;
+use yii\base\InvalidConfigException;
 
 /**
  * Class PhabricatorModularTransaction
@@ -31,8 +37,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
 
     /**
      * @return PhabricatorCoreVoidTransaction
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function getModularType()
@@ -42,8 +47,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
 
     /**
      * @return PhabricatorCoreVoidTransaction
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final protected function getTransactionImplementation()
@@ -56,7 +60,8 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     }
 
     /**
-     * @return mixed
+     * @return PhabricatorModularTransactionType[]
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function newModularTransactionTypes() {
@@ -78,6 +83,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
 
     /**
      * @return PhabricatorCoreVoidTransaction
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function newTransactionImplementation()
@@ -109,9 +115,8 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /**
      * @param $object
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilMethodNotImplementedException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
      * @author 陈妙威
      */
     final public function generateOldValue($object)
@@ -122,9 +127,8 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /**
      * @param $object
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilJSONParserException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     final public function generateNewValue($object)
@@ -137,8 +141,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
      * @param $object
      * @param array $xactions
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public function willApplyTransactions($object, array $xactions)
@@ -149,34 +152,33 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
 
     /**
      * @param $object
+     * @param $value
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
-    final public function applyInternalEffects($object)
+    final public function applyInternalEffects($object, $value)
     {
-        return $this->getTransactionImplementation()->applyInternalEffects($object);
+        return $this->getTransactionImplementation()->applyInternalEffects($object, $value);
     }
 
     /**
      * @param $object
+     * @param $value
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
-    final public function applyExternalEffects($object)
+    final public function applyExternalEffects($object, $value)
     {
-        return $this->getTransactionImplementation()->applyExternalEffects($object);
+        return $this->getTransactionImplementation()->applyExternalEffects($object, $value);
     }
 
     /* final */
     /**
      * @return bool
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilJSONParserException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function shouldHide()
@@ -190,9 +192,8 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
 
     /**
      * @return bool
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilJSONParserException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     final public function shouldHideForFeed()
@@ -208,8 +209,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /**
      * @param array $xactions
      * @return bool
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function shouldHideForMail(array $xactions)
@@ -224,10 +224,8 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /* final */
     /**
      * @return mixed
-     * @throws \PhutilJSONParserException
-
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getIcon()
@@ -243,12 +241,11 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /* final */
     /**
      * @return mixed
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTitle()
@@ -264,8 +261,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /* final */
     /**
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function getActionName()
@@ -281,8 +277,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /* final */
     /**
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function getActionStrength()
@@ -297,9 +292,11 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
 
     /**
      * @return mixed
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \PhutilJSONParserException
+     * @throws InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTitleForMail()
@@ -315,11 +312,11 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /* final */
     /**
      * @return mixed
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTitleForFeed()
@@ -335,10 +332,8 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /* final */
     /**
      * @return mixed
-     * @throws \PhutilJSONParserException
-
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getColor()
@@ -354,8 +349,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /**
      * @param PhabricatorUser $viewer
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function attachViewer(PhabricatorUser $viewer)
@@ -366,10 +360,9 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
 
     /**
      * @return bool
-     * @throws \PhutilJSONParserException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     final public function hasChangeDetails()
@@ -384,9 +377,9 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
     /**
      * @param PhabricatorUser $viewer
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilJSONParserException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     final public function renderChangeDetails(PhabricatorUser $viewer)
@@ -403,8 +396,7 @@ abstract class PhabricatorModularTransaction extends PhabricatorApplicationTrans
 
     /**
      * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final protected function newRemarkupChanges()

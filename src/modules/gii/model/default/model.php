@@ -32,7 +32,7 @@ use orangins\modules\people\db\ActiveRecordAuthorTrait;
 <?php if($generator->enableTransaction): ?>
 use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface;
 use orangins\modules\transactions\interfaces\PhabricatorEditableInterface;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\editors\<?= $className ?>Editor;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\editors\<?= $className ?>Editor;
 use yii\helpers\Url;
 <?php endif; ?>
 
@@ -113,7 +113,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     */
     public function getPHIDTypeClassName()
     {
-        return \<?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\phid\<?= $className . "PHIDType" ?>::class;
+        return \<?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\phid\<?= $className . "PHIDType" ?>::class;
     }
 <?php endif; ?>
 

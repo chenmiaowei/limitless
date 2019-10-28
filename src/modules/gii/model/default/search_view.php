@@ -30,7 +30,7 @@ echo "<?php\n";
 use yii\helpers\Inflector; ?>
 
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\view;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\view;
 
 use orangins\lib\view\AphrontView;
 use orangins\lib\view\control\AphrontTableView;
@@ -42,7 +42,7 @@ use yii\helpers\Url;
 
 /**
  * Class <?= $modelClassName ?>TableView
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\view
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\view
  * @author 陈妙威
  */
 final class <?= $modelClassName ?>TableView extends AphrontView

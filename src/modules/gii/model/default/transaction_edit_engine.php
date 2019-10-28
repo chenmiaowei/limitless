@@ -36,12 +36,12 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\editors;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\editors;
 
 
 use <?= $modelFullClassName ?>;
 <?php foreach ($requireColumns as $requireColumn): ?>
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace("_", "", $tableName) ?>\<?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', Inflector::camel2words($requireColumn->name))) . 'TransactionType' ?>;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace("_", "", $tableName) ?>\<?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', Inflector::camel2words($requireColumn->name))) . 'TransactionType' ?>;
 <?php endforeach; ?>
 use orangins\modules\policy\constants\PhabricatorPolicies;
 use orangins\modules\transactions\editengine\PhabricatorEditEngine;

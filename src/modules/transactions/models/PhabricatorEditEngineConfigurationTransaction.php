@@ -2,9 +2,15 @@
 
 namespace orangins\modules\transactions\models;
 
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\modules\transactions\constants\PhabricatorTransactions;
 use orangins\modules\transactions\phid\PhabricatorEditEngineConfigurationPHIDType;
 use orangins\modules\transactions\query\PhabricatorEditEngineConfigurationTransactionQuery;
+use PhutilJSONParserException;
+use ReflectionException;
+use Yii;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Class PhabricatorEditEngineConfigurationTransaction
@@ -99,12 +105,12 @@ final class PhabricatorEditEngineConfigurationTransaction
 
     /**
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
-
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getTitle()
@@ -117,76 +123,100 @@ final class PhabricatorEditEngineConfigurationTransaction
         $type = $this->getTransactionType();
         switch ($type) {
             case PhabricatorTransactions::TYPE_CREATE:
-                return \Yii::t("app",
+                return Yii::t("app",
                     '%s created this form configuration.',
-                    $this->renderHandleLink($author_phid));
+                    [
+                        $this->renderHandleLink($author_phid)
+                    ]);
             case self::TYPE_NAME:
                 if (strlen($old)) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '%s renamed this form from "%s" to "%s".',
-                        $this->renderHandleLink($author_phid),
-                        $old,
-                        $new);
+                       [
+                           $this->renderHandleLink($author_phid),
+                           $old,
+                           $new
+                       ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '%s named this form "%s".',
-                        $this->renderHandleLink($author_phid),
-                        $new);
+                        [
+                            $this->renderHandleLink($author_phid),
+                            $new
+                        ]);
                 }
             case self::TYPE_PREAMBLE:
-                return \Yii::t("app",
+                return Yii::t("app",
                     '%s updated the preamble for this form.',
                     $this->renderHandleLink($author_phid));
             case self::TYPE_ORDER:
-                return \Yii::t("app",
+                return Yii::t("app",
                     '%s reordered the fields in this form.',
                     $this->renderHandleLink($author_phid));
             case self::TYPE_DEFAULT:
                 $key = $this->getMetadataValue('field.key');
-                return \Yii::t("app",
+                return Yii::t("app",
                     '%s changed the default value for field "%s".',
-                    $this->renderHandleLink($author_phid),
-                    $key);
+                   [
+                       $this->renderHandleLink($author_phid),
+                       $key
+                   ]);
             case self::TYPE_LOCKS:
-                return \Yii::t("app",
+                return Yii::t("app",
                     '%s changed locked and hidden fields.',
-                    $this->renderHandleLink($author_phid));
+                   [
+                       $this->renderHandleLink($author_phid)
+                   ]);
             case self::TYPE_DEFAULTCREATE:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '%s added this form to the "Create" menu.',
-                        $this->renderHandleLink($author_phid));
+                        [
+                            $this->renderHandleLink($author_phid)
+                        ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '%s removed this form from the "Create" menu.',
-                        $this->renderHandleLink($author_phid));
+                       [
+                           $this->renderHandleLink($author_phid)
+                       ]);
                 }
             case self::TYPE_ISEDIT:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '%s marked this form as an edit form.',
-                        $this->renderHandleLink($author_phid));
+                        [
+                            $this->renderHandleLink($author_phid)
+                        ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '%s unmarked this form as an edit form.',
-                        $this->renderHandleLink($author_phid));
+                        [
+                            $this->renderHandleLink($author_phid)
+                        ]);
                 }
             case self::TYPE_DISABLE:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '%s disabled this form.',
-                        $this->renderHandleLink($author_phid));
+                        [
+                            $this->renderHandleLink($author_phid)
+                        ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '%s enabled this form.',
-                        $this->renderHandleLink($author_phid));
+                        [
+                            $this->renderHandleLink($author_phid)
+                        ]);
                 }
             case self::TYPE_SUBTYPE:
-                return \Yii::t("app",
+                return Yii::t("app",
                     '%s changed the subtype of this form from "%s" to "%s".',
-                    $this->renderHandleLink($author_phid),
-                    $old,
-                    $new);
+                    [
+                        $this->renderHandleLink($author_phid),
+                        $old,
+                        $new
+                    ]);
         }
 
         return parent::getTitle();
@@ -194,9 +224,7 @@ final class PhabricatorEditEngineConfigurationTransaction
 
     /**
      * @return null|string
-     * @throws \PhutilJSONParserException
-
-     * @throws \yii\base\Exception
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getColor()
@@ -223,9 +251,7 @@ final class PhabricatorEditEngineConfigurationTransaction
 
     /**
      * @return string
-     * @throws \PhutilJSONParserException
-
-     * @throws \yii\base\Exception
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getIcon()

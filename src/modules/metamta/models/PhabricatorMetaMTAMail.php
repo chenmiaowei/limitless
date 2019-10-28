@@ -2,6 +2,7 @@
 
 namespace orangins\modules\metamta\models;
 
+use AphrontQueryException;
 use Filesystem;
 use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\env\PhabricatorEnv;
@@ -36,11 +37,20 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\settings\models\PhabricatorUserPreferences;
 use PhutilAggregateException;
 use PhutilClassMapQuery;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
 use PhutilTypeSpec;
 use PhutilUTF8StringTruncator;
 use PhutilEmailAddress;
+use ReflectionException;
+use Throwable;
 use Yii;
 use Exception;
+use yii\base\InvalidConfigException;
+use yii\db\IntegrityException;
+use yii\db\StaleObjectException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -119,8 +129,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $param
      * @param $value
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     protected function setParam($param, $value)
     {
@@ -159,7 +169,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      *
      * @param array<const>
      * @return static
-     * @throws \Exception
+     * @throws Exception
      */
     public function setMailTags(array $tags)
     {
@@ -187,7 +197,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      *
      * @param   string The "Message-ID" of the email which precedes this one.
      * @return  static
-     * @throws \Exception
+     * @throws Exception
      */
     public function setParentMessageID($id)
     {
@@ -216,8 +226,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $phids
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function addTos(array $phids)
     {
@@ -229,8 +239,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $raw_email
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function addRawTos(array $raw_email)
     {
@@ -250,8 +260,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $phids
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function addCCs(array $phids)
     {
@@ -263,8 +273,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $exclude
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function setExcludeMailRecipientPHIDs(array $exclude)
     {
@@ -284,8 +294,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $muted
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function setMutedPHIDs(array $muted)
     {
@@ -305,8 +315,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $force
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function setForceHeraldMailRecipientPHIDs(array $force)
     {
@@ -401,9 +411,9 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param PhabricatorUser $viewer
      * @return array
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function loadAttachedFiles(PhabricatorUser $viewer)
@@ -423,8 +433,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $attachments
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function setAttachments(array $attachments)
     {
@@ -436,8 +446,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param $from
      * @return $this
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     public function setFrom($from)
     {
@@ -460,7 +470,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $raw_name
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setRawFrom($raw_email, $raw_name)
     {
@@ -472,7 +482,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $reply_to
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setReplyTo($reply_to)
     {
@@ -484,7 +494,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $subject
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setSubject($subject)
     {
@@ -496,7 +506,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $prefix
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setSubjectPrefix($prefix)
     {
@@ -508,7 +518,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $prefix
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setVarySubjectPrefix($prefix)
     {
@@ -520,7 +530,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $body
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setBody($body)
     {
@@ -532,7 +542,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $bool
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setSensitiveContent($bool)
     {
@@ -553,7 +563,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $bool
      * @return PhabricatorMetaMTAMail
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setMustEncrypt($bool)
     {
@@ -573,7 +583,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $uri
      * @return PhabricatorMetaMTAMail
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setMustEncryptURI($uri)
     {
@@ -593,7 +603,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $subject
      * @return PhabricatorMetaMTAMail
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setMustEncryptSubject($subject)
     {
@@ -613,7 +623,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param array $reasons
      * @return PhabricatorMetaMTAMail
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setMustEncryptReasons(array $reasons)
     {
@@ -633,7 +643,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param array $stamps
      * @return PhabricatorMetaMTAMail
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setMailStamps(array $stamps)
     {
@@ -653,7 +663,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $metadata
      * @return PhabricatorMetaMTAMail
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setMailStampMetadata($metadata)
     {
@@ -682,7 +692,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param array $mailers
      * @return PhabricatorMetaMTAMail
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setTryMailers(array $mailers)
     {
@@ -693,7 +703,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $html
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setHTMLBody($html)
     {
@@ -723,7 +733,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $is_error
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function setIsErrorEmail($is_error)
     {
@@ -776,7 +786,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      *
      * @param bool  True to force delivery despite user preferences.
      * @return static
-     * @throws \Exception
+     * @throws Exception
      */
     public function setForceDelivery($force)
     {
@@ -801,7 +811,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      *
      * @param bool  True if the mail is automated bulk mail.
      * @return static
-     * @throws \Exception
+     * @throws Exception
      */
     public function setIsBulk($is_bulk)
     {
@@ -818,7 +828,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      *                In-Reply-To or References headers.
      * @param bool    If true, indicates this is the first message in the thread.
      * @return static
-     * @throws \Exception
+     * @throws Exception
      */
     public function setThreadID($thread_id, $is_first_message = false)
     {
@@ -832,12 +842,12 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * delivered by the MetaMTA daemon.
      *
      * @return bool
-     * @throws Exception
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws Throwable
      * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
      */
     public function saveAndSend()
     {
@@ -848,12 +858,12 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param bool $runValidation
      * @param null $attributeNames
      * @return bool
-     * @throws Exception
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws Throwable
      * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
      */
     public function save($runValidation = true, $attributeNames = null)
     {
@@ -904,19 +914,19 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @return mixed
      * @throws PhabricatorMetaMTAPermanentFailureException
      * @throws PhutilAggregateException
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
+     * @throws AphrontQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
      * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws IntegrityException
      * @throws \yii\base\Exception
      * @throws Exception
      */
     public function sendNow()
     {
         if ($this->getStatus() != PhabricatorMailOutboundStatus::STATUS_QUEUE) {
-            throw new Exception(\Yii::t("app",'Trying to send an already-sent mail!'));
+            throw new Exception(Yii::t("app",'Trying to send an already-sent mail!'));
         }
 
         $mailers = self::newMailers(
@@ -936,8 +946,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $constraints
      * @return array
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws Exception
      * @author 陈妙威
      */
@@ -982,7 +992,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
                 $type = $spec['type'];
                 if (!isset($adapters[$type])) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Unknown mailer ("%s")!',
                             $type));
                 }
@@ -1066,11 +1076,11 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @return mixed
      * @throws PhabricatorMetaMTAPermanentFailureException
      * @throws PhutilAggregateException
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
+     * @throws AphrontQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
      * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     public function sendWithMailers(array $mailers)
@@ -1084,10 +1094,10 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
             // aren't tricking us.
 
             if ($any_mailers) {
-                $void_message = \Yii::t("app",
+                $void_message = Yii::t("app",
                     'No configured mailers support sending outbound mail.');
             } else {
-                $void_message = \Yii::t("app",
+                $void_message = Yii::t("app",
                     'No mailers are configured.');
             }
 
@@ -1123,7 +1133,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
                     // TODO: At some point, we should clean this up and make all mailers
                     // throw.
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Mail adapter encountered an unexpected, unspecified ' .
                             'failure.'));
                 }
@@ -1172,7 +1182,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
         }
 
         throw new PhutilAggregateException(
-            \Yii::t("app",'Encountered multiple exceptions while transmitting mail.'),
+            Yii::t("app",'Encountered multiple exceptions while transmitting mail.'),
             $exceptions);
     }
 
@@ -1180,11 +1190,11 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param PhabricatorMailAdapter $mailer
      * @return PhabricatorMailAdapter
      * @throws Exception
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
- * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilInvalidStateException
-     * @throws \Exception
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
+ * @throws InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     private function buildMailer(PhabricatorMailAdapter $mailer)
@@ -1233,7 +1243,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
                 case 'from':
                     // If the mail content must be encrypted, disguise the sender.
                     if ($must_encrypt) {
-                        $mailer->setFrom($default_from, \Yii::t("app",'Phabricator'));
+                        $mailer->setFrom($default_from, Yii::t("app",'Phabricator'));
                         break;
                     }
 
@@ -1254,7 +1264,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
                         $mailer->setFrom($actor_email, $actor_name);
                     } else {
                         $from_email = coalesce($actor_email, $default_from);
-                        $from_name = coalesce($actor_name, \Yii::t("app",'Phabricator'));
+                        $from_name = coalesce($actor_name, Yii::t("app",'Phabricator'));
 
                         if (empty($params['reply-to'])) {
                             $params['reply-to'] = $from_email;
@@ -1320,7 +1330,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
                     if ($must_encrypt) {
                         $encrypt_subject = $this->getMustEncryptSubject();
                         if (!strlen($encrypt_subject)) {
-                            $encrypt_subject = \Yii::t("app",'Object Updated');
+                            $encrypt_subject = Yii::t("app",'Object Updated');
                         }
                         $subject[] = $encrypt_subject;
                     } else {
@@ -1392,12 +1402,12 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
             }
 
             if (strlen($encrypt_uri)) {
-                $parts[] = \Yii::t("app",
+                $parts[] = Yii::t("app",
                     'This secure message is notifying you of a change to this object:');
                 $parts[] = PhabricatorEnv::getProductionURI($encrypt_uri);
             }
 
-            $parts[] = \Yii::t("app",
+            $parts[] = Yii::t("app",
                 'The content for this message can only be transmitted over a ' .
                 'secure channel. To view the message content, follow this ' .
                 'link:');
@@ -1415,7 +1425,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
                 ->setMaximumBytes($body_limit)
                 ->truncateString($body);
             $body .= "\n";
-            $body .= \Yii::t("app",'(This email was truncated at %d bytes.)', $body_limit);
+            $body .= Yii::t("app",'(This email was truncated at %d bytes.)', $body_limit);
         }
         $mailer->setBody($body);
         $body_limit -= strlen($body);
@@ -1472,7 +1482,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
 
         if (!$add_to && !$add_cc) {
             $this->setMessage(
-                \Yii::t("app",
+                Yii::t("app",
                     'Message has no valid recipients: all To/Cc are disabled, ' .
                     'invalid, or configured not to receive this mail.'));
 
@@ -1483,7 +1493,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
             $all_recipients = array_merge($add_to, $add_cc);
             if ($this->shouldRateLimitMail($all_recipients)) {
                 $this->setMessage(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'This is an error email, but one or more recipients have ' .
                         'exceeded the error email rate limit. Declining to deliver ' .
                         'message.'));
@@ -1494,7 +1504,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
 
         if (PhabricatorEnv::getEnvConfig('orangins.silent')) {
             $this->setMessage(
-                \Yii::t("app",
+                Yii::t("app",
                     'Phabricator is running in silent mode. See `%s` ' .
                     'in the configuration to change this setting.',
                     'phabricator.silent'));
@@ -1589,11 +1599,11 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @return array<phid>  A list of all recipients to whom delivery will be
      *                      attempted.
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
 
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @task recipients
      */
     public function buildRecipientList()
@@ -1606,11 +1616,11 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @return mixed
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
 
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function loadAllActors()
@@ -1647,9 +1657,9 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * For example, this will expand project PHIDs into a list of the project's
      * members.
      *
-     * @param array<phid>  List of recipient PHIDs, possibly including aggregate
+     * @param array $phids List of recipient PHIDs, possibly including aggregate
      *                    recipients.
-     * @return array<phid> Deaggregated list of mailable recipients.
+     * @return array> Deaggregated list of mailable recipients.
      */
     private function expandRecipients(array $phids)
     {
@@ -1692,11 +1702,11 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param array $actor_phids
      * @return mixed
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
 
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     private function loadActors(array $actor_phids)
@@ -1888,6 +1898,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param array $all_recipients
      * @return bool
+     * @throws Exception
      * @author 陈妙威
      */
     private function shouldRateLimitMail(array $all_recipients)
@@ -2090,7 +2101,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $reason_phid
      * @return $this
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     public function addRoutingRule($routing_rule, $phids, $reason_phid)
     {
@@ -2174,7 +2185,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param $target_phid
      * @return PhabricatorUserPreferences
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @throws Exception
      * @author 陈妙威
      */
@@ -2200,8 +2211,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param PhabricatorUserPreferences $preferences
      * @return bool
      * @throws Exception
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -2217,8 +2228,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param PhabricatorUserPreferences $preferences
      * @return bool
      * @throws Exception
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -2234,8 +2245,8 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param PhabricatorUserPreferences $preferences
      * @return bool
      * @throws Exception
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -2251,11 +2262,11 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      * @param $viewer
      * @return bool
      * @throws Exception
-     * @throws \PhutilJSONParserException
-     * @throws \ReflectionException
+     * @throws PhutilJSONParserException
+     * @throws ReflectionException
 
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilInvalidStateException
+     * @throws InvalidConfigException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function shouldRenderMailStampsInBody($viewer)
@@ -2311,7 +2322,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
      */
     public function describeAutomaticCapability($capability)
     {
-        return \Yii::t("app",
+        return Yii::t("app",
             'The mail sender and message recipients can always see the mail.');
     }
 
@@ -2322,7 +2333,7 @@ class PhabricatorMetaMTAMail extends ActiveRecordPHID
     /**
      * @param PhabricatorDestructionEngine $engine
      * @throws Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
      * @author 陈妙威
      */
     public function destroyObjectPermanently(

@@ -36,9 +36,9 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
+namespace <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions\<?= str_replace('_', '', $tableName) ?>;
 
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>;
 use orangins\lib\response\Aphront404Response;
 use orangins\lib\view\form\AphrontFormView;
 use orangins\lib\view\form\control\AphrontFormSubmitControl;
@@ -46,16 +46,16 @@ use orangins\lib\view\form\control\AphrontFormTextControl;
 use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\lib\view\phui\PHUIPageHeaderView;
 use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>Transaction;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\models\<?= $modelClassName ?>Transaction;
 <?php foreach ($requireColumns as $requireColumn): ?>
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', Inflector::camel2words($requireColumn->name))) ?>TransactionType;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\xaction\<?= str_replace('_', '', $tableName) ?>\<?= $modelClassName . str_replace("Phid", "PHID",  str_replace(" ", '', Inflector::camel2words($requireColumn->name))) ?>TransactionType;
 <?php endforeach; ?>
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\editors\<?= $modelClassName ?>Editor;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\editors\<?= $modelClassName ?>Editor;
 use Yii;
 
 /**
  * Class <?= $modelClassName ?>EditAction
- * @package <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\actions
+ * @package <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\actions
  * @author 陈妙威
  */
 class <?= $modelClassName ?>EditAction extends <?= $modelClassName ?>Action

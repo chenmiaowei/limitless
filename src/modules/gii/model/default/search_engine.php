@@ -26,7 +26,7 @@ use yii\helpers\Inflector; ?>
 
 namespace <?= $generator->queryNs ?>;
 
-use <?= $generator->applicationDir ?>\<?= $generator->applicationName ?>\view\<?= $modelClassName ?>TableView;
+use <?= str_replace("/", "\\", $generator->applicationDir) ?>\<?= $generator->applicationName ?>\view\<?= $modelClassName ?>TableView;
 use <?= $generator->ns . "\\" . $modelClassName ?>;
 use orangins\lib\helpers\OranginsUtil;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
@@ -122,7 +122,7 @@ final class <?= $modelClassName ?>SearchEngine extends PhabricatorApplicationSea
 
 <?php foreach ($indexColumns as $indexColumn): ?>
         if ($map['<?= $indexColumn ?>']) {
-            $query->with<?= ucfirst(str_replace("_phid", "PHID", $indexColumn)) ?>($map['<?= $indexColumn ?>']);
+            $query->with<?= str_replace("Id", "ID", str_replace("Phid", "PHID",  str_replace(' ', '', \yii\helpers\Inflector::camel2words($indexColumn)))) ?>($map['<?= $indexColumn ?>']);
         }
 <?php endforeach; ?>
         return $query;

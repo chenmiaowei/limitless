@@ -155,7 +155,7 @@ class PhabricatorAuthTemporaryToken extends \orangins\lib\db\ActiveRecord
     /**
      * @return string
      */
-    public function getUserPhid()
+    public function getUserPHID()
     {
         return $this->user_phid;
     }
@@ -164,7 +164,7 @@ class PhabricatorAuthTemporaryToken extends \orangins\lib\db\ActiveRecord
      * @param string $user_phid
      * @return self
      */
-    public function setUserPhid($user_phid)
+    public function setUserPHID($user_phid)
     {
         $this->user_phid = $user_phid;
         return $this;

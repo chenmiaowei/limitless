@@ -2,11 +2,15 @@
 
 namespace orangins\modules\auth\models;
 
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\modules\auth\phid\PhabricatorAuthAuthProviderPHIDType;
 use orangins\modules\auth\provider\PhabricatorAuthProvider;
 use orangins\modules\auth\query\PhabricatorAuthProviderConfigTransactionQuery;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilJSONParserException;
+use ReflectionException;
 use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * This is the model class for table "auth_providerconfigtransaction".
@@ -140,8 +144,7 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
 
     /**
      * @return string
-
-     * @throws \yii\base\Exception
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getIcon()
@@ -163,8 +166,7 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
 
     /**
      * @return string
-
-     * @throws \yii\base\Exception
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getColor()
@@ -186,8 +188,11 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
 
     /**
      * @return mixed
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
+     * @throws PhutilJSONParserException
+     * @throws PhabricatorDataNotAttachedException
+     * @throws InvalidConfigException
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getTitle()
@@ -200,17 +205,17 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
         switch ($this->getTransactionType()) {
             case self::TYPE_ENABLE:
                 if ($old === null) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} created this provider.', [
                             $this->renderHandleLink($author_phid)
                         ]);
                 } else if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} enabled this provider.', [
                             $this->renderHandleLink($author_phid)
                         ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} disabled this provider.', [
                             $this->renderHandleLink($author_phid)
                         ]);
@@ -218,12 +223,12 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
                 break;
             case self::TYPE_LOGIN:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} enabled login.', [
                             $this->renderHandleLink($author_phid)
                         ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} disabled login.', [
                             $this->renderHandleLink($author_phid)
                         ]);
@@ -231,12 +236,12 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
                 break;
             case self::TYPE_REGISTRATION:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} enabled registration.', [
                             $this->renderHandleLink($author_phid)
                         ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} disabled registration.', [
                             $this->renderHandleLink($author_phid)
                         ]);
@@ -244,12 +249,12 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
                 break;
             case self::TYPE_LINK:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} enabled account linking.', [
                             $this->renderHandleLink($author_phid)
                         ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} disabled account linking.', [
                             $this->renderHandleLink($author_phid)
                         ]);
@@ -257,12 +262,12 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
                 break;
             case self::TYPE_UNLINK:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} enabled account unlinking.', [
                             $this->renderHandleLink($author_phid)
                         ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} disabled account unlinking.', [
                             $this->renderHandleLink($author_phid)
                         ]);
@@ -270,12 +275,12 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
                 break;
             case self::TYPE_TRUST_EMAILS:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} enabled email trust.', [
                             $this->renderHandleLink($author_phid)
                         ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} disabled email trust.', [
                             $this->renderHandleLink($author_phid)
                         ]);
@@ -283,12 +288,12 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
                 break;
             case self::TYPE_AUTO_LOGIN:
                 if ($new) {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} enabled auto login.', [
                             $this->renderHandleLink($author_phid)
                         ]);
                 } else {
-                    return \Yii::t("app",
+                    return Yii::t("app",
                         '{0} disabled auto login.', [
                             $this->renderHandleLink($author_phid)
                         ]);
@@ -303,7 +308,7 @@ class PhabricatorAuthProviderConfigTransaction extends PhabricatorApplicationTra
                     }
                 }
 
-                return \Yii::t("app", '{0} edited a property of this provider.', [
+                return Yii::t("app", '{0} edited a property of this provider.', [
                     $this->renderHandleLink($author_phid)
                 ]);
                 break;

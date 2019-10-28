@@ -65,7 +65,7 @@ class JavelinAsset extends AssetBundle
 
     public $css = [
         'css/phuix.css',
-
+        "css/phabricator-remarkup.css",
     ];
     /**
      * @var array
