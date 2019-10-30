@@ -2,7 +2,11 @@
 
 namespace orangins\modules\phid;
 
-use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;;
+use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;
+
+;
+
+use PhutilInvalidStateException;
 use PhutilMethodNotImplementedException;
 use orangins\lib\PhabricatorApplication;
 use orangins\modules\cache\PhabricatorCachedClassMapQuery;
@@ -13,6 +17,8 @@ use orangins\lib\OranginsObject;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use PhutilClassMapQuery;
 use Exception;
+use ReflectionException;
+use Yii;
 
 /**
  * Class PhabricatorPHIDType
@@ -24,7 +30,7 @@ abstract class PhabricatorPHIDType extends OranginsObject
     /**
      * @return string
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final public function getTypeConstant()
@@ -33,12 +39,14 @@ abstract class PhabricatorPHIDType extends OranginsObject
 
         if (!is_string($const) || !preg_match('/^[A-Z]{4}$/', $const)) {
             throw new Exception(
-                \Yii::t("app",
-                    '%s class "%s" has an invalid %s property. PHID ' .
+                Yii::t("app",
+                    '{0} class "{1}" has an invalid {2} property. PHID ' .
                     'constants must be a four character uppercase string.',
-                    __CLASS__,
-                    get_class($this),
-                    'TYPECONST'));
+                    [
+                        __CLASS__,
+                        get_class($this),
+                        'TYPECONST'
+                    ]));
         }
 
         return $const;
@@ -93,7 +101,7 @@ abstract class PhabricatorPHIDType extends OranginsObject
      * @{method:loadObjects} instead.
      *
      * @param PhabricatorObjectQuery $query Query being executed.
-     * @param array<phid> PHIDs to load.
+     * @param array $phids PHIDs to load.
      * @return PhabricatorPolicyAwareQuery Query object which loads the
      *   specified PHIDs when executed.
      */
@@ -111,8 +119,8 @@ abstract class PhabricatorPHIDType extends OranginsObject
      * @param array $phids
      * @return array|null <wild> Corresponding objects.
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      */
     public function loadObjects(
         PhabricatorObjectQuery $query,
@@ -158,8 +166,8 @@ abstract class PhabricatorPHIDType extends OranginsObject
      * handle properties.
      *
      * @param PhabricatorHandleQuery $query Issuing query object.
-     * @param array<PhabricatorObjectHandle>   Handles to populate with data.
-     * @param array<Object>                    Objects for these PHIDs loaded by
+     * @param array<PhabricatorObjectHandle> $handles Handles to populate with data.
+     * @param array<Object> $objects Objects for these PHIDs loaded by
      *                                        @{method:buildQueryForObjects()}.
      * @return void
      */
@@ -209,8 +217,8 @@ abstract class PhabricatorPHIDType extends OranginsObject
     /**
      * @param array $types
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     final public static function getTypes(array $types)
     {
@@ -239,7 +247,7 @@ abstract class PhabricatorPHIDType extends OranginsObject
      * @return array<string, PhabricatorPHIDType> Map of constants to installed
      *  types.
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function getAllInstalledTypes(PhabricatorUser $viewer)
     {
