@@ -116,6 +116,7 @@ final class PhabricatorConduitMethodQuery
 
     /**
      * @return array|null
+     * @throws \PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -127,6 +128,7 @@ final class PhabricatorConduitMethodQuery
 
     /**
      * @return mixed
+     * @throws \PhutilInvalidStateException
      * @author 陈妙威
      */
     private function getAllMethods()

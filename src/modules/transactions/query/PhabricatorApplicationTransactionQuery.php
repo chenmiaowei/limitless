@@ -2,6 +2,9 @@
 
 namespace orangins\modules\transactions\query;
 
+use AphrontAccessDeniedQueryException;
+use Exception;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
 use orangins\lib\helpers\OranginsUtil;
@@ -9,6 +12,11 @@ use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use PhutilClassMapQuery;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -53,6 +61,7 @@ abstract class PhabricatorApplicationTransactionQuery
     /**
      * @param PhabricatorApplicationTransactionInterface $object
      * @return null
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function newQueryForObject(
@@ -162,18 +171,20 @@ abstract class PhabricatorApplicationTransactionQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function loadPage()
     {
         $table = $this->getTemplateApplicationTransaction();
 
+        /** @var PhabricatorApplicationTransaction[] $xactions */
         $xactions = $this->loadStandardPage();
 
         foreach ($xactions as $xaction) {
@@ -214,9 +225,8 @@ abstract class PhabricatorApplicationTransactionQuery
     /**
      * @param array $xactions
      * @return array
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function willFilterPage(array $xactions)
@@ -266,6 +276,12 @@ abstract class PhabricatorApplicationTransactionQuery
 
     /**
      * @return array|void
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
@@ -298,8 +314,7 @@ abstract class PhabricatorApplicationTransactionQuery
     /**
      * @return array|void
      * @throws PhabricatorEmptyQueryException
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildJoinClauseParts()
@@ -323,15 +338,9 @@ abstract class PhabricatorApplicationTransactionQuery
                 }
             } else {
                 if ($this->withComments) {
-                    $joins[] = qsprintf(
-                        $conn,
-                        'JOIN %T c ON x.phid = c.transactionPHID',
-                        $comment->getTableName());
+                    $this->innerJoin($comment->getTableName(), ' x.phid = c.transaction_phid');
                 } else {
-                    $joins[] = qsprintf(
-                        $conn,
-                        'LEFT JOIN %T c ON x.phid = c.transactionPHID',
-                        $comment->getTableName());
+                    $this->leftJoin($comment->getTableName(), ' x.phid = c.transaction_phid');
                 }
             }
         }
@@ -339,6 +348,7 @@ abstract class PhabricatorApplicationTransactionQuery
 
     /**
      * @return bool
+     * @throws Exception
      * @author 陈妙威
      */
     protected function shouldGroupQueryResultRows()

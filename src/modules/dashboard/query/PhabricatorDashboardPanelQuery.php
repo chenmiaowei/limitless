@@ -2,11 +2,20 @@
 
 namespace orangins\modules\dashboard\query;
 
+use AphrontAccessDeniedQueryException;
+use Exception;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\dashboard\application\PhabricatorDashboardApplication;
 use orangins\modules\dashboard\models\PhabricatorDashboardPanel;
 use orangins\modules\dashboard\models\PhabricatorDashboardPanelNgrams;
 use orangins\modules\dashboard\paneltype\PhabricatorDashboardTextPanelType;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 
 /**
  * Class PhabricatorDashboardPanelQuery
@@ -96,7 +105,7 @@ final class PhabricatorDashboardPanelQuery
     /**
      * @param $ngrams
      * @return PhabricatorDashboardPanelQuery
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function withNameNgrams($ngrams)
@@ -105,7 +114,11 @@ final class PhabricatorDashboardPanelQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -132,6 +145,12 @@ final class PhabricatorDashboardPanelQuery
 
     /**
      * @return array|void
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

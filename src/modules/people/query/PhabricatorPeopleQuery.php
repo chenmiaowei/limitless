@@ -9,8 +9,11 @@
 
 namespace orangins\modules\people\query;
 
+use AphrontAccessDeniedQueryException;
+use Exception;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
-use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\infrastructure\util\PhabricatorHash;
 use orangins\lib\time\PhabricatorTime;
 use orangins\modules\people\application\PhabricatorPeopleApplication;
@@ -23,6 +26,12 @@ use orangins\modules\people\models\PhabricatorUserCache;
 use orangins\modules\people\models\PhabricatorUserEmail;
 use orangins\modules\people\models\UserNametoken;
 use orangins\modules\people\models\UserProfiles;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -450,10 +459,10 @@ class PhabricatorPeopleQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return null
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -465,11 +474,10 @@ class PhabricatorPeopleQuery extends PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @param PhabricatorUser[] $users
      * @return array
-     * @throws \ReflectionException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws ReflectionException
+     * @throws PhutilMethodNotImplementedException
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function didFilterPage(array $users)
@@ -511,6 +519,7 @@ class PhabricatorPeopleQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return bool
+     * @throws Exception
      * @author 陈妙威
      */
     protected function shouldGroupQueryResultRows()
@@ -522,10 +531,8 @@ class PhabricatorPeopleQuery extends PhabricatorCursorPagedPolicyAwareQuery
     }
 
     /**
-     * @return array
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
-     * @throws \Exception
      */
     protected function buildJoinClause()
     {
@@ -548,6 +555,13 @@ class PhabricatorPeopleQuery extends PhabricatorCursorPagedPolicyAwareQuery
     }
 
     /**
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhabricatorEmptyQueryException
+     * @throws \yii\base\Exception
      * @author 陈妙威
      */
     protected function buildWhereClause()
@@ -656,6 +670,7 @@ class PhabricatorPeopleQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array
+     * @throws Exception
      * @author 陈妙威
      */
     public function getOrderableColumns()
@@ -688,11 +703,11 @@ class PhabricatorPeopleQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @param array $rebuild
-     * @throws \ReflectionException
-     * @throws \PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws PhutilMethodNotImplementedException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     private function rebuildAvailabilityCache(array $rebuild)
@@ -827,11 +842,11 @@ class PhabricatorPeopleQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @param array $users
-     * @throws \ReflectionException
-     * @throws \PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws PhutilMethodNotImplementedException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     private function fillUserCaches(array $users)

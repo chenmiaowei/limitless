@@ -2,11 +2,19 @@
 
 namespace orangins\modules\userservice\models;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\PhabricatorApplication;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use orangins\modules\userservice\application\PhabricatorUserServiceApplication;
 use orangins\modules\userservice\capability\UserServiceBrowseDirectoryCapability;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 
 /**
  * This is the ActiveQuery class for [[Userservice]].
@@ -119,13 +127,13 @@ class PhabricatorUserServiceQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -140,6 +148,12 @@ class PhabricatorUserServiceQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
 
     /**
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

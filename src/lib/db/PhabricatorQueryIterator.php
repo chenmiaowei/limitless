@@ -2,6 +2,7 @@
 
 namespace orangins\lib\db;
 
+use Exception;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\view\control\AphrontCursorPagerView;
 use PhutilBufferedIterator;
@@ -41,7 +42,7 @@ final class PhabricatorQueryIterator extends PhutilBufferedIterator
     }
 
     /**
-     * @return \scalar
+     * @return scalar
      * @author 陈妙威
      */
     public function key()
@@ -50,8 +51,8 @@ final class PhabricatorQueryIterator extends PhutilBufferedIterator
     }
 
     /**
-     * @return array|\list|mixed
-     * @throws \Exception
+     * @return array|mixed
+     * @throws Exception
      * @author 陈妙威
      */
     protected function loadPage()

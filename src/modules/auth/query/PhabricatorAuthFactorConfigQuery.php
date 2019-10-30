@@ -2,8 +2,14 @@
 
 namespace orangins\modules\auth\query;
 
+use AphrontAccessDeniedQueryException;
+use Exception;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\auth\models\PhabricatorAuthFactorConfig;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
 
 /**
  * Class PhabricatorAuthFactorConfigQuery
@@ -101,10 +107,10 @@ final class PhabricatorAuthFactorConfigQuery
 
     /**
      * @return array|mixed
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -113,7 +119,6 @@ final class PhabricatorAuthFactorConfigQuery
     }
 
     /**
-     * @return array
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
@@ -141,7 +146,7 @@ final class PhabricatorAuthFactorConfigQuery
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildJoinClauseParts()
@@ -157,7 +162,7 @@ final class PhabricatorAuthFactorConfigQuery
     /**
      * @param array $configs
      * @return array
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function willFilterPage(array $configs)

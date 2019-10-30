@@ -2,8 +2,17 @@
 
 namespace orangins\modules\rbac\models;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\rbac\application\PhabricatorRBACApplication;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\Exception;
+use yii\db\ActiveRecord;
 
 /**
  * This is the ActiveQuery class for [[Sxbzxr]].
@@ -156,11 +165,11 @@ class PhabricatorRBACRoleQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -171,13 +180,13 @@ class PhabricatorRBACRoleQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
 
     /**
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

@@ -9,12 +9,14 @@
 
 namespace orangins\modules\phid\query;
 
+use Exception;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\phid\helpers\PhabricatorPHID;
 use orangins\modules\phid\PhabricatorPHIDType;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use PhutilInvalidStateException;
+use ReflectionException;
 
 /**
  * Class PhabricatorHandleQuery
@@ -76,7 +78,7 @@ class PhabricatorObjectQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function loadPage()
@@ -186,8 +188,8 @@ class PhabricatorObjectQuery extends PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @param array $types
      * @param array $phids
-     * @return array|\dict
-     * @throws \Exception
+     * @return array|dict
+     * @throws Exception
      * @author 陈妙威
      */
     private function loadObjectsByPHID(array $types, array $phids)
@@ -288,10 +290,10 @@ class PhabricatorObjectQuery extends PhabricatorCursorPagedPolicyAwareQuery
      * a transaction are valid.
      *
      * @param PhabricatorUser $viewer Viewer.
-     * @param array<phid> List of ostensibly valid PHIDs.
-     * @return array<phid> List of invalid or restricted PHIDs.
+     * @param array List of ostensibly valid PHIDs.
+     * @return array List of invalid or restricted PHIDs.
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function loadInvalidPHIDsForViewer(
         PhabricatorUser $viewer,

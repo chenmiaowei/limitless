@@ -2,10 +2,17 @@
 
 namespace orangins\modules\auth\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\infrastructure\util\PhabricatorHash;
 use orangins\modules\auth\application\PhabricatorAuthApplication;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -80,6 +87,10 @@ final class PhabricatorAuthSessionQuery
 
     /**
      * @return null
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -90,9 +101,9 @@ final class PhabricatorAuthSessionQuery
     /**
      * @param array $sessions
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function willFilterPage(array $sessions)
@@ -119,8 +130,8 @@ final class PhabricatorAuthSessionQuery
     }
 
     /**
+     * @throws \Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     protected function buildWhereClause()
     {

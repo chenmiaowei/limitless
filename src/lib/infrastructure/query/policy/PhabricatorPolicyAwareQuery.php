@@ -12,6 +12,7 @@ use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use orangins\modules\policy\interfaces\PhabricatorPolicyInterface;
 use PhutilInvalidStateException;
 use PhutilNumber;
+use ReflectionException;
 
 /**
  * A @{class:PhabricatorQuery} which filters results according to visibility
@@ -268,8 +269,8 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * Execute the query, loading all visible results.
      *
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @throws Exception
      * @task exec
      */
@@ -462,8 +463,8 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * @param array $objects
      * @param array $capabilities
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function applyPolicyFilter(array $objects, array $capabilities)
@@ -478,7 +479,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
 
     /**
      * @param PhabricatorPolicyInterface $object
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function didRejectResult(PhabricatorPolicyInterface $object)
@@ -616,7 +617,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * searches both the current query's workspace and the workspaces of parent
      * queries.
      *
-     * @param array<phid> List of PHIDs to retrieve.
+     * @param array List of PHIDs to retrieve.
      * @return array|PhabricatorPolicyAwareQuery
      * @throws Exception
      * @task workspace
@@ -648,7 +649,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * PHIDs which are "in flight" are actively being queried for. Using this
      * list can prevent infinite query loops by aborting queries which cycle.
      *
-     * @param array<phid> List of PHIDs which are now in flight.
+     * @param array List of PHIDs which are now in flight.
      * @return static
      */
     public function putPHIDsInFlight(array $phids)
@@ -711,7 +712,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * from the database. They should attempt to return the number of results
      * hinted by @{method:getRawResultLimit}.
      *
-     * @return array<PhabricatorPolicyInterface> List of filterable policy objects.
+     * @return PhabricatorPolicyInterface[] List of filterable policy objects.
      * @task policyimpl
      */
     abstract protected function loadPage();
@@ -722,7 +723,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * return new results. Generally, you should adjust a cursor position based
      * on the provided result page.
      *
-     * @param array<PhabricatorPolicyInterface> The current page of results.
+     * @param PhabricatorPolicyInterface[] The current page of results.
      * @return void
      * @task policyimpl
      */
@@ -744,7 +745,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * do not need to handle the case of no results specially.
      *
      * @param array<wild>  Results from `loadPage()`.
-     * @return array<PhabricatorPolicyInterface> Objects for policy filtering.
+     * @return PhabricatorPolicyInterface[] Objects for policy filtering.
      * @task policyimpl
      */
     protected function willFilterPage(array $page)
@@ -768,7 +769,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * not need to handle the case of no results specially.
      *
      * @param array<wild> Results from @{method:willFilterPage()}.
-     * @return array<PhabricatorPolicyInterface> Objects after additional
+     * @return PhabricatorPolicyInterface[] Objects after additional
      *   non-policy processing.
      */
     protected function didFilterPage(array $page)
@@ -799,8 +800,8 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * used by @{class:PhabricatorCursorPagedPolicyAwareQuery} to reverse results
      * that are queried during reverse paging.
      *
-     * @param array<PhabricatorPolicyInterface> Query results.
-     * @return array<PhabricatorPolicyInterface> Final results.
+     * @param PhabricatorPolicyInterface[] Query results.
+     * @return PhabricatorPolicyInterface[] Final results.
      * @task policyimpl
      */
     protected function didLoadResults(array $results)
@@ -844,7 +845,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
      * @return bool True if the viewer has application-level permission to
      *   execute the query.
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function canViewerUseQueryApplication()
     {
@@ -860,8 +861,7 @@ abstract class PhabricatorPolicyAwareQuery extends PhabricatorOffsetPagedQuery
     /**
      * @param array $page
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private function applyWillFilterPageExtensions(array $page)

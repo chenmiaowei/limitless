@@ -12,7 +12,6 @@ use PhutilInvalidStateException;
 use PhutilTypeExtraParametersException;
 use PhutilTypeMissingParametersException;
 use ReflectionException;
-use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecord;
 
@@ -201,7 +200,6 @@ class HeraldWebhookRequestQuery extends PhabricatorCursorPagedPolicyAwareQuery
      * @throws ReflectionException
      * @throws PhabricatorEmptyQueryException
      * @throws PhabricatorInvalidQueryCursorException
-     * @throws Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

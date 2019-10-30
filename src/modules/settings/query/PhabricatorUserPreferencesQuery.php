@@ -2,10 +2,19 @@
 
 namespace orangins\modules\settings\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\settings\application\PhabricatorSettingsApplication;
 use orangins\modules\settings\models\PhabricatorUserPreferences;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\Exception;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -138,11 +147,11 @@ final class PhabricatorUserPreferencesQuery extends PhabricatorCursorPagedPolicy
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -166,9 +175,9 @@ final class PhabricatorUserPreferencesQuery extends PhabricatorCursorPagedPolicy
     /**
      * @param array $prefs
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @throws \Exception
      * @author 陈妙威
      */
@@ -241,13 +250,13 @@ final class PhabricatorUserPreferencesQuery extends PhabricatorCursorPagedPolicy
 
     /**
      * @return array|void
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

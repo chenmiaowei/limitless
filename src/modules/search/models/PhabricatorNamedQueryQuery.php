@@ -2,8 +2,16 @@
 
 namespace orangins\modules\search\models;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\search\application\PhabricatorSearchApplication;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\Exception;
 
 /**
  * This is the ActiveQuery class for [[SearchNamedquery]].
@@ -84,10 +92,10 @@ class PhabricatorNamedQueryQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return null
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -97,13 +105,13 @@ class PhabricatorNamedQueryQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

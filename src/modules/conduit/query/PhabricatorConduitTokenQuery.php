@@ -2,11 +2,19 @@
 
 namespace orangins\modules\conduit\query;
 
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\time\PhabricatorTime;
 use orangins\modules\conduit\application\PhabricatorConduitApplication;
 use orangins\modules\conduit\models\PhabricatorConduitToken;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\Exception;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -119,9 +127,9 @@ final class PhabricatorConduitTokenQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @author 陈妙威
+     * @return array|null|ActiveRecord[]
      * @throws \Exception
+     * @author 陈妙威
      */
     protected function loadPage()
     {
@@ -130,6 +138,12 @@ final class PhabricatorConduitTokenQuery
 
     /**
      * @return array|void
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
@@ -172,9 +186,9 @@ final class PhabricatorConduitTokenQuery
     /**
      * @param array $tokens
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function willFilterPage(array $tokens)

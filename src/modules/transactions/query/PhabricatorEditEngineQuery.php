@@ -7,6 +7,8 @@ use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\PhabricatorApplication;
 use orangins\modules\transactions\application\PhabricatorTransactionsApplication;
 use orangins\modules\transactions\editengine\PhabricatorEditEngine;
+use PhutilInvalidStateException;
+use ReflectionException;
 
 /**
  * Class PhabricatorEditEngineQuery
@@ -34,6 +36,7 @@ final class PhabricatorEditEngineQuery extends PhabricatorCursorPagedPolicyAware
 
     /**
      * @return mixed
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -48,8 +51,8 @@ final class PhabricatorEditEngineQuery extends PhabricatorCursorPagedPolicyAware
     /**
      * @param array $engines
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function willFilterPage(array $engines)

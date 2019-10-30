@@ -2,6 +2,10 @@
 
 namespace orangins\lib\infrastructure\edges\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\db\ActiveRecord;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\infrastructure\edges\conduit\PhabricatorEdgeObject;
 use orangins\lib\infrastructure\edges\constants\PhabricatorEdgeConfig;
@@ -9,6 +13,12 @@ use orangins\lib\infrastructure\query\policy\PhabricatorQueryCursor;
 use orangins\modules\phid\helpers\PhabricatorPHID;
 use orangins\modules\phid\PhabricatorPHIDConstants;
 use Exception;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use wild;
+use Yii;
 
 /**
  * This is a more formal version of @{class:PhabricatorEdgeQuery} that is used
@@ -78,7 +88,7 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
 
         if (!$source_phids) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Edge object query must be executed with a nonempty list of ' .
                     'source PHIDs.'));
         }
@@ -89,7 +99,7 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
             $this_type = PhabricatorPHID::phid_get_type($phid);
             if ($this_type == PhabricatorPHIDConstants::PHID_TYPE_UNKNOWN) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Source PHID "{0}" in edge object query has unknown PHID type.', [
                             $phid
                         ]));
@@ -103,7 +113,7 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
 
             if ($phid_type !== $this_type) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Two source PHIDs ("{0}" and "{1}") have different PHID types ' .
                         '("{2}" and "{3}"). All PHIDs must be of the same type to execute ' .
                         'an edge object query.',
@@ -121,10 +131,10 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
 
     /**
      * @return array
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -143,12 +153,11 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
     }
 
     /**
-     * @param AphrontDatabaseConnection $conn
-     * @return array
+     * @return array|void
      * @throws Exception
      * @author 陈妙威
      */
-    protected function buildSelectClauseParts(AphrontDatabaseConnection $conn)
+    protected function buildSelectClauseParts()
     {
         $parts = parent::buildSelectClauseParts($conn);
 
@@ -162,13 +171,19 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
     }
 
     /**
-     * @param AphrontDatabaseConnection $conn
      * @return array|void
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws \yii\base\Exception
      * @author 陈妙威
      */
-    protected function buildWhereClause(AphrontDatabaseConnection $conn)
+    protected function buildWhereClause()
     {
-        $parts = parent::buildWhereClause($conn);
+        $parts = parent::buildWhereClause();
 
         $parts[] = qsprintf(
             $conn,
@@ -210,7 +225,7 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
 
 
     /**
-     * @return array|\wild
+     * @return array|wild
      * @author 陈妙威
      */
     public function getOrderableColumns() {
@@ -244,7 +259,7 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
      * @param $cursor
      * @return mixed
      * @author 陈妙威
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws PhabricatorInvalidQueryCursorException
      */
     protected function newInternalCursorFromExternalCursor($cursor) {
         list($epoch, $sequence) = $this->parseCursor($cursor);
@@ -263,7 +278,7 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
     }
 
     /**
-     * @param \orangins\lib\db\ActiveRecord $object
+     * @param ActiveRecord $object
      * @return array
      * @author 陈妙威
      */
@@ -289,7 +304,7 @@ final class PhabricatorEdgeObjectQuery extends PhabricatorCursorPagedPolicyAware
     /**
      * @param $cursor
      * @return array
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     private function parseCursor($cursor) {

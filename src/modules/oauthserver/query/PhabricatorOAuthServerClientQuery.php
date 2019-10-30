@@ -2,8 +2,13 @@
 
 namespace orangins\modules\oauthserver\query;
 
+use Exception;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\oauthserver\application\PhabricatorOAuthServerApplication;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use yii\db\ActiveRecord;
 
 /**
  * Class PhabricatorOAuthServerClientQuery
@@ -60,8 +65,8 @@ final class PhabricatorOAuthServerClientQuery extends PhabricatorCursorPagedPoli
     }
 
     /**
-     * @return array|\yii\db\ActiveRecord[]
-     * @throws \Exception
+     * @return array|ActiveRecord[]
+     * @throws Exception
      * @author 陈妙威
      */
     protected function loadPage()
@@ -73,9 +78,9 @@ final class PhabricatorOAuthServerClientQuery extends PhabricatorCursorPagedPoli
     }
 
     /**
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClause()

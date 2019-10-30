@@ -2,8 +2,16 @@
 
 namespace orangins\modules\auth\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\auth\application\PhabricatorAuthApplication;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 
 /**
  * Class PhabricatorAuthTemporaryTokenQuery
@@ -105,11 +113,11 @@ final class PhabricatorAuthTemporaryTokenQuery extends PhabricatorCursorPagedPol
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -120,13 +128,12 @@ final class PhabricatorAuthTemporaryTokenQuery extends PhabricatorCursorPagedPol
 
     /**
      * @return array|void
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

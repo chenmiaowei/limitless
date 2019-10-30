@@ -2,9 +2,17 @@
 
 namespace orangins\modules\people\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\people\application\PhabricatorPeopleApplication;
 use orangins\modules\people\models\PhabricatorUserLog;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 
 /**
  * Class PhabricatorPeopleLogQuery
@@ -138,7 +146,11 @@ final class PhabricatorPeopleLogQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -148,6 +160,12 @@ final class PhabricatorPeopleLogQuery
 
     /**
      * @return array|void
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

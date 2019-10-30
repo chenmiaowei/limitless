@@ -2,8 +2,15 @@
 
 namespace orangins\modules\search\models;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\search\application\PhabricatorSearchApplication;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
 
 /**
  * This is the ActiveQuery class for [[SearchNamedqueryconfig]].
@@ -74,6 +81,10 @@ class PhabricatorNamedQueryConfigQuery extends PhabricatorCursorPagedPolicyAware
 
     /**
      * @return mixed
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -82,6 +93,12 @@ class PhabricatorNamedQueryConfigQuery extends PhabricatorCursorPagedPolicyAware
     }
 
     /**
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

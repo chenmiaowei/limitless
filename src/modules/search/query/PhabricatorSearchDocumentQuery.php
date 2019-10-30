@@ -2,6 +2,7 @@
 
 namespace orangins\modules\search\query;
 
+use Exception;
 use orangins\lib\infrastructure\cluster\search\PhabricatorSearchService;
 use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;;
 use orangins\modules\phid\query\PhabricatorHandleQuery;
@@ -94,9 +95,9 @@ final class PhabricatorSearchDocumentQuery
     }
 
     /**
-     * @return \dict|null
+     * @return null
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     protected function loadPage()
     {

@@ -2,8 +2,12 @@
 
 namespace orangins\modules\search\models;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\search\application\PhabricatorSearchApplication;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
 
 /**
  * This is the ActiveQuery class for [[SearchSavedquery]].
@@ -61,10 +65,10 @@ class PhabricatorSavedQueryQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return null
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -74,9 +78,9 @@ class PhabricatorSavedQueryQuery extends PhabricatorCursorPagedPolicyAwareQuery
     }
 
     /**
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClause()

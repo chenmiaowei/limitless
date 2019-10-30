@@ -2,8 +2,15 @@
 
 namespace orangins\modules\file\models;
 
+use Exception;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\file\application\PhabricatorFilesApplication;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -84,7 +91,7 @@ class PhabricatorFileChunkQuery
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     protected function loadPage()
@@ -98,9 +105,9 @@ class PhabricatorFileChunkQuery
     /**
      * @param PhabricatorFileChunk[] $chunks
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     protected function willFilterPage(array $chunks)
@@ -146,9 +153,9 @@ class PhabricatorFileChunkQuery
     }
 
     /**
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClause()

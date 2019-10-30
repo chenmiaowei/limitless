@@ -12,6 +12,7 @@ namespace orangins\modules\auth\query;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\auth\application\PhabricatorAuthApplication;
 use Exception;
+use Yii;
 
 /**
  * Class PhabricatorAuthProviderConfigQuery
@@ -100,8 +101,8 @@ class PhabricatorAuthProviderConfigQuery extends PhabricatorCursorPagedPolicyAwa
     public static function getStatusOptions()
     {
         return array(
-            self::STATUS_ALL => \Yii::t("app",'All Providers'),
-            self::STATUS_ENABLED => \Yii::t("app",'Enabled Providers'),
+            self::STATUS_ALL => Yii::t("app",'All Providers'),
+            self::STATUS_ENABLED => Yii::t("app",'Enabled Providers'),
         );
     }
 
@@ -144,7 +145,7 @@ class PhabricatorAuthProviderConfigQuery extends PhabricatorCursorPagedPolicyAwa
                 $this->andWhere('is_enabled=1');
                 break;
             default:
-                throw new Exception(\Yii::t("app","Unknown status '{0}'!", [$status]));
+                throw new Exception(Yii::t("app","Unknown status '{0}'!", [$status]));
         }
     }
 

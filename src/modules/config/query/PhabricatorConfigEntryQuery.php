@@ -2,9 +2,9 @@
 
 namespace orangins\modules\config\query;
 
+use Exception;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\config\application\PhabricatorConfigApplication;
-use orangins\modules\config\models\PhabricatorConfigEntry;
 
 /**
  * Class PhabricatorConfigEntryQuery
@@ -49,7 +49,7 @@ final class PhabricatorConfigEntryQuery
     /**
      * @return null
      * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
      */
     protected function loadPage()
     {

@@ -2,6 +2,8 @@
 
 namespace orangins\modules\file\models;
 
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\infrastructure\edges\query\PhabricatorEdgeQuery;
 use orangins\lib\helpers\OranginsUtil;
@@ -9,8 +11,14 @@ use orangins\modules\file\application\PhabricatorFilesApplication;
 use orangins\modules\file\edge\PhabricatorFileHasObjectEdgeType;
 use orangins\modules\phid\PhabricatorPHIDConstants;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
 use Yii;
 use Exception;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -316,9 +324,9 @@ class PhabricatorFileQuery extends PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @return null
      * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -467,7 +475,7 @@ class PhabricatorFileQuery extends PhabricatorCursorPagedPolicyAwareQuery
      * @param array $files
      * @return array
      * @author 陈妙威
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     protected function didFilterPage(array $files)
     {
@@ -530,12 +538,12 @@ class PhabricatorFileQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @throws \yii\base\Exception
      * @author 陈妙威
      */

@@ -2,12 +2,29 @@
 
 namespace orangins\modules\auth\query;
 
+use AphrontQueryException;
+use Exception;
+use orangins\lib\exception\ActiveRecordException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\auth\models\PhabricatorAuthProviderConfig;
+use orangins\modules\file\exception\PhabricatorFileStorageConfigurationException;
+use orangins\modules\file\FilesystemException;
 use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\people\application\PhabricatorPeopleApplication;
 use orangins\modules\people\models\PhabricatorExternalAccount;
 use orangins\modules\people\models\PhabricatorUser;
+use PhutilAggregateException;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
+use yii\db\ActiveRecord;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -155,9 +172,9 @@ final class PhabricatorExternalAccountQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @author 陈妙威
-     * @throws \Exception
+     * @return array|null|ActiveRecord[]
+     * @throws Exception
+     *@author 陈妙威
      */
     protected function loadPage()
     {
@@ -168,18 +185,19 @@ final class PhabricatorExternalAccountQuery
     /**
      * @param array $accounts
      * @return array
-     * @throws \AphrontQueryException
-     * @throws \PhutilAggregateException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\exception\ActiveRecordException
-     * @throws \orangins\modules\file\FilesystemException
-     * @throws \orangins\modules\file\exception\PhabricatorFileStorageConfigurationException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
+     * @throws AphrontQueryException
+     * @throws PhutilAggregateException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws ActiveRecordException
+     * @throws FilesystemException
+     * @throws PhabricatorFileStorageConfigurationException
+     * @throws InvalidConfigException
+     * @throws UnknownPropertyException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     protected function willFilterPage(array $accounts)
@@ -243,13 +261,12 @@ final class PhabricatorExternalAccountQuery
     }
 
     /**
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
@@ -301,9 +318,9 @@ final class PhabricatorExternalAccountQuery
      * NOTE: This function assumes the first item in various query parameters is
      * the correct value to use in creating a new external account.
      * @return mixed|null|PhabricatorExternalAccount
-     * @throws \AphrontQueryException
-     * @throws \yii\db\IntegrityException
-     * @throws \Exception
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws Exception
      * @author 陈妙威
      */
     public function loadOneOrCreate()

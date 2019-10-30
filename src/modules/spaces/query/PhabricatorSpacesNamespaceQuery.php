@@ -2,13 +2,23 @@
 
 namespace orangins\modules\spaces\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\cache\PhabricatorCaches;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use orangins\modules\spaces\application\PhabricatorSpacesApplication;
+use orangins\modules\spaces\interfaces\PhabricatorSpacesInterface;
 use orangins\modules\spaces\models\PhabricatorSpacesNamespace;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Yii;
+use yii\base\Exception;
 
 /**
  * Class PhabricatorSpacesNamespaceQuery
@@ -102,10 +112,10 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
 
     /**
      * @return null
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -114,6 +124,12 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
     }
 
     /**
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
@@ -160,9 +176,9 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
 
     /**
      * @return bool
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public static function getSpacesExist()
@@ -173,9 +189,9 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
     /**
      * @param PhabricatorUser $viewer
      * @return bool
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public static function getViewerSpacesExist(PhabricatorUser $viewer)
@@ -192,9 +208,9 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
 
     /**
      * @return mixed
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public static function getAllSpaces()
@@ -216,9 +232,9 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
 
     /**
      * @return null
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public static function getDefaultSpace()
@@ -247,8 +263,9 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
     /**
      * @param PhabricatorUser $viewer
      * @return array|null
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public static function getViewerSpaces(PhabricatorUser $viewer)
@@ -281,8 +298,9 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
     /**
      * @param PhabricatorUser $viewer
      * @return array|null
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public static function getViewerActiveSpaces(PhabricatorUser $viewer)
@@ -302,8 +320,9 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
      * @param PhabricatorUser $viewer
      * @param $space_phid
      * @return array
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public static function getSpaceOptionsForViewer(
@@ -324,7 +343,7 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
                 }
             }
 
-            $map[$space->getPHID()] = \Yii::t("app",
+            $map[$space->getPHID()] = Yii::t("app",
                 'Space {0}: {1}', [
                     $space->getMonogram(),
                     $space->getNamespaceName()
@@ -343,8 +362,9 @@ final class PhabricatorSpacesNamespaceQuery extends PhabricatorCursorPagedPolicy
      *
      * @param wild
      * @return phid|null
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      */
     public static function getObjectSpacePHID($object)
     {

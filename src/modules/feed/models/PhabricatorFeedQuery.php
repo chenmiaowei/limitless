@@ -2,9 +2,19 @@
 
 namespace orangins\modules\feed\models;
 
+use orangins\lib\db\ActiveRecord;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\feed\application\PhabricatorFeedApplication;
 use orangins\modules\feed\story\PhabricatorFeedStory;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\Exception;
 
 /**
  * This is the ActiveQuery class for [[PhabricatorFeedStoryData]].
@@ -89,9 +99,9 @@ final class PhabricatorFeedQuery extends PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @param PhabricatorFeedStory[] $data
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \Throwable
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     protected function willFilterPage(array $data)
@@ -125,13 +135,13 @@ final class PhabricatorFeedQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array|void
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
@@ -202,12 +212,12 @@ final class PhabricatorFeedQuery extends PhabricatorCursorPagedPolicyAwareQuery
         return array(
             'newest' => array(
                 'vector' => array('key'),
-                'name' => \Yii::t('app', 'Creation (Newest First)'),
+                'name' => Yii::t('app', 'Creation (Newest First)'),
                 'aliases' => array('created'),
             ),
             'oldest' => array(
                 'vector' => array('-key'),
-                'name' =>  \Yii::t('app', 'Creation (Oldest First)'),
+                'name' =>  Yii::t('app', 'Creation (Oldest First)'),
             ),
         );
     }
@@ -253,7 +263,7 @@ final class PhabricatorFeedQuery extends PhabricatorCursorPagedPolicyAwareQuery
     }
 
     /**
-     * @param \orangins\lib\db\ActiveRecord $object
+     * @param ActiveRecord $object
      * @return array
      * @author 陈妙威
      */

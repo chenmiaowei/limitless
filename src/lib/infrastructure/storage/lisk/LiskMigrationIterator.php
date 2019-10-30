@@ -4,6 +4,8 @@ namespace orangins\lib\infrastructure\storage\lisk;
 
 use orangins\lib\db\ActiveRecord;
 use PhutilBufferedIterator;
+use scalar;
+use yii\base\InvalidConfigException;
 
 /**
  * Iterate over every object of a given type, without holding all of them in
@@ -48,7 +50,7 @@ final class LiskMigrationIterator extends PhutilBufferedIterator
     }
 
     /**
-     * @return \scalar
+     * @return scalar
      * @author 陈妙威
      */
     public function key()
@@ -58,7 +60,7 @@ final class LiskMigrationIterator extends PhutilBufferedIterator
 
     /**
      * @return array
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     protected function loadPage()

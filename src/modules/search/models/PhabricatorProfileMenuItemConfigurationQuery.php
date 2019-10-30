@@ -2,11 +2,17 @@
 
 namespace orangins\modules\search\models;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
-use orangins\lib\helpers\OranginsUtil;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\search\application\PhabricatorSearchApplication;
 use orangins\modules\search\menuitems\PhabricatorProfileMenuItem;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -109,10 +115,10 @@ class PhabricatorProfileMenuItemConfigurationQuery extends PhabricatorCursorPage
 
     /**
      * @return mixed
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -122,6 +128,12 @@ class PhabricatorProfileMenuItemConfigurationQuery extends PhabricatorCursorPage
     }
 
     /**
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
@@ -158,8 +170,8 @@ class PhabricatorProfileMenuItemConfigurationQuery extends PhabricatorCursorPage
     /**
      * @param array $page
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function willFilterPage(array $page)

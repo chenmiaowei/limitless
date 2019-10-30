@@ -2,9 +2,19 @@
 
 namespace orangins\modules\notification\query;
 
+use orangins\lib\db\ActiveRecord;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\feed\story\PhabricatorFeedStory;
 use orangins\modules\notification\application\PhabricatorNotificationsApplication;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\Exception;
 
 /**
  * @task config Configuring the Query
@@ -76,9 +86,9 @@ final class PhabricatorNotificationQuery
 
     /**
      * @return null
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \Throwable
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     protected function loadPage()
@@ -103,13 +113,13 @@ final class PhabricatorNotificationQuery
 
     /**
      * @return array|void
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()
@@ -121,7 +131,7 @@ final class PhabricatorNotificationQuery
         }
 
         if ($this->unread !== null) {
-            $this->andWhere(['has_viewed'=> (int)!$this->unread]);
+            $this->andWhere(['has_viewed' => (int)!$this->unread]);
         }
 
         if ($this->keys) {
@@ -134,7 +144,8 @@ final class PhabricatorNotificationQuery
      * @return array
      * @author 陈妙威
      */
-    protected function willFilterPage(array $stories) {
+    protected function willFilterPage(array $stories)
+    {
         foreach ($stories as $key => $story) {
             if (!$story->isVisibleInNotifications()) {
                 unset($stories[$key]);
@@ -148,7 +159,8 @@ final class PhabricatorNotificationQuery
      * @return array
      * @author 陈妙威
      */
-    protected function getDefaultOrderVector() {
+    protected function getDefaultOrderVector()
+    {
         return array('key');
     }
 
@@ -156,16 +168,17 @@ final class PhabricatorNotificationQuery
      * @return array
      * @author 陈妙威
      */
-    public function getBuiltinOrders() {
+    public function getBuiltinOrders()
+    {
         return array(
             'newest' => array(
                 'vector' => array('key'),
-                'name' => \Yii::t('app', 'Creation (Newest First)'),
+                'name' => Yii::t('app', 'Creation (Newest First)'),
                 'aliases' => array('created'),
             ),
             'oldest' => array(
                 'vector' => array('-key'),
-                'name' =>  \Yii::t('app', 'Creation (Oldest First)'),
+                'name' => Yii::t('app', 'Creation (Oldest First)'),
             ),
         );
     }
@@ -174,7 +187,8 @@ final class PhabricatorNotificationQuery
      * @return array
      * @author 陈妙威
      */
-    public function getOrderableColumns() {
+    public function getOrderableColumns()
+    {
         return array(
             'key' => array(
                 'table' => 'feed_storynotification',
@@ -192,7 +206,8 @@ final class PhabricatorNotificationQuery
      */
     protected function applyExternalCursorConstraintsToQuery(
         PhabricatorCursorPagedPolicyAwareQuery $subquery,
-        $cursor) {
+        $cursor)
+    {
         $subquery->withKeys(array($cursor));
     }
 
@@ -201,20 +216,23 @@ final class PhabricatorNotificationQuery
      * @return string
      * @author 陈妙威
      */
-    protected function newExternalCursorStringForResult($object) {
+    protected function newExternalCursorStringForResult($object)
+    {
         return $object->getChronologicalKey();
     }
 
     /**
-     * @param \orangins\lib\db\ActiveRecord $object
+     * @param ActiveRecord $object
      * @return array
      * @author 陈妙威
      */
-    protected function newPagingMapFromPartialObject($object) {
+    protected function newPagingMapFromPartialObject($object)
+    {
         return array(
             'key' => $object->getChronologicalKey(),
         );
     }
+
     /**
      * @return null|string
      * @author 陈妙威

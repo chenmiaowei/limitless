@@ -2,11 +2,18 @@
 
 namespace orangins\modules\conduit\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
 use orangins\modules\conduit\application\PhabricatorConduitApplication;
 use orangins\modules\conduit\method\ConduitAPIMethod;
 use orangins\modules\conduit\models\PhabricatorConduitMethodCallLog;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 
 /**
  * This is the ActiveQuery class for [[ConduitMethodcalllog]].
@@ -73,7 +80,11 @@ final class PhabricatorConduitLogQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -83,9 +94,12 @@ final class PhabricatorConduitLogQuery
 
     /**
      * @return array|void
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

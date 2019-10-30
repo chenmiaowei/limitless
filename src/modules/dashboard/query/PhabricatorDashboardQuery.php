@@ -2,12 +2,20 @@
 
 namespace orangins\modules\dashboard\query;
 
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\dashboard\application\PhabricatorDashboardApplication;
 use orangins\modules\dashboard\models\PhabricatorDashboard;
 use orangins\modules\dashboard\models\PhabricatorDashboardNgrams;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Exception;
+use yii\db\ActiveRecord;
 
 /**
  * Class PhabricatorDashboardQuery
@@ -128,8 +136,7 @@ final class PhabricatorDashboardQuery
     /**
      * @param $ngrams
      * @return PhabricatorDashboardQuery
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function withNameNgrams($ngrams)
@@ -138,9 +145,9 @@ final class PhabricatorDashboardQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @author 陈妙威
+     * @return array|null|ActiveRecord[]
      * @throws \Exception
+     *@author 陈妙威
      */
     protected function loadPage()
     {
@@ -159,8 +166,8 @@ final class PhabricatorDashboardQuery
     /**
      * @param array $dashboards
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function didFilterPage(array $dashboards) {
@@ -180,13 +187,13 @@ final class PhabricatorDashboardQuery
     }
 
     /**
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

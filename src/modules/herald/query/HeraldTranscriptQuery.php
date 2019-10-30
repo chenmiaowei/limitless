@@ -2,12 +2,23 @@
 
 namespace orangins\modules\herald\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
+use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
+use orangins\modules\herald\application\PhabricatorHeraldApplication;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
+
 /**
  * This is the ActiveQuery class for [[\orangins\modules\herald\models\HeraldTranscript]].
  *
  * @see \orangins\modules\herald\models\HeraldTranscript
  */
-class HeraldTranscriptQuery extends \orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery
+class HeraldTranscriptQuery extends PhabricatorCursorPagedPolicyAwareQuery
 {
 
     /**
@@ -143,11 +154,11 @@ class HeraldTranscriptQuery extends \orangins\lib\infrastructure\query\policy\Ph
 
 
     /**
-    * @return \yii\db\ActiveRecord[]
-    * @throws \AphrontAccessDeniedQueryException
-    * @throws \PhutilTypeExtraParametersException
-    * @throws \PhutilTypeMissingParametersException
-    * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+    * @return ActiveRecord[]
+    * @throws AphrontAccessDeniedQueryException
+    * @throws PhutilTypeExtraParametersException
+    * @throws PhutilTypeMissingParametersException
+    * @throws PhabricatorInvalidQueryCursorException
     * @author 陈妙威
     */
     protected function loadPage()
@@ -157,13 +168,12 @@ class HeraldTranscriptQuery extends \orangins\lib\infrastructure\query\policy\Ph
 
 
     /**
-    * @throws \PhutilInvalidStateException
-    * @throws \PhutilTypeExtraParametersException
-    * @throws \PhutilTypeMissingParametersException
-    * @throws \ReflectionException
-    * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-    * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-    * @throws \yii\base\Exception
+    * @throws PhutilInvalidStateException
+    * @throws PhutilTypeExtraParametersException
+    * @throws PhutilTypeMissingParametersException
+    * @throws ReflectionException
+    * @throws PhabricatorEmptyQueryException
+    * @throws PhabricatorInvalidQueryCursorException
     * @author 陈妙威
     */
     protected function buildWhereClauseParts()
@@ -199,6 +209,6 @@ class HeraldTranscriptQuery extends \orangins\lib\infrastructure\query\policy\Ph
     */
     public function getQueryApplicationClass()
     {
-        return \orangins\modules\herald\application\PhabricatorHeraldApplication::className();
+        return PhabricatorHeraldApplication::className();
     }
 }

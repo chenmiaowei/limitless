@@ -2,10 +2,18 @@
 
 namespace orangins\lib\infrastructure\daemon\workers\query;
 
+use AphrontAccessDeniedQueryException;
 use orangins\lib\infrastructure\daemon\workers\bulk\PhabricatorWorkerBulkJobType;
 use orangins\lib\infrastructure\daemon\workers\storage\PhabricatorWorkerBulkJob;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\daemon\application\PhabricatorDaemonsApplication;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -103,11 +111,11 @@ final class PhabricatorWorkerBulkJobQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \AphrontAccessDeniedQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -118,8 +126,7 @@ final class PhabricatorWorkerBulkJobQuery
     /**
      * @param array $page
      * @return array
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function willFilterPage(array $page)
@@ -141,13 +148,12 @@ final class PhabricatorWorkerBulkJobQuery
 
     /**
      * @return array|void
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

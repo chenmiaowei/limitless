@@ -2,9 +2,21 @@
 
 namespace orangins\modules\search\query;
 
+use Exception;
+use orangins\lib\infrastructure\edges\constants\PhabricatorEdgeConfig;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
+use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\search\application\PhabricatorSearchApplication;
+use orangins\modules\search\edge\PhabricatorProfileMenuItemAffectsObjectEdgeType;
 use orangins\modules\search\menuitems\PhabricatorProfileMenuItem;
+use orangins\modules\search\models\PhabricatorProfileMenuItemConfiguration;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -108,8 +120,8 @@ final class PhabricatorProfileMenuItemConfigurationQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \Exception
+     * @return array|null|ActiveRecord[]
+     * @throws Exception
      * @author 陈妙威
      */
     protected function loadPage()
@@ -118,20 +130,18 @@ final class PhabricatorProfileMenuItemConfigurationQuery
     }
 
     /**
-     * @param AphrontDatabaseConnection $conn
      * @return array|void
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException
-     * @throws \orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
-    protected function buildWhereClauseParts(AphrontDatabaseConnection $conn)
+    protected function buildWhereClauseParts()
     {
-        $where = parent::buildWhereClauseParts($conn);
+        $where = parent::buildWhereClauseParts();
 
         if ($this->ids !== null) {
             $where[] = qsprintf(
@@ -183,14 +193,13 @@ final class PhabricatorProfileMenuItemConfigurationQuery
     }
 
     /**
-     * @param AphrontDatabaseConnection $conn
      * @return array|void
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
-    protected function buildJoinClauseParts(AphrontDatabaseConnection $conn)
+    protected function buildJoinClauseParts()
     {
-        $joins = parent::buildJoinClauseParts($conn);
+        $joins = parent::buildJoinClauseParts();
 
         if ($this->affectedObjectPHIDs !== null) {
             $joins[] = qsprintf(
@@ -207,7 +216,8 @@ final class PhabricatorProfileMenuItemConfigurationQuery
     /**
      * @param array $page
      * @return array
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function willFilterPage(array $page)
@@ -231,7 +241,7 @@ final class PhabricatorProfileMenuItemConfigurationQuery
 
         $profile_phids = mpull($page, 'getProfilePHID');
 
-        $profiles = id(new PhabricatorObjectQuery())
+        $profiles = (new PhabricatorObjectQuery())
             ->setViewer($this->getViewer())
             ->setParentQuery($this)
             ->withPHIDs($profile_phids)

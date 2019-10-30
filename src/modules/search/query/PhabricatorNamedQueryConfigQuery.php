@@ -2,8 +2,17 @@
 
 namespace orangins\modules\search\query;
 
+use Exception;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\search\application\PhabricatorSearchApplication;
+use orangins\modules\search\models\PhabricatorNamedQueryConfig;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\db\ActiveRecord;
 
 /**
  * Class PhabricatorNamedQueryConfigQuery
@@ -70,8 +79,8 @@ final class PhabricatorNamedQueryConfigQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @throws \Exception
+     * @return array|null|ActiveRecord[]
+     * @throws Exception
      * @author 陈妙威
      */
     protected function loadPage()
@@ -80,11 +89,16 @@ final class PhabricatorNamedQueryConfigQuery
     }
 
     /**
-     * @param AphrontDatabaseConnection $conn
      * @return array|void
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
-    protected function buildWhereClauseParts(AphrontDatabaseConnection $conn)
+    protected function buildWhereClauseParts()
     {
         $where = parent::buildWhereClauseParts($conn);
 

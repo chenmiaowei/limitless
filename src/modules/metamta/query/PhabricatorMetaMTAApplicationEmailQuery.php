@@ -2,10 +2,19 @@
 
 namespace orangins\modules\metamta\query;
 
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\helpers\OranginsUtil;
 use orangins\modules\meta\query\PhabricatorApplicationQuery;
 use orangins\modules\metamta\application\PhabricatorMetaMTAApplication;
+use orangins\modules\metamta\models\PhabricatorMetaMTAApplicationEmail;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use yii\base\Exception;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -93,9 +102,9 @@ final class PhabricatorMetaMTAApplicationEmailQuery extends PhabricatorCursorPag
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     * @author 陈妙威
+     * @return array|null|ActiveRecord[]
      * @throws \Exception
+     *@author 陈妙威
      */
     protected function loadPage()
     {
@@ -105,13 +114,14 @@ final class PhabricatorMetaMTAApplicationEmailQuery extends PhabricatorCursorPag
     /**
      * @param array $app_emails
      * @return array
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function willFilterPage(array $app_emails)
     {
+        /** @var PhabricatorMetaMTAApplicationEmail[] $app_emails_map */
         $app_emails_map = OranginsUtil::mgroup($app_emails, 'getApplicationPHID');
         $applications = (new PhabricatorApplicationQuery())
             ->setViewer($this->getViewer())
@@ -134,6 +144,12 @@ final class PhabricatorMetaMTAApplicationEmailQuery extends PhabricatorCursorPag
 
     /**
      * @return array|void
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorEmptyQueryException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

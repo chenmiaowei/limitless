@@ -4,7 +4,6 @@ namespace orangins\modules\policy\models;
 
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\env\PhabricatorEnv;
-use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\PhabricatorApplication;
 use orangins\modules\policy\rule\PhabricatorPolicyRule;
 use PhutilClassMapQuery;
@@ -16,8 +15,11 @@ use orangins\modules\policy\constants\PhabricatorPolicies;
 use orangins\modules\policy\constants\PhabricatorPolicyType;
 use orangins\modules\policy\interfaces\PhabricatorPolicyInterface;
 use orangins\modules\policy\phid\PhabricatorPolicyPHIDTypePolicy;
-use orangins\modules\settings\setting\PhabricatorPolicyFavoritesSetting;
 use Exception;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -68,7 +70,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
      * @param PhabricatorPolicyInterface $object
      * @return PhabricatorPolicy[]
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public static function loadPolicies(
@@ -101,8 +103,8 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
      * @param bool $icon
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public static function renderPolicyDescriptions(
@@ -122,16 +124,17 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array|null
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function loadPage()
     {
         if ($this->object && $this->phids) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'You can not issue a policy query with both %s and %s.',
                     'setObject()',
                     'setPHIDs()'));
@@ -224,7 +227,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
     public static function getGlobalPolicy($policy)
     {
         if (!self::isGlobalPolicy($policy)) {
-            throw new Exception(\Yii::t("app", "Policy '%s' is not a global policy!", $policy));
+            throw new Exception(Yii::t("app", "Policy '%s' is not a global policy!", $policy));
         }
         return ArrayHelper::getValue(self::getGlobalPolicies(), $policy);
     }
@@ -265,15 +268,15 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
     {
         switch ($policy) {
             case PhabricatorPolicies::POLICY_PUBLIC:
-                return \Yii::t("app", 'Public (No Login Required)');
+                return Yii::t("app", 'Public (No Login Required)');
             case PhabricatorPolicies::POLICY_USER:
-                return \Yii::t("app", 'All Users');
+                return Yii::t("app", 'All Users');
             case PhabricatorPolicies::POLICY_ADMIN:
-                return \Yii::t("app", 'Administrators');
+                return Yii::t("app", 'Administrators');
             case PhabricatorPolicies::POLICY_NOONE:
-                return \Yii::t("app", 'No One');
+                return Yii::t("app", 'No One');
             default:
-                return \Yii::t("app", 'Unknown Policy');
+                return Yii::t("app", 'Unknown Policy');
         }
     }
 
@@ -286,7 +289,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
     {
         switch ($policy) {
             case PhabricatorPolicies::POLICY_PUBLIC:
-                return \Yii::t("app", 'Public');
+                return Yii::t("app", 'Public');
             default:
                 return null;
         }
@@ -295,7 +298,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
     /**
      * @return array
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
 
      * @author 陈妙威
      */
@@ -304,61 +307,61 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
         $phids = array();
         $viewer = $this->getViewer();
 
-        if ($viewer->getPHID()) {
-            $pref_key = PhabricatorPolicyFavoritesSetting::SETTINGKEY;
-
-            $favorite_limit = 10;
-            $default_limit = 5;
-
-            // If possible, show the user's 10 most recently used projects.
-            $favorites = $viewer->getUserSetting($pref_key);
-            if (!is_array($favorites)) {
-                $favorites = array();
-            }
-            $favorite_phids = array_keys($favorites);
-            $favorite_phids = array_slice($favorite_phids, -$favorite_limit);
-
-            if ($favorite_phids) {
-                $projects = (new PhabricatorProjectQuery())
-                    ->setViewer($viewer)
-                    ->withPHIDs($favorite_phids)
-                    ->withIsMilestone(false)
-                    ->setLimit($favorite_limit)
-                    ->execute();
-                $projects = mpull($projects, null, 'getPHID');
-            } else {
-                $projects = array();
-            }
-
-            // If we didn't find enough favorites, add some default projects. These
-            // are just arbitrary projects that the viewer is a member of, but may
-            // be useful on smaller installs and for new users until they can use
-            // the control enough time to establish useful favorites.
-//            if (count($projects) < $default_limit) {
-////                $default_projects = (new PhabricatorProjectQuery())
-////                    ->setViewer($viewer)
-////                    ->withMemberPHIDs(array($viewer->getPHID()))
-////                    ->withIsMilestone(false)
-////                    ->withStatuses(
-////                        array(
-////                            PhabricatorProjectStatus::STATUS_ACTIVE,
-////                        ))
-////                    ->setLimit($default_limit)
-////                    ->execute();
-////                $default_projects = mpull($default_projects, null, 'getPHID');
-////                $projects = $projects + $default_projects;
-////                $projects = array_slice($projects, 0, $default_limit);
-////            }
-
-            foreach ($projects as $project) {
-                $phids[] = $project->getPHID();
-            }
-
-            // Include the "current viewer" policy. This improves consistency, but
-            // is also useful for creating private instances of normally-shared object
-            // types, like repositories.
-            $phids[] = $viewer->getPHID();
-        }
+//        if ($viewer->getPHID()) {
+//            $pref_key = PhabricatorPolicyFavoritesSetting::SETTINGKEY;
+//
+//            $favorite_limit = 10;
+//            $default_limit = 5;
+//
+//            // If possible, show the user's 10 most recently used projects.
+//            $favorites = $viewer->getUserSetting($pref_key);
+//            if (!is_array($favorites)) {
+//                $favorites = array();
+//            }
+//            $favorite_phids = array_keys($favorites);
+//            $favorite_phids = array_slice($favorite_phids, -$favorite_limit);
+//
+//            if ($favorite_phids) {
+//                $projects = (new PhabricatorProjectQuery())
+//                    ->setViewer($viewer)
+//                    ->withPHIDs($favorite_phids)
+//                    ->withIsMilestone(false)
+//                    ->setLimit($favorite_limit)
+//                    ->execute();
+//                $projects = mpull($projects, null, 'getPHID');
+//            } else {
+//                $projects = array();
+//            }
+//
+//            // If we didn't find enough favorites, add some default projects. These
+//            // are just arbitrary projects that the viewer is a member of, but may
+//            // be useful on smaller installs and for new users until they can use
+//            // the control enough time to establish useful favorites.
+////            if (count($projects) < $default_limit) {
+//////                $default_projects = (new PhabricatorProjectQuery())
+//////                    ->setViewer($viewer)
+//////                    ->withMemberPHIDs(array($viewer->getPHID()))
+//////                    ->withIsMilestone(false)
+//////                    ->withStatuses(
+//////                        array(
+//////                            PhabricatorProjectStatus::STATUS_ACTIVE,
+//////                        ))
+//////                    ->setLimit($default_limit)
+//////                    ->execute();
+//////                $default_projects = mpull($default_projects, null, 'getPHID');
+//////                $projects = $projects + $default_projects;
+//////                $projects = array_slice($projects, 0, $default_limit);
+//////            }
+//
+//            foreach ($projects as $project) {
+//                $phids[] = $project->getPHID();
+//            }
+//
+//            // Include the "current viewer" policy. This improves consistency, but
+//            // is also useful for creating private instances of normally-shared object
+//            // types, like repositories.
+//            $phids[] = $viewer->getPHID();
+//        }
 
         $capabilities = $this->object->getCapabilities();
         foreach ($capabilities as $capability) {
@@ -497,6 +500,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
      */
     public static function getObjectPolicyRules($object)
     {
+        /** @var PhabricatorPolicyRule $rules */
         $rules = (new PhutilClassMapQuery())
             ->setAncestorClass(PhabricatorPolicyRule::class)
             ->execute();
@@ -511,7 +515,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
             $full_key = $rule->getObjectPolicyFullKey();
             if (isset($results[$full_key])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Two policy rules (of classes "%s" and "%s") define the same ' .
                         'object policy key ("%s"), but each object policy rule must use ' .
                         'a unique key.',
@@ -540,8 +544,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
      * @param $capability
      * @return null
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public static function getDefaultPolicyForObject(
@@ -573,6 +576,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
 
     /**
      * @return array|null
+     * @throws ReflectionException
      * @author 陈妙威
      */
     private static function getDefaultObjectTypePolicyMap()
@@ -582,6 +586,7 @@ class PhabricatorPolicyQuery extends PhabricatorCursorPagedPolicyAwareQuery
         if ($map === null) {
             $map = array();
 
+            /** @var PhabricatorApplication[] $apps */
             $apps = PhabricatorApplication::getAllApplicationsWithShortNameKey();
             foreach ($apps as $app) {
                 $map += $app->getDefaultObjectTypePolicyMap();

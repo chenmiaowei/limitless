@@ -2,6 +2,9 @@
 
 namespace orangins\modules\auth\query;
 
+use AphrontAccessDeniedQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorEmptyQueryException;
+use orangins\lib\infrastructure\query\exception\PhabricatorInvalidQueryCursorException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\modules\auth\application\PhabricatorAuthApplication;
 use orangins\modules\auth\models\PhabricatorAuthSSHKey;
@@ -9,6 +12,12 @@ use orangins\modules\cache\PhabricatorCaches;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\auth\sshkey\PhabricatorAuthSSHPublicKey;
 use orangins\modules\auth\sshkey\PhabricatorSSHPublicKeyInterface;
+use PhutilInvalidStateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Exception;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -48,7 +57,7 @@ final class PhabricatorAuthSSHKeyQuery
 
     /**
      * @author 陈妙威
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public static function deleteSSHKeyCache()
     {
@@ -123,7 +132,11 @@ final class PhabricatorAuthSSHKeyQuery
     }
 
     /**
-     * @return array|null|\yii\db\ActiveRecord[]
+     * @return array|null|ActiveRecord[]
+     * @throws AphrontAccessDeniedQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws PhabricatorInvalidQueryCursorException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -134,9 +147,8 @@ final class PhabricatorAuthSSHKeyQuery
     /**
      * @param array $keys
      * @return array
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function willFilterPage(array $keys)
@@ -169,6 +181,12 @@ final class PhabricatorAuthSSHKeyQuery
 
     /**
      * @return array|void
+     * @throws PhabricatorInvalidQueryCursorException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws PhabricatorEmptyQueryException
      * @author 陈妙威
      */
     protected function buildWhereClauseParts()

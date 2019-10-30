@@ -8,6 +8,8 @@ use orangins\lib\PhabricatorApplication;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\filter\PhabricatorPolicyFilter;
 use Exception;
+use ReflectionException;
+use Yii;
 
 /**
  * Class PhabricatorApplicationQuery
@@ -196,7 +198,7 @@ final class PhabricatorApplicationQuery extends PhabricatorCursorPagedPolicyAwar
 
     /**
      * @return null
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function loadPage()
@@ -302,7 +304,7 @@ final class PhabricatorApplicationQuery extends PhabricatorCursorPagedPolicyAwar
                 break;
             default:
                 throw new Exception(
-                    \Yii::t("app", 'Unknown order "{0}"!', [$this->order]));
+                    Yii::t("app", 'Unknown order "{0}"!', [$this->order]));
         }
 
         return $apps;
