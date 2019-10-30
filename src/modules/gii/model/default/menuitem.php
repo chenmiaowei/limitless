@@ -44,9 +44,7 @@ use yii\helpers\Url;
 use Yii;
 
 /**
- * Class <?= $modelClassName . ucfirst(preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
-    return strtoupper($matches[2]);
-}, $tableName)) ?>MenuItem
+ * Class <?= $modelClassName ?>MenuItem
  * @package applications\task\menuitem
  */
 final class <?= $modelClassName ?>MenuItem extends PhabricatorProfileMenuItem

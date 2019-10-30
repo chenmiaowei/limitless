@@ -34,13 +34,13 @@ class <?= $modelClassName ?>PHIDType extends \orangins\modules\phid\PhabricatorP
     /**
     *
     */
-    const TYPECONST = "<?= strtoupper(substr($tableName, 0, 4)) ?>";
+    const TYPECONST = "<?= strtoupper(substr(str_replace(" ", "", \yii\helpers\Inflector::camel2words($tableName)), 0, 4)) ?>";
     /**
     * @return mixed
     */
     public function getTypeName()
     {
-        return \Yii::t("app", "<?= $tableName ?>");
+        return \Yii::t("app", "<?= \yii\helpers\Inflector::camel2words($tableName) ?>");
     }
 
     /**
