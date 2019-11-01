@@ -14,6 +14,7 @@ use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\markup\view\PHUIRemarkupView;
 use orangins\lib\view\AphrontView;
 use orangins\lib\view\form\control\AphrontFormControl;
+use PhutilInvalidStateException;
 use Yii;
 
 /**
@@ -68,6 +69,7 @@ final class AphrontFormView extends AphrontView
      * @var bool
      */
     private $fullWidth = false;
+
     /**
      * @var array
      */
@@ -205,8 +207,7 @@ final class AphrontFormView extends AphrontView
     /**
      * @param $text
      * @return AphrontFormView
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function appendInstructions($text)
@@ -219,15 +220,15 @@ final class AphrontFormView extends AphrontView
                 ),
                 array(
                     JavelinHtml::phutil_tag_div("col-lg-2"),
-                    JavelinHtml::phutil_tag_div("col-lg-8",  array($text)),
+                    JavelinHtml::phutil_tag_div("col-lg-8", array($text)),
                 )));
     }
 
     /**
      * @param $remarkup
      * @return AphrontFormView
-     * @throws \yii\base\Exception
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     public function appendRemarkupInstructions($remarkup)
@@ -239,7 +240,7 @@ final class AphrontFormView extends AphrontView
     /**
      * @param $remarkup
      * @return PHUIRemarkupView
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function newInstructionsRemarkupView($remarkup)
@@ -257,8 +258,7 @@ final class AphrontFormView extends AphrontView
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
      * @throws Exception
      * @author 陈妙威
      */
@@ -296,8 +296,7 @@ final class AphrontFormView extends AphrontView
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
      * @throws Exception
      * @author 陈妙威
      */
@@ -308,7 +307,7 @@ final class AphrontFormView extends AphrontView
         if (!$this->hasViewer()) {
             throw new Exception(
                 Yii::t("app",
-                    'You must pass the user to {0}.',[
+                    'You must pass the user to {0}.', [
                         __CLASS__
                     ]));
         }
@@ -334,7 +333,7 @@ final class AphrontFormView extends AphrontView
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderDataInputs()

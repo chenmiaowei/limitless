@@ -20,7 +20,7 @@ final class PHUICrumbsView extends AphrontView
      */
     private $crumbs = array();
     /**
-     * @var array
+     * @var PHUIListItemView[]
      */
     private $actions = array();
     /**
@@ -122,6 +122,7 @@ final class PHUICrumbsView extends AphrontView
 //        require_celerity_resource('phui-crumbs-view-css');
         $action_view = null;
         if ($this->actions) {
+            /** @var PHUIListItemView[] $actions */
             $actions = array();
             foreach ($this->actions as $action) {
                 if ($action->getType() == PHUIListItemView::TYPE_DIVIDER) {
@@ -167,6 +168,7 @@ final class PHUICrumbsView extends AphrontView
                     $icon,
                     $name,
                 ), array(
+                    'id' => $action->getID(),
                     'href' => $action->getHref(),
                     'class' => implode(' ', $action_classes),
                     'sigil' => implode(' ', $action_sigils),

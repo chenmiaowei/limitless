@@ -2,9 +2,11 @@
 
 namespace orangins\lib\view\form\control;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\AphrontView;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -72,6 +74,21 @@ abstract class AphrontFormControl extends AphrontView
      * @var
      */
     private $inputClasses;
+
+    /**
+     * @var bool
+     */
+    private $isLine = false;
+
+    /**
+     * @param bool $isLine
+     * @return self
+     */
+    public function setIsLine($isLine)
+    {
+        $this->isLine = $isLine;
+        return $this;
+    }
 
 
     /**
@@ -407,7 +424,7 @@ abstract class AphrontFormControl extends AphrontView
 
     /**
      * @return null|string
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -425,7 +442,7 @@ abstract class AphrontFormControl extends AphrontView
         }
 
         $inputClasses = $this->inputClasses;
-        $inputClasses[] = "col-lg-8 aphront-form-input";
+        $inputClasses[] = "aphront-form-input" . ($this->isLine ? ' input-group' : ' col-lg-8');
         $input = JavelinHtml::tag('div', [
             $this->renderInput(),
             $caption
@@ -435,26 +452,23 @@ abstract class AphrontFormControl extends AphrontView
         if (strlen($this->getError())) {
             $error = $this->getError();
             if ($error === true) {
-                $error = JavelinHtml::tag('span', \Yii::t("app", 'Required'), array('class' => 'text-warning aphront-form-error aphront-form-required'));
+                $error = JavelinHtml::tag('span', Yii::t("app", 'Required'), array('class' => 'text-warning aphront-form-error aphront-form-required'));
             } else {
                 $error = JavelinHtml::tag('span', $error, array('class' => 'text-warning aphront-form-error'));
             }
         }
 
-//        $error = JavelinHtml::phutil_tag("div", [
-//            "class"=> "col-form-label col-lg-2 text-right"
-//        ], $error);
 
         if (strlen($this->getLabel())) {
             $label = JavelinHtml::tag('label', array(
                 $this->getLabel(),
             ), array(
-                'class' => 'col-form-label col-lg-2 text-right',
+                'class' => 'col-form-label' . ($this->isLine ? '' : ' col-lg-2 text-right'),
                 'for' => $this->getID(),
             ));
         } else {
             $label = JavelinHtml::tag('label', null, array(
-                'class' => 'col-form-label col-lg-2',
+                'class' => 'col-form-label' . ($this->isLine ? '' : ' col-lg-2 text-right'),
                 'for' => $this->getID(),
             ));;
             $custom_class .= ' aphront-form-control-nolabel';
@@ -464,7 +478,7 @@ abstract class AphrontFormControl extends AphrontView
         $classes = array();
         $classes[] = 'form-group';
         $classes[] = 'mt-2 mb-2';
-        $classes[] = 'row';
+        if (!$this->isLine) $classes[] = 'row';
         $classes[] = $custom_class;
         if ($this->classes) {
             foreach ($this->classes as $class) {
@@ -477,13 +491,16 @@ abstract class AphrontFormControl extends AphrontView
             $style = 'display: none; ' . $style;
         }
 
+        $error = $this->isLine ? JavelinHtml::phutil_tag("span", [
+            "class" => "form-text text-danger"
+        ], $error) : JavelinHtml::phutil_tag("div", [
+            "class" => "col-form-label col-lg-2 text-left"
+        ], $error);
         return JavelinHtml::tag('div',
             array(
                 $label,
                 $input,
-                $error = JavelinHtml::phutil_tag("div", [
-                    "class" => "col-form-label col-lg-2 text-left"
-                ], $error),
+                $error,
             ),
             array(
                 'class' => implode(' ', $classes),

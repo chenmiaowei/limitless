@@ -180,7 +180,7 @@ JX.install('Workflow', {
 
             e.kill();
 
-            var form = JX.DOM.find(workflow._root, 'div', 'jx-dialog');
+            var form = JX.DOM.find(active._root.current.opts.$orig.get(0), 'div', 'jx-dialog');
             var resize = e.getNodeData('jx-dialog-resize');
             var node_y = JX.$(resize.resizeY);
 
@@ -516,7 +516,7 @@ JX.install('Workflow', {
             }
 
             // Note: the cancel button is actually an <a /> tag.
-            var buttons = JX.DOM.scry(active._root, 'a', 'jx-workflow-button');
+            var buttons = JX.DOM.scry(active._root.current.opts.$orig.get(0), 'a', 'jx-workflow-button');
             if (!buttons.length) {
                 // No buttons in the dialog.
                 return;

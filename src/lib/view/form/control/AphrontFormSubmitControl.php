@@ -9,6 +9,7 @@
 
 namespace orangins\lib\view\form\control;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\phui\PHUI;
@@ -86,8 +87,8 @@ final class AphrontFormSubmitControl extends AphrontFormControl
 
     /**
      * @return array|mixed
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     protected function renderInput()
     {
@@ -113,11 +114,10 @@ final class AphrontFormSubmitControl extends AphrontFormControl
         }
 
         return JavelinHtml::phutil_tag("div", [
-            "class" => "text-right"
+            "class" => "w-100 text-right"
         ], array(
             $submit_button,
             $this->buttons,
         ));
     }
-
 }
