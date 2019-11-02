@@ -13,6 +13,9 @@ use orangins\modules\policy\constants\PhabricatorPolicies;
 use orangins\modules\policy\models\PhabricatorPolicyQuery;
 use PhutilClassMapQuery;
 use Exception;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 final class PolicyLockOptionType
@@ -23,8 +26,8 @@ final class PolicyLockOptionType
      * @param PhabricatorConfigOption $option
      * @param $value
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function validateOption(PhabricatorConfigOption $option, $value)
@@ -39,7 +42,7 @@ final class PolicyLockOptionType
             $capability = ArrayHelper::getValue($capabilities, $capability_key);
             if (!$capability) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Capability "%s" does not exist.',
                         $capability_key));
             }
@@ -53,7 +56,7 @@ final class PolicyLockOptionType
                     // throw a better exception
                 } catch (Exception $ex) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Capability "{0}" has invalid policy "{1}".', [
                                 $capability_key,
                                 $policy
@@ -64,7 +67,7 @@ final class PolicyLockOptionType
             if ($policy == PhabricatorPolicies::POLICY_PUBLIC) {
                 if (!$capability->shouldAllowPublicPolicySetting()) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Capability "{0}" does not support public policy.', [
                                 $capability_key
                             ]));
@@ -82,7 +85,7 @@ final class PolicyLockOptionType
                 $handle = $handles[$policy];
                 if (!$handle->isComplete()) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Capability "{0}" has invalid policy "{1}"; "{2}" does not exist.',
                             [
                                 $capability_key,

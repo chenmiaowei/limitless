@@ -2,9 +2,13 @@
 
 namespace orangins\modules\config\view;
 
+use Exception;
 use orangins\lib\view\AphrontView;
 use orangins\modules\config\issue\PhabricatorSetupIssue;
+use PhutilSafeHTML;
+use Yii;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * Class PhabricatorSetupIssueView
@@ -53,8 +57,8 @@ final class PhabricatorSetupIssueView extends AphrontView
     }
 
     /**
-     * @return mixed|\PhutilSafeHTML
-     * @throws \Exception
+     * @return mixed|PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     public function render()
@@ -92,7 +96,7 @@ final class PhabricatorSetupIssueView extends AphrontView
 
         $commands = $issue->getCommands();
         if ($commands) {
-            $run_these = \Yii::t("app",'Run these %d command(s):', count($commands));
+            $run_these = Yii::t("app",'Run these %d command(s):', count($commands));
             $description[] = phutil_tag(
                 'div',
                 array(
@@ -106,16 +110,16 @@ final class PhabricatorSetupIssueView extends AphrontView
 
         $extensions = $issue->getPHPExtensions();
         if ($extensions) {
-            $install_these = \Yii::t("app",
+            $install_these = Yii::t("app",
                 'Install these %d PHP extension(s):', count($extensions));
 
-            $install_info = \Yii::t("app",
+            $install_info = Yii::t("app",
                 'You can usually install a PHP extension using %s or %s. Common ' .
                 'package names are %s or %s. Try commands like these:',
                 phutil_tag('tt', array(), 'apt-get'),
                 phutil_tag('tt', array(), 'yum'),
-                hsprintf('<tt>php-<em>%s</em></tt>', \Yii::t("app",'extname')),
-                hsprintf('<tt>php5-<em>%s</em></tt>', \Yii::t("app",'extname')));
+                hsprintf('<tt>php-<em>%s</em></tt>', Yii::t("app",'extname')),
+                hsprintf('<tt>php5-<em>%s</em></tt>', Yii::t("app",'extname')));
 
             // TODO: We should do a better job of detecting how to install extensions
             // on the current system.
@@ -125,13 +129,13 @@ final class PhabricatorSetupIssueView extends AphrontView
                 "\$ sudo yum install php-<em>extname</em>       " .
                 "# Red Hat / Derivatives");
 
-            $fallback_info = \Yii::t("app",
+            $fallback_info = Yii::t("app",
                 "If those commands don't work, try Google. The process of installing " .
                 "PHP extensions is not specific to Phabricator, and any instructions " .
                 "you can find for installing them on your system should work. On Mac " .
                 "OS X, you might want to try Homebrew.");
 
-            $restart_info = \Yii::t("app",
+            $restart_info = Yii::t("app",
                 'After installing new PHP extensions, <strong>restart Phabricator ' .
                 'for the changes to take effect</strong>. For help with restarting ' .
                 'Phabricator, see %s in the documentation.',
@@ -168,7 +172,7 @@ final class PhabricatorSetupIssueView extends AphrontView
                         'sigil' => 'workflow',
                         'class' => 'button button-grey',
                     ),
-                    \Yii::t("app",'Unignore Setup Issue'));
+                    Yii::t("app",'Unignore Setup Issue'));
             } else {
                 $actions[] = javelin_tag(
                     'a',
@@ -177,7 +181,7 @@ final class PhabricatorSetupIssueView extends AphrontView
                         'sigil' => 'workflow',
                         'class' => 'button button-grey',
                     ),
-                    \Yii::t("app",'Ignore Setup Issue'));
+                    Yii::t("app",'Ignore Setup Issue'));
             }
 
             $actions[] = javelin_tag(
@@ -186,7 +190,7 @@ final class PhabricatorSetupIssueView extends AphrontView
                     'href' => '/config/issue/' . $issue->getIssueKey() . '/',
                     'class' => 'button button-grey',
                 ),
-                \Yii::t("app",'Reload Page'));
+                Yii::t("app",'Reload Page'));
         }
 
         if ($actions) {
@@ -204,7 +208,7 @@ final class PhabricatorSetupIssueView extends AphrontView
                 array(
                     'class' => 'setup-issue-status',
                 ),
-                \Yii::t("app",
+                Yii::t("app",
                     'This issue is currently ignored, and does not show a global ' .
                     'warning.'));
             $next = null;
@@ -215,7 +219,7 @@ final class PhabricatorSetupIssueView extends AphrontView
                 array(
                     'class' => 'setup-issue-next',
                 ),
-                \Yii::t("app",'To continue, resolve this problem and reload the page.'));
+                Yii::t("app",'To continue, resolve this problem and reload the page.'));
         }
 
         $name = phutil_tag(
@@ -265,7 +269,7 @@ final class PhabricatorSetupIssueView extends AphrontView
             array(
                 'class' => 'setup-issue-debug',
             ),
-            \Yii::t("app",'Host: %s', php_uname('n')));
+            Yii::t("app",'Host: %s', php_uname('n')));
 
         return phutil_tag(
             'div',
@@ -282,8 +286,8 @@ final class PhabricatorSetupIssueView extends AphrontView
     /**
      * @param array $configs
      * @param bool $related
-     * @return \PhutilSafeHTML
-     * @throws \Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderPhabricatorConfig(array $configs, $related = false)
@@ -293,7 +297,7 @@ final class PhabricatorSetupIssueView extends AphrontView
         $table_info = phutil_tag(
             'p',
             array(),
-            \Yii::t("app",
+            Yii::t("app",
                 'The current Phabricator configuration has these %d value(s):',
                 count($configs)));
 
@@ -321,7 +325,7 @@ final class PhabricatorSetupIssueView extends AphrontView
             $update_info = phutil_tag(
                 'p',
                 array(),
-                \Yii::t("app",
+                Yii::t("app",
                     'To update these %d value(s), run these command(s) from the command ' .
                     'line:',
                     count($configs)));
@@ -337,14 +341,14 @@ final class PhabricatorSetupIssueView extends AphrontView
             $update = array();
             foreach ($configs as $config) {
                 if (ArrayHelper::getValue($options, $config) && $options[$config]->getLocked()) {
-                    $name = \Yii::t("app",'View "%s"', $config);
+                    $name = Yii::t("app",'View "%s"', $config);
                 } else {
-                    $name = \Yii::t("app",'Edit "%s"', $config);
+                    $name = Yii::t("app",'Edit "%s"', $config);
                 }
                 $link = phutil_tag(
                     'a',
                     array(
-                        'href' => '/config/edit/' . $config . '/?issue=' . $issue->getIssueKey(),
+                        'href' => Url::to(['/config/index/edit', 'key' => $config, 'issue' => $issue->getIssueKey()])
                     ),
                     $name);
                 $update[] = phutil_tag('li', array(), $link);
@@ -355,12 +359,12 @@ final class PhabricatorSetupIssueView extends AphrontView
                     $update_info = phutil_tag(
                         'p',
                         array(),
-                        \Yii::t("app",'You can update these %d value(s) here:', count($configs)));
+                        Yii::t("app",'You can update these %d value(s) here:', count($configs)));
                 } else {
                     $update_info = phutil_tag(
                         'p',
                         array(),
-                        \Yii::t("app",'These %d configuration value(s) are related:', count($configs)));
+                        Yii::t("app",'These %d configuration value(s) are related:', count($configs)));
                 }
             } else {
                 $update = null;
@@ -384,8 +388,8 @@ final class PhabricatorSetupIssueView extends AphrontView
     /**
      * @param array $configs
      * @param $issue
-     * @return \PhutilSafeHTML
-     * @throws \Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderPHPConfig(array $configs, $issue)
@@ -393,7 +397,7 @@ final class PhabricatorSetupIssueView extends AphrontView
         $table_info = phutil_tag(
             'p',
             array(),
-            \Yii::t("app",
+            Yii::t("app",
                 'The current PHP configuration has these %d value(s):',
                 count($configs)));
 
@@ -436,14 +440,14 @@ final class PhabricatorSetupIssueView extends AphrontView
             $info[] = phutil_tag(
                 'p',
                 array(),
-                \Yii::t("app",
+                Yii::t("app",
                     'To update these %d value(s), edit your PHP configuration file.',
                     count($configs)));
         } else {
             $info[] = phutil_tag(
                 'p',
                 array(),
-                \Yii::t("app",
+                Yii::t("app",
                     'To update these %d value(s), edit your PHP configuration file, ' .
                     'located here:',
                     count($configs)));
@@ -457,7 +461,7 @@ final class PhabricatorSetupIssueView extends AphrontView
             $info[] = phutil_tag(
                 'p',
                 array(),
-                \Yii::t("app",
+                Yii::t("app",
                     'PHP also loaded these %s configuration file(s):',
                     phutil_count($more_loc)));
             $info[] = phutil_tag(
@@ -481,7 +485,7 @@ final class PhabricatorSetupIssueView extends AphrontView
             $info[] = phutil_tag(
                 'p',
                 array(),
-                \Yii::t("app",
+                Yii::t("app",
                     'You can find more information about PHP configuration values ' .
                     'in the %s.',
                     phutil_tag(
@@ -490,14 +494,14 @@ final class PhabricatorSetupIssueView extends AphrontView
                             'href' => 'http://php.net/manual/ini.list.php',
                             'target' => '_blank',
                         ),
-                        \Yii::t("app",'PHP Documentation'))));
+                        Yii::t("app",'PHP Documentation'))));
         }
 
         if ($show_opcache) {
             $info[] = phutil_tag(
                 'p',
                 array(),
-                \Yii::t("app",
+                Yii::t("app",
                     'You can find more information about configuring OPcache in ' .
                     'the %s.',
                     phutil_tag(
@@ -506,13 +510,13 @@ final class PhabricatorSetupIssueView extends AphrontView
                             'href' => 'http://php.net/manual/opcache.configuration.php',
                             'target' => '_blank',
                         ),
-                        \Yii::t("app",'PHP OPcache Documentation'))));
+                        Yii::t("app",'PHP OPcache Documentation'))));
         }
 
         $info[] = phutil_tag(
             'p',
             array(),
-            \Yii::t("app",
+            Yii::t("app",
                 'After editing the PHP configuration, <strong>restart Phabricator for ' .
                 'the changes to take effect</strong>. For help with restarting ' .
                 'Phabricator, see %s in the documentation.',
@@ -532,8 +536,8 @@ final class PhabricatorSetupIssueView extends AphrontView
 
     /**
      * @param array $config
-     * @return \PhutilSafeHTML
-     * @throws \Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderMySQLConfig(array $config)
@@ -548,7 +552,7 @@ final class PhabricatorSetupIssueView extends AphrontView
                     $value = phutil_tag(
                         'em',
                         array(),
-                        \Yii::t("app",'(Not Supported)'));
+                        Yii::t("app",'(Not Supported)'));
                 }
                 $values[$key] = $value;
             }
@@ -563,13 +567,13 @@ final class PhabricatorSetupIssueView extends AphrontView
                 'href' => $doc_href,
                 'target' => '_blank',
             ),
-            \Yii::t("app",'User Guide: Amazon RDS'));
+            Yii::t("app",'User Guide: Amazon RDS'));
 
         $info = array();
         $info[] = phutil_tag(
             'p',
             array(),
-            \Yii::t("app",
+            Yii::t("app",
                 'If you are using Amazon RDS, some of the instructions above may ' .
                 'not apply to you. See %s for discussion of Amazon RDS.',
                 $doc_link));
@@ -577,7 +581,7 @@ final class PhabricatorSetupIssueView extends AphrontView
         $table_info = phutil_tag(
             'p',
             array(),
-            \Yii::t("app",
+            Yii::t("app",
                 'The current MySQL configuration has these %d value(s):',
                 count($config)));
 
@@ -596,8 +600,8 @@ final class PhabricatorSetupIssueView extends AphrontView
     /**
      * @param array $dict
      * @param array $hidden
-     * @return \PhutilSafeHTML
-     * @throws \Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderValueTable(array $dict, array $hidden = array())
@@ -621,8 +625,8 @@ final class PhabricatorSetupIssueView extends AphrontView
 
     /**
      * @param $value
-     * @return \PhutilSafeHTML
-     * @throws \Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderValueForDisplay($value)
@@ -644,8 +648,8 @@ final class PhabricatorSetupIssueView extends AphrontView
 
     /**
      * @param array $links
-     * @return \PhutilSafeHTML
-     * @throws \Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderRelatedLinks(array $links)
@@ -653,7 +657,7 @@ final class PhabricatorSetupIssueView extends AphrontView
         $link_info = phutil_tag(
             'p',
             array(),
-            \Yii::t("app",
+            Yii::t("app",
                 '%d related link(s):',
                 count($links)));
 
@@ -683,8 +687,8 @@ final class PhabricatorSetupIssueView extends AphrontView
     }
 
     /**
-     * @return \PhutilSafeHTML
-     * @throws \Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderRestartLink()
@@ -696,7 +700,7 @@ final class PhabricatorSetupIssueView extends AphrontView
                 'href' => $doc_href,
                 'target' => '_blank',
             ),
-            \Yii::t("app",'Restarting Phabricator'));
+            Yii::t("app",'Restarting Phabricator'));
     }
 
 }

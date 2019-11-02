@@ -3,6 +3,7 @@
 namespace orangins\modules\config\issue;
 
 use orangins\lib\OranginsObject;
+use orangins\modules\config\check\PhabricatorSetupCheck;
 
 final class PhabricatorSetupIssue extends OranginsObject
 {

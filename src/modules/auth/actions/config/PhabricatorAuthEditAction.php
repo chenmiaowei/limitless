@@ -2,6 +2,7 @@
 
 namespace orangins\modules\auth\actions\config;
 
+use orangins\lib\view\page\PhabricatorStandardPageView;
 use orangins\modules\auth\capability\AuthManageProvidersCapability;
 use orangins\modules\auth\editor\PhabricatorAuthProviderConfigEditor;
 use orangins\modules\auth\models\PhabricatorAuthProviderConfig;
@@ -24,6 +25,20 @@ use orangins\lib\view\phui\PHUIPageHeaderView;
 use orangins\lib\view\phui\PHUITagView;
 use orangins\lib\view\phui\PHUITwoColumnView;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\helpers\Url;
 
 /**
  * Class PhabricatorAuthEditAction
@@ -34,19 +49,19 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
 {
 
     /**
-     * @return \orangins\lib\view\page\PhabricatorStandardPageView|AphrontResponse
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \Throwable
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException *@throws \Exception
+     * @return PhabricatorStandardPageView|AphrontResponse
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws Exception
+     * @throws InvalidConfigException *@throws \Exception
      * @author 陈妙威
      */
     public function run()
@@ -105,17 +120,17 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
                 $dialog = (new AphrontDialogView())
                     ->setUser($viewer)
                     ->setMethod('GET')
-                    ->setSubmitURI($this->getApplicationURI('config/edit/' . $id . '/'))
-                    ->setTitle(\Yii::t("app", 'Provider Already Configured'))
+                    ->setSubmitURI($this->getApplicationURI('config/edit', ['id' => $id]))
+                    ->setTitle(Yii::t("app", 'Provider Already Configured'))
                     ->appendChild(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'This provider ("{0}") already exists, and you can not add more ' .
                             'than one instance of it. You can edit the existing provider, ' .
                             'or you can choose a different provider.', [
                                 $provider->getProviderName()
                             ]))
                     ->addCancelButton($this->getApplicationURI('config/new'))
-                    ->addSubmitButton(\Yii::t("app", 'Edit Existing Provider'));
+                    ->addSubmitButton(Yii::t("app", 'Edit Existing Provider'));
 
                 return (new AphrontDialogResponse())->setDialog($dialog);
             }
@@ -222,34 +237,34 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
 
         if ($is_new) {
             if ($provider->hasSetupStep()) {
-                $button = \Yii::t("app", 'Next Step');
+                $button = Yii::t("app", 'Next Step');
             } else {
-                $button = \Yii::t("app", 'Add Provider');
+                $button = Yii::t("app", 'Add Provider');
             }
-            $crumb = \Yii::t("app", 'Add Provider');
-            $title = \Yii::t("app", 'Add Auth Provider');
+            $crumb = Yii::t("app", 'Add Provider');
+            $title = Yii::t("app", 'Add Auth Provider');
             $header_icon = 'fa-plus-square';
             $cancel_uri = $this->getApplicationURI('/config/new/');
         } else {
-            $button = \Yii::t("app", 'Save');
-            $crumb = \Yii::t("app", 'Edit Provider');
-            $title = \Yii::t("app", 'Edit Auth Provider');
+            $button = Yii::t("app", 'Save');
+            $crumb = Yii::t("app", 'Edit Provider');
+            $title = Yii::t("app", 'Edit Auth Provider');
             $header_icon = 'fa-pencil';
             $cancel_uri = $this->getApplicationURI();
         }
 
         $header = (new PHUIPageHeaderView())
-            ->setHeader(\Yii::t("app", '{0}: {1}', [$title, $provider->getProviderName()]))
+            ->setHeader(Yii::t("app", '{0}: {1}', [$title, $provider->getProviderName()]))
             ->setHeaderIcon($header_icon);
 
         if (!$is_new) {
             if ($config->getIsEnabled()) {
-                $status_name = \Yii::t("app", 'Enabled');
+                $status_name = Yii::t("app", 'Enabled');
                 $status_color = PHUITagView::COLOR_GREEN;
                 $status_icon = 'fa-check';
                 $header->setStatus($status_icon, $status_color, $status_name);
             } else {
-                $status_name = \Yii::t("app", 'Disabled');
+                $status_name = Yii::t("app", 'Disabled');
                 $status_color = PHUITagView::COLOR_INDIGO;
                 $status_icon = 'fa-ban';
                 $header->setStatus($status_icon, $status_color, $status_name);
@@ -257,11 +272,11 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
         }
 
         $config_name = 'auth.email-domains';
-        $config_href = '/config/edit/' . $config_name . '/';
+        $config_href = Url::to(['/config/index/edit', 'key' => $config_name]);
 
         $email_domains = PhabricatorEnv::getEnvConfig($config_name);
         if ($email_domains) {
-            $registration_warning = \Yii::t("app",
+            $registration_warning = Yii::t("app",
                 'Users will only be able to register with a verified email address ' .
                 'at one of the configured [[ {0} | {1} ]] domains: **{2}**', [
                     $config_href,
@@ -269,7 +284,7 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
                     implode(', ', $email_domains)
                 ]);
         } else {
-            $registration_warning = \Yii::t("app",
+            $registration_warning = Yii::t("app",
                 "NOTE: Any user who can browse to this install's login page will be " .
                 "able to register a Phabricator account. To restrict who can register " .
                 "an account, configure [[ {0} | {1} ]].", [
@@ -279,17 +294,17 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
         }
 
         $str_login = array(
-            JavelinHtml::phutil_tag('strong', array(), \Yii::t("app", 'Allow Login:')),
+            JavelinHtml::phutil_tag('strong', array(), Yii::t("app", 'Allow Login:')),
             ' ',
-            \Yii::t("app",
+            Yii::t("app",
                 'Allow users to log in using this provider. If you disable login, ' .
                 'users can still use account integrations for this provider.'),
         );
 
         $str_registration = array(
-            JavelinHtml::phutil_tag('strong', array(), \Yii::t("app", 'Allow Registration:')),
+            JavelinHtml::phutil_tag('strong', array(), Yii::t("app", 'Allow Registration:')),
             ' ',
-            \Yii::t("app",
+            Yii::t("app",
                 'Allow users to register new Phabricator accounts using this ' .
                 'provider. If you disable registration, users can still use this ' .
                 'provider to log in to existing accounts, but will not be able to ' .
@@ -298,8 +313,8 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
 
         $str_link = JavelinHtml::hsprintf(
             '<strong>%s:</strong> %s',
-            \Yii::t("app", 'Allow Linking Accounts'),
-            \Yii::t("app",
+            Yii::t("app", 'Allow Linking Accounts'),
+            Yii::t("app",
                 'Allow users to link account credentials for this provider to ' .
                 'existing Phabricator accounts. There is normally no reason to ' .
                 'disable this unless you are trying to move away from a provider ' .
@@ -307,22 +322,22 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
 
         $str_unlink = JavelinHtml::hsprintf(
             '<strong>%s:</strong> %s',
-            \Yii::t("app", 'Allow Unlinking Accounts'),
-            \Yii::t("app",
+            Yii::t("app", 'Allow Unlinking Accounts'),
+            Yii::t("app",
                 'Allow users to unlink account credentials for this provider from ' .
                 'existing Phabricator accounts. If you disable this, Phabricator ' .
                 'accounts will be permanently bound to provider accounts.'));
 
         $str_trusted_email = JavelinHtml::hsprintf(
             '<strong>%s:</strong> %s',
-            \Yii::t("app", 'Trust Email Addresses'),
-            \Yii::t("app",
+            Yii::t("app", 'Trust Email Addresses'),
+            Yii::t("app",
                 'Phabricator will skip email verification for accounts registered ' .
                 'through this provider.'));
         $str_auto_login = JavelinHtml::hsprintf(
             '<strong>%s:</strong> %s',
-            \Yii::t("app", 'Allow Auto Login'),
-            \Yii::t("app",
+            Yii::t("app", 'Allow Auto Login'),
+            Yii::t("app",
                 'Phabricator will automatically login with this provider if it is ' .
                 'the only available provider.'));
 
@@ -330,7 +345,7 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
             ->setUser($viewer)
             ->appendChild(
                 (new AphrontFormCheckboxControl())
-                    ->setLabel(\Yii::t("app", 'Allow'))
+                    ->setLabel(Yii::t("app", 'Allow'))
                     ->addCheckbox(
                         'allowLogin',
                         1,
@@ -412,7 +427,7 @@ final class PhabricatorAuthEditAction extends PhabricatorAuthProviderConfigActio
         }
 
         $form_box = (new PHUIObjectBoxView())
-            ->setHeaderText(\Yii::t("app", 'Provider'))
+            ->setHeaderText(Yii::t("app", 'Provider'))
             ->setFormErrors($errors)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->setForm($form);

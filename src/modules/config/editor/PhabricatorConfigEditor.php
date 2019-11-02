@@ -2,15 +2,33 @@
 
 namespace orangins\modules\config\editor;
 
+use AphrontObjectMissingQueryException;
+use AphrontQueryException;
+use Exception;
 use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\infrastructure\contentsource\PhabricatorContentSource;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\modules\config\check\PhabricatorSetupCheck;
 use orangins\modules\config\models\PhabricatorConfigEntry;
 use orangins\modules\config\models\PhabricatorConfigTransaction;
 use orangins\modules\config\option\PhabricatorApplicationConfigOptions;
+use orangins\modules\config\option\PhabricatorConfigOption;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\InvalidConfigException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -37,11 +55,13 @@ final class PhabricatorConfigEditor
      */
     public function getEditorObjectsDescription()
     {
-        return \Yii::t("app",'Phabricator Configuration');
+        return Yii::t("app",'Phabricator Configuration');
     }
 
     /**
      * @return array
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTransactionTypes()
@@ -77,7 +97,7 @@ final class PhabricatorConfigEditor
      * @param ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction $xaction
      * @return mixed
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function getCustomTransactionNewValue(
@@ -94,8 +114,8 @@ final class PhabricatorConfigEditor
     /**
      * @param ActiveRecordPHID|PhabricatorConfigEntry $object
      * @param PhabricatorApplicationTransaction $xaction
-     * @throws \PhutilJSONParserException
-     * @throws \Exception
+     * @throws PhutilJSONParserException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function applyCustomInternalTransaction(
@@ -112,6 +132,8 @@ final class PhabricatorConfigEditor
                 // submit it to the validation gauntlet.
                 $key = $object->getConfigKey();
                 $all_options = PhabricatorApplicationConfigOptions::loadAllOptions();
+
+                /** @var PhabricatorConfigOption $option */
                 $option = ArrayHelper::getValue($all_options, $key);
                 if ($option) {
                     $option->getGroup()->validateOption(
@@ -142,7 +164,7 @@ final class PhabricatorConfigEditor
      * @param PhabricatorApplicationTransaction $v
      * @return null|PhabricatorApplicationTransaction
 
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     protected function mergeTransactions(
@@ -163,7 +185,7 @@ final class PhabricatorConfigEditor
      * @param ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction $xaction
      * @return bool
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @throws \yii\base\Exception
      * @author 陈妙威
      */
@@ -192,8 +214,8 @@ final class PhabricatorConfigEditor
      * @param $object
      * @param array $xactions
      * @return array
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     protected function didApplyTransactions($object, array $xactions)
     {
@@ -209,19 +231,21 @@ final class PhabricatorConfigEditor
      * @param $value
      * @param PhabricatorContentSource $source
      * @param null $acting_as_phid
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilJSONParserException
-     * @throws \Exception
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws InvalidConfigException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     public static function storeNewValue(
@@ -256,19 +280,21 @@ final class PhabricatorConfigEditor
      * @param PhabricatorUser $user
      * @param PhabricatorConfigEntry $config_entry
      * @param PhabricatorContentSource $source
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \PhutilJSONParserException
-     * @throws \Exception
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
      * @author 陈妙威
      */
     public static function deleteConfig(

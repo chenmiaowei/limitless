@@ -1,12 +1,12 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
 use Exception;
 
 /**
  * Class PhabricatorStandardCustomFieldDatasource
- * @package orangins\lib\infrastructure\standard
+ * @package orangins\lib\infrastructure\customfield\standard
  * @author 陈妙威
  */
 final class PhabricatorStandardCustomFieldDatasource

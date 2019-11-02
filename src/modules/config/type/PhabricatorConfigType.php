@@ -2,12 +2,16 @@
 
 namespace orangins\modules\config\type;
 
+use Exception;
 use orangins\lib\OranginsObject;
 use orangins\lib\request\AphrontRequest;
 use orangins\modules\config\exception\PhabricatorConfigValidationException;
 use orangins\modules\config\models\PhabricatorConfigTransaction;
 use orangins\modules\config\option\PhabricatorConfigOption;
 use PhutilClassMapQuery;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
 
 /**
  * Class PhabricatorConfigType
@@ -19,8 +23,7 @@ abstract class PhabricatorConfigType extends OranginsObject
 
     /**
      * @return string
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final public function getTypeKey()
@@ -30,12 +33,12 @@ abstract class PhabricatorConfigType extends OranginsObject
 
     /**
      * @return mixed
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getAllTypes()
     {
         return (new PhutilClassMapQuery())
-            ->setUniqueMethod("getClassShortName")
             ->setAncestorClass(__CLASS__)
             ->setUniqueMethod('getTypeKey')
             ->execute();
@@ -79,6 +82,7 @@ abstract class PhabricatorConfigType extends OranginsObject
      * @param PhabricatorConfigOption $option
      * @param $value
      * @return mixed
+     * @throws Exception
      * @author 陈妙威
      */
     public function newTransaction(
@@ -138,7 +142,7 @@ abstract class PhabricatorConfigType extends OranginsObject
 
         $control = $this->newControl($option)
             ->setError($error)
-            ->setLabel(\Yii::t("app",'Database Value'))
+            ->setLabel(Yii::t("app",'Database Value'))
             ->setName('value');
 
         $value = $this->newControlValue($option, $value);

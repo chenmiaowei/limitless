@@ -1,18 +1,28 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
+use Exception;
+use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\request\AphrontRequest;
+use orangins\lib\request\httpparametertype\AphrontStringHTTPParameterType;
 use orangins\lib\view\form\AphrontFormView;
+use orangins\lib\view\form\control\AphrontFormTextControl;
+use orangins\modules\conduit\parametertype\ConduitStringListParameterType;
+use orangins\modules\conduit\parametertype\ConduitStringParameterType;
+use orangins\modules\herald\adapter\HeraldAdapter;
+use orangins\modules\herald\field\HeraldField;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
+use PhutilSafeHTML;
 
 /**
- * Class PhabricatorStandardCustomFieldText
- * @package orangins\lib\infrastructure\standard
+ * Class PhabricatorStandardCustomFieldLink
+ * @package orangins\lib\infrastructure\customfield\standard
  * @author 陈妙威
  */
-final class PhabricatorStandardCustomFieldText
+final class PhabricatorStandardCustomFieldLink
     extends PhabricatorStandardCustomField
 {
 
@@ -22,12 +32,12 @@ final class PhabricatorStandardCustomFieldText
      */
     public function getFieldType()
     {
-        return 'text';
+        return 'link';
     }
 
     /**
-     * @return array|\orangins\lib\infrastructure\customfield\field\list
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return array
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function buildFieldIndexes()
@@ -43,9 +53,37 @@ final class PhabricatorStandardCustomFieldText
     }
 
     /**
+     * @param array $handles
+     * @return mixed|PhutilSafeHTML|null
+     * @throws Exception
+     * @author 陈妙威
+     */
+    public function renderPropertyViewValue(array $handles)
+    {
+        $value = $this->getFieldValue();
+
+        if (!strlen($value)) {
+            return null;
+        }
+
+        if (!PhabricatorEnv::isValidRemoteURIForLink($value)) {
+            return $value;
+        }
+
+        return phutil_tag(
+            'a',
+            array(
+                'href' => $value,
+                'target' => '_blank',
+                'rel' => 'noreferrer',
+            ),
+            $value);
+    }
+
+    /**
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontRequest $request
-     * @return mixed|null|\orangins\lib\infrastructure\customfield\field\array|string
+     * @return array|mixed|string|void|null
      * @author 陈妙威
      */
     public function readApplicationSearchValueFromRequest(
@@ -61,7 +99,7 @@ final class PhabricatorStandardCustomFieldText
      * @param PhabricatorCursorPagedPolicyAwareQuery $query
      * @param $value
      * @return mixed|void
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function applyApplicationSearchConstraintToQuery(
@@ -70,7 +108,12 @@ final class PhabricatorStandardCustomFieldText
         $value)
     {
 
-        if (strlen($value)) {
+        if (is_string($value) && !strlen($value)) {
+            return;
+        }
+
+        $value = (array)$value;
+        if ($value) {
             $query->withApplicationSearchContainsConstraint(
                 $this->newStringIndex(null),
                 $value);
@@ -80,9 +123,9 @@ final class PhabricatorStandardCustomFieldText
     /**
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontFormView $form
-     * @param $value
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @param array $value
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
      * @author 陈妙威
      */
     public function appendToApplicationSearchForm(
@@ -90,7 +133,6 @@ final class PhabricatorStandardCustomFieldText
         AphrontFormView $form,
         $value)
     {
-
         $form->appendChild(
             (new AphrontFormTextControl())
                 ->setLabel($this->getFieldName())
@@ -124,7 +166,7 @@ final class PhabricatorStandardCustomFieldText
     }
 
     /**
-     * @return null
+     * @return |null
      * @author 陈妙威
      */
     public function getHeraldFieldStandardType()
@@ -133,7 +175,7 @@ final class PhabricatorStandardCustomFieldText
     }
 
     /**
-     * @return null|AphrontStringHTTPParameterType
+     * @return AphrontStringHTTPParameterType|null
      * @author 陈妙威
      */
     protected function getHTTPParameterType()
@@ -142,21 +184,21 @@ final class PhabricatorStandardCustomFieldText
     }
 
     /**
-     * @return null|ConduitStringParameterType
+     * @return ConduitStringListParameterType|null
      * @author 陈妙威
      */
-    public function getConduitEditParameterType()
+    protected function newConduitSearchParameterType()
     {
-        return new ConduitStringParameterType();
+        return new ConduitStringListParameterType();
     }
 
     /**
-     * @return mixed|PhabricatorStringExportField
+     * @return ConduitStringParameterType|null
      * @author 陈妙威
      */
-    protected function newExportFieldType()
+    protected function newConduitEditParameterType()
     {
-        return new PhabricatorStringExportField();
+        return new ConduitStringParameterType();
     }
 
 }

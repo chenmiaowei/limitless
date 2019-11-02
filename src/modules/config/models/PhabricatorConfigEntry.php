@@ -2,6 +2,8 @@
 
 namespace orangins\modules\config\models;
 
+use Exception;
+use orangins\lib\db\ActiveRecord;
 use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\request\AphrontRequest;
 use orangins\modules\config\editor\PhabricatorConfigEditor;
@@ -11,7 +13,9 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\policy\capability\PhabricatorPolicyCapability;
 use orangins\modules\policy\constants\PhabricatorPolicies;
 use orangins\modules\policy\interfaces\PhabricatorPolicyInterface;
+use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
 use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface;
+use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use orangins\modules\transactions\view\PhabricatorApplicationTransactionView;
 use Yii;
 
@@ -78,7 +82,7 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
      */
     public function getPHIDTypeClassName()
     {
-       return PhabricatorConfigConfigPHIDType::class;
+        return PhabricatorConfigConfigPHIDType::class;
     }
 
     /**
@@ -86,7 +90,8 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
      * @return self
      * @author 陈妙威
      */
-    public static function loadConfigEntry($key) {
+    public static function loadConfigEntry($key)
+    {
         $config_entry = PhabricatorConfigEntry::find()
             ->andWhere([
                 'config_key' => $key,
@@ -140,19 +145,21 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
 
     /**
      * @return string
+     * @throws Exception
      */
     public function getValue()
     {
-        return $this->value;
+        return $this->value === null ? null : phutil_json_decode($this->value);
     }
 
     /**
      * @param string $value
      * @return self
+     * @throws Exception
      */
     public function setValue($value)
     {
-        $this->value = $value;
+        $this->value = $value === null ? null : phutil_json_encode($value);
         return $this;
     }
 
@@ -175,7 +182,6 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
     }
 
 
-
     /**
      * @return PhabricatorConfigEntryQuery
      * @author 陈妙威
@@ -190,26 +196,29 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
 
 
     /**
-     * @return PhabricatorConfigEditor|\orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor
+     * @return PhabricatorConfigEditor|PhabricatorApplicationTransactionEditor
      * @author 陈妙威
      */
-    public function getApplicationTransactionEditor() {
+    public function getApplicationTransactionEditor()
+    {
         return new PhabricatorConfigEditor();
     }
 
     /**
-     * @return $this|\orangins\lib\db\ActiveRecord
+     * @return $this|ActiveRecord
      * @author 陈妙威
      */
-    public function getApplicationTransactionObject() {
+    public function getApplicationTransactionObject()
+    {
         return $this;
     }
 
     /**
-     * @return PhabricatorConfigTransaction|\orangins\modules\transactions\models\PhabricatorApplicationTransaction
+     * @return PhabricatorConfigTransaction|PhabricatorApplicationTransaction
      * @author 陈妙威
      */
-    public function getApplicationTransactionTemplate() {
+    public function getApplicationTransactionTemplate()
+    {
         return new PhabricatorConfigTransaction();
     }
 
@@ -221,7 +230,8 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
      */
     public function willRenderTimeline(
         PhabricatorApplicationTransactionView $timeline,
-        AphrontRequest $request) {
+        AphrontRequest $request)
+    {
 
         return $timeline;
     }
@@ -234,7 +244,8 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
      * @return array|string[]
      * @author 陈妙威
      */
-    public function getCapabilities() {
+    public function getCapabilities()
+    {
         return array(
             PhabricatorPolicyCapability::CAN_VIEW,
             PhabricatorPolicyCapability::CAN_EDIT,
@@ -246,7 +257,8 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
      * @return mixed|string
      * @author 陈妙威
      */
-    public function getPolicy($capability) {
+    public function getPolicy($capability)
+    {
         return PhabricatorPolicies::POLICY_ADMIN;
     }
 
@@ -256,7 +268,8 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
      * @return bool|mixed
      * @author 陈妙威
      */
-    public function hasAutomaticCapability($capability, PhabricatorUser $viewer) {
+    public function hasAutomaticCapability($capability, PhabricatorUser $viewer)
+    {
         return false;
     }
 

@@ -92,6 +92,11 @@ final class PHUIObjectBoxView extends AphrontTagView
      * @var bool
      */
     private $collapsed = false;
+
+    /**
+     * @var bool
+     */
+    private $enable_collapse = false;
     /**
      * @var
      */
@@ -151,8 +156,8 @@ final class PHUIObjectBoxView extends AphrontTagView
 
     /**\
      * @param $class
-     * @author 陈妙威
      * @return PHUIObjectBoxView
+     * @author 陈妙威
      */
     public function addBodyClass($class)
     {
@@ -185,6 +190,7 @@ final class PHUIObjectBoxView extends AphrontTagView
     {
         return $this->foooter;
     }
+
     /**
      * @return mixed
      */
@@ -393,6 +399,17 @@ final class PHUIObjectBoxView extends AphrontTagView
     }
 
     /**
+     * @param bool $enable_collapse
+     * @return self
+     */
+    public function setEnableCollapse($enable_collapse)
+    {
+        $this->enable_collapse = $enable_collapse;
+        return $this;
+    }
+
+
+    /**
      * @param PHUIPagerView $pager
      * @return $this
      * @author 陈妙威
@@ -462,7 +479,7 @@ final class PHUIObjectBoxView extends AphrontTagView
         }
 
         if ($this->collapsed) {
-            $classes[] = 'phui-object-box-collapsed';
+            $classes[] = 'card-collapsed phui-object-box-collapsed';
         }
 
         if ($this->flush) {
@@ -493,6 +510,8 @@ final class PHUIObjectBoxView extends AphrontTagView
             $header = (new PHUIHeaderView())
                 ->setHeader($this->headerText);
         }
+
+        $elements = null;
 
         $showhide = null;
         if ($this->showAction !== null) {
@@ -573,6 +592,12 @@ final class PHUIObjectBoxView extends AphrontTagView
             $header->addActionLink($mobile_menu);
         }
 
+        if ($header) {
+            $header->setEnableCollapse($this->enable_collapse);
+            $header->setCollapsed($this->collapsed);
+        }
+
+
         $ex = $this->validationException;
         $exception_errors = null;
         if ($ex) {
@@ -646,7 +671,10 @@ final class PHUIObjectBoxView extends AphrontTagView
         ]) : null;
         $content = array(
             $header_div,
-            JavelinHtml::phutil_tag_div(implode(" ", $this->bodyClass), $bodyContent),
+            JavelinHtml::phutil_tag("div", [
+                "class" => implode(" ", $this->bodyClass),
+                "style" => $this->collapsed ? "display: none;" : "",
+            ], $bodyContent),
             $body_div,
             $footer_div,
 

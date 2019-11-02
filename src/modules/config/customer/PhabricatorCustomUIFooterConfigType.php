@@ -2,9 +2,10 @@
 
 namespace orangins\modules\config\customer;
 
-use orangins\lib\parser\PhutilTypeSpec;
 use orangins\modules\config\option\PhabricatorConfigOption;
 use Exception;
+use PhutilTypeSpec;
+use Yii;
 
 /**
  * Class PhabricatorCustomUIFooterConfigType
@@ -25,7 +26,7 @@ final class PhabricatorCustomUIFooterConfigType
     {
         if (!is_array($value)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Footer configuration is not valid: value must be a list of ' .
                     'items.'));
         }
@@ -33,7 +34,7 @@ final class PhabricatorCustomUIFooterConfigType
         foreach ($value as $idx => $item) {
             if (!is_array($item)) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Footer item with index "%s" is invalid: each item must be a ' .
                         'dictionary describing a footer item.',
                         $idx));
@@ -48,7 +49,7 @@ final class PhabricatorCustomUIFooterConfigType
                     ));
             } catch (Exception $ex) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Footer item with index "%s" is invalid: %s',
                         $idx,
                         $ex->getMessage()));

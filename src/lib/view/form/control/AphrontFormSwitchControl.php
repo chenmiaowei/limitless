@@ -5,6 +5,7 @@ namespace orangins\lib\view\form\control;
 use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\modules\widgets\javelin\JavelinSwitchAsset;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -97,9 +98,9 @@ final class AphrontFormSwitchControl extends AphrontFormControl
             JavelinHtml::phutil_tag("label", [
                 'class' => 'form-check-label'
             ], [
-                ArrayHelper::getValue($this->data, 0, 'Disable'),
+                Yii::t("app", "No"),
                 JavelinHtml::phutil_tag("input", $inputCheck),
-                ArrayHelper::getValue($this->data, 1, 'Enable'),
+                Yii::t("app", "Yes"),
             ])
         ]);
     }

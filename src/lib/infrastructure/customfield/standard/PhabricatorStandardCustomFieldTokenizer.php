@@ -1,15 +1,29 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
+use orangins\lib\infrastructure\customfield\datasource\PhabricatorCustomFieldApplicationSearchDatasource;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
+use orangins\lib\request\httpparametertype\AphrontPHIDListHTTPParameterType;
 use orangins\lib\view\form\AphrontFormView;
 use orangins\lib\view\form\control\AphrontFormTokenizerControl;
+use orangins\modules\conduit\parametertype\ConduitPHIDListParameterType;
+use orangins\modules\herald\field\HeraldField;
+use orangins\modules\herald\systemaction\HeraldAction;
+use orangins\modules\herald\value\HeraldTokenizerFieldValue;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
+use orangins\modules\transactions\bulk\type\BulkTokenizerParameterType;
+use orangins\modules\transactions\commentaction\PhabricatorEditEngineTokenizerCommentAction;
+use orangins\modules\typeahead\datasource\PhabricatorTypeaheadDatasource;
+use orangins\modules\typeahead\exception\PhabricatorTypeaheadInvalidTokenException;
+use PhutilMethodNotImplementedException;
+use Yii;
+use yii\base\Exception;
 
 /**
  * Class PhabricatorStandardCustomFieldTokenizer
- * @package orangins\lib\infrastructure\standard
+ * @package orangins\lib\infrastructure\customfield\standard
  * @author 陈妙威
  */
 abstract class PhabricatorStandardCustomFieldTokenizer
@@ -25,7 +39,7 @@ abstract class PhabricatorStandardCustomFieldTokenizer
     /**
      * @param array $handles
      * @return mixed|AphrontFormTokenizerControl
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function renderEditControl(array $handles)
@@ -53,8 +67,9 @@ abstract class PhabricatorStandardCustomFieldTokenizer
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontFormView $form
      * @param $value
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function appendToApplicationSearchForm(
@@ -77,7 +92,9 @@ abstract class PhabricatorStandardCustomFieldTokenizer
      * @param PhabricatorCursorPagedPolicyAwareQuery $query
      * @param $value
      * @return mixed|void
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhabricatorTypeaheadInvalidTokenException
      * @author 陈妙威
      */
     public function applyApplicationSearchConstraintToQuery(
@@ -86,8 +103,8 @@ abstract class PhabricatorStandardCustomFieldTokenizer
         $value)
     {
         if ($value) {
-
-            $datasource = $this->newApplicationSearchDatasource()
+            $datasource = $this
+                ->newApplicationSearchDatasource()
                 ->setViewer($this->getViewer());
             $value = $datasource->evaluateTokens($value);
 
@@ -99,7 +116,7 @@ abstract class PhabricatorStandardCustomFieldTokenizer
 
     /**
      * @param $condition
-     * @return null|\orangins\lib\infrastructure\customfield\field\const
+     * @return null
      * @author 陈妙威
      */
     public function getHeraldFieldValueType($condition)
@@ -182,12 +199,12 @@ abstract class PhabricatorStandardCustomFieldTokenizer
 
     /**
      * @return null|string
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function getHeraldActionName()
     {
-        return \Yii::t("app", 'Set "{0}" to', [
+        return Yii::t("app", 'Set "{0}" to', [
             $this->getFieldName()
         ]);
     }
@@ -195,13 +212,13 @@ abstract class PhabricatorStandardCustomFieldTokenizer
     /**
      * @param $value
      * @return null|string
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function getHeraldActionDescription($value)
     {
         $list = $this->renderHeraldHandleList($value);
-        return \Yii::t("app", 'Set "{0}" to: {1}.', [
+        return Yii::t("app", 'Set "{0}" to: {1}.', [
             $this->getFieldName(), $list
         ]);
     }
@@ -249,7 +266,7 @@ abstract class PhabricatorStandardCustomFieldTokenizer
     private function renderHeraldHandleList($value)
     {
         if (!is_array($value)) {
-            return \Yii::t("app", '(Invalid List)');
+            return Yii::t("app", '(Invalid List)');
         } else {
             return $this->getViewer()
                 ->renderHandleList($value)
@@ -259,7 +276,7 @@ abstract class PhabricatorStandardCustomFieldTokenizer
     }
 
     /**
-     * @return mixed
+     * @return PhabricatorTypeaheadDatasource
      * @author 陈妙威
      */
     protected function newApplicationSearchDatasource()

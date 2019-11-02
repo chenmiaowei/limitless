@@ -2,9 +2,15 @@
 
 namespace orangins\modules\people\customfield;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldNotProxyException;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorStandardCustomFieldInterface;
-use orangins\lib\infrastructure\standard\PhabricatorStandardCustomField;
+use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStorage;
+use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStringIndexStorage;
+use orangins\lib\infrastructure\customfield\standard\PhabricatorStandardCustomField;
+use PhutilInvalidStateException;
 
 /**
  * Class PhabricatorUserConfiguredCustomField
@@ -27,9 +33,12 @@ final class PhabricatorUserConfiguredCustomField
 
     /**
      * @param $object
-     * @return \orangins\lib\infrastructure\customfield\field\list
+     * @return array
+     * @throws PhutilInvalidStateException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldNotProxyException
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function createFields($object)
     {
@@ -39,7 +48,7 @@ final class PhabricatorUserConfiguredCustomField
     }
 
     /**
-     * @return \orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldStorage|PhabricatorUserConfiguredCustomFieldStorage
+     * @return PhabricatorCustomFieldStorage|PhabricatorUserConfiguredCustomFieldStorage
      * @author 陈妙威
      */
     public function newStorageObject()
@@ -48,7 +57,7 @@ final class PhabricatorUserConfiguredCustomField
     }
 
     /**
-     * @return \orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldStringIndexStorage|PhabricatorUserCustomFieldStringIndex
+     * @return PhabricatorCustomFieldStringIndexStorage|PhabricatorUserCustomFieldStringIndex
      * @author 陈妙威
      */
     protected function newStringIndexStorage()
@@ -57,7 +66,7 @@ final class PhabricatorUserConfiguredCustomField
     }
 
     /**
-     * @return \orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldStringIndexStorage|PhabricatorUserCustomFieldNumericIndex
+     * @return PhabricatorCustomFieldStringIndexStorage|PhabricatorUserCustomFieldNumericIndex
      * @author 陈妙威
      */
     protected function newNumericIndexStorage()

@@ -2,8 +2,10 @@
 
 namespace orangins\lib\infrastructure\customfield\field;
 
+use orangins\lib\infrastructure\customfield\editor\PhabricatorCustomFieldEditField;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldIndexStorage;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldNumericIndexStorage;
+use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStorage;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStringIndexStorage;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\db\PhabricatorDataNotAttachedException;
@@ -13,21 +15,26 @@ use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldNotA
 use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldNotProxyException;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorCustomFieldInterface;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorStandardCustomFieldInterface;
-use orangins\lib\infrastructure\standard\PhabricatorStandardCustomField;
+use orangins\lib\infrastructure\customfield\standard\PhabricatorStandardCustomField;
 use orangins\lib\infrastructure\util\PhabricatorHash;
 use orangins\lib\OranginsObject;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\AphrontFormView;
-use orangins\modules\dashboard\models\PhabricatorDashboardPanel;
+use orangins\lib\view\phui\PHUIObjectItemView;
+use orangins\modules\metamta\view\PhabricatorMetaMTAMailBody;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
 use orangins\modules\search\index\PhabricatorSearchAbstractDocument;
 use orangins\modules\transactions\constants\PhabricatorTransactions;
 use orangins\modules\transactions\editengine\PhabricatorEditEngine;
+use orangins\modules\transactions\editfield\PhabricatorEditField;
 use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use PhutilClassMapQuery;
 use Exception;
+use PhutilJSONParserException;
+use PhutilSafeHTML;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -150,7 +157,7 @@ abstract class PhabricatorCustomField extends OranginsObject
             $spec = $object->getCustomFieldSpecificationForRole($role);
             if (!is_array($spec)) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         "Expected an array from {0} for object of class '{1}'.",
                         [
                             'getCustomFieldSpecificationForRole()',
@@ -207,7 +214,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * @param array $spec
      * @param $object
      * @param array $options
-     * @return array|\dict
+     * @return array
      * @throws Exception
      */
     public static function buildFieldList(
@@ -217,6 +224,7 @@ abstract class PhabricatorCustomField extends OranginsObject
         array $options = array())
     {
 
+        /** @var PhabricatorCustomField[] $field_objects */
         $field_objects = (new PhutilClassMapQuery())
             ->setAncestorClass($base_class)
             ->execute();
@@ -228,9 +236,9 @@ abstract class PhabricatorCustomField extends OranginsObject
                 $key = $field->getFieldKey();
                 if (isset($fields[$key])) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             "Both '{0}' and '{1}' define a custom field with " .
-                            "field key '{2}'. Field keys must be unique.",[
+                            "field key '{2}'. Field keys must be unique.", [
                                 get_class($fields[$key]),
                                 get_class($field),
                                 $key
@@ -345,7 +353,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * multiple field instances here.
      *
      * @param object The object to create fields for.
-     * @return array<PhabricatorCustomField> List of fields.
+     * @return PhabricatorCustomField[] List of fields.
      * @task core
      */
     public function createFields($object)
@@ -423,7 +431,7 @@ abstract class PhabricatorCustomField extends OranginsObject
             case self::ROLE_DEFAULT:
                 return true;
             default:
-                throw new Exception(\Yii::t("app", "Unknown field role '{0}'!", [
+                throw new Exception(Yii::t("app", "Unknown field role '{0}'!", [
                     $role
                 ]));
         }
@@ -532,7 +540,7 @@ abstract class PhabricatorCustomField extends OranginsObject
     /**
      * Sets the object this field belongs to.
      *
-     * @param PhabricatorCustomFieldInterface The object this field belongs to.
+     * @param PhabricatorCustomFieldInterface $object The object this field belongs to.
      * @return static
      * @task context
      */
@@ -568,7 +576,7 @@ abstract class PhabricatorCustomField extends OranginsObject
     /**
      * Get the object this field belongs to.
      *
-     * @return PhabricatorCustomFieldInterface|PhabricatorDashboardPanel The object this field belongs to.
+     * @return PhabricatorCustomFieldInterface The object this field belongs to.
      * @task context
      */
     final public function getObject()
@@ -625,6 +633,9 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @task context
+     * @return
+     * @throws PhabricatorCustomFieldDataNotAvailableException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     final protected function requireViewer()
     {
@@ -645,8 +656,8 @@ abstract class PhabricatorCustomField extends OranginsObject
     /**
      * @task render
      * @param array $handles
-     * @return null|\PhutilSafeHTML
-     * @throws \Exception
+     * @return null|PhutilSafeHTML
+     * @throws Exception
      */
     protected function renderHandleList(array $handles)
     {
@@ -877,14 +888,15 @@ abstract class PhabricatorCustomField extends OranginsObject
      * @task appsearch
      * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
-    protected function newStringIndex($value)
+    protected function newStringIndex($value = null)
     {
         if ($this->proxy) {
             return $this->proxy->newStringIndex();
         }
 
         $key = $this->getFieldIndex();
-        return $this->newStringIndexStorage()
+        return $this
+            ->newStringIndexStorage()
             ->setIndexKey($key)
             ->setIndexValue($value);
     }
@@ -898,13 +910,14 @@ abstract class PhabricatorCustomField extends OranginsObject
      * @task appsearch
      * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
-    protected function newNumericIndex($value)
+    protected function newNumericIndex($value = null)
     {
         if ($this->proxy) {
             return $this->proxy->newNumericIndex();
         }
         $key = $this->getFieldIndex();
-        return $this->newNumericIndexStorage()
+        return $this
+            ->newNumericIndexStorage()
             ->setIndexKey($key)
             ->setIndexValue($value);
     }
@@ -914,9 +927,9 @@ abstract class PhabricatorCustomField extends OranginsObject
      * Read a query value from a request, for storage in a saved query. Normally,
      * this method should, e.g., read a string out of the request.
      *
-     * @param PhabricatorApplicationSearchEngine Engine building the query.
-     * @param AphrontRequest Request to read from.
-     * @return wild
+     * @param PhabricatorApplicationSearchEngine $engine Engine building the query.
+     * @param AphrontRequest $request Request to read from.
+     * @return mixed
      * @task appsearch
      * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
@@ -963,9 +976,9 @@ abstract class PhabricatorCustomField extends OranginsObject
     /**
      * Append search controls to the interface.
      *
-     * @param PhabricatorApplicationSearchEngine Engine constructing the form.
-     * @param AphrontFormView The form to update.
-     * @param array Value from the saved query.
+     * @param PhabricatorApplicationSearchEngine $engine Engine constructing the form.
+     * @param AphrontFormView $form The form to update.
+     * @param array $value Value from the saved query.
      * @task appsearch
      * @return
      * @throws PhabricatorCustomFieldImplementationIncompleteException
@@ -1030,6 +1043,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @task appxaction
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     public function getOldValueForApplicationTransactions()
     {
@@ -1042,6 +1056,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @task appxaction
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     public function getNewValueForApplicationTransactions()
     {
@@ -1054,6 +1069,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @task appxaction
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     public function setValueFromApplicationTransactions($value)
     {
@@ -1066,6 +1082,9 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @task appxaction
+     * @param PhabricatorApplicationTransaction $xaction
+     * @return mixed
+     * @throws PhutilJSONParserException
      */
     public function getNewValueFromApplicationTransactions(
         PhabricatorApplicationTransaction $xaction)
@@ -1081,6 +1100,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * @task appxaction
      * @param PhabricatorApplicationTransaction $xaction
      * @return bool
+     * @throws PhutilJSONParserException
      */
     public function getApplicationTransactionHasEffect(
         PhabricatorApplicationTransaction $xaction)
@@ -1093,8 +1113,9 @@ abstract class PhabricatorCustomField extends OranginsObject
 
 
     /**
-     * @task appxaction
      * @param PhabricatorApplicationTransaction $xaction
+     * @return mixed
+     * @task appxaction
      */
     public function applyApplicationTransactionInternalEffects(
         PhabricatorApplicationTransaction $xaction)
@@ -1173,15 +1194,13 @@ abstract class PhabricatorCustomField extends OranginsObject
      * when a transaction would set a field to an invalid value, or when a field
      * is required but no transactions provide value.
      *
+     * @param PhabricatorApplicationTransactionEditor $editor
      * @param PhabricatorLiskDAO Editor applying the transactions.
-     * @param string Transaction type. This type is always
-     *   `PhabricatorTransactions::TYPE_CUSTOMFIELD`, it is provided for
-     *   convenience when constructing exceptions.
-     * @param array<PhabricatorApplicationTransaction> Transactions being applied,
-     *   which may be empty if this field is not being edited.
+     * @param PhabricatorApplicationTransaction[] $xactions
      * @return array
      *   errors.
      *
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @task appxaction
      */
     public function validateApplicationTransactions(
@@ -1213,7 +1232,7 @@ abstract class PhabricatorCustomField extends OranginsObject
         }
 
         $author_phid = $xaction->getAuthorPHID();
-        return \Yii::t("app",
+        return Yii::t("app",
             '{0} updated this object.',
             [
                 $xaction->renderHandleLink($author_phid)
@@ -1236,7 +1255,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
         $author_phid = $xaction->getAuthorPHID();
         $object_phid = $xaction->getObjectPHID();
-        return \Yii::t("app",
+        return Yii::t("app",
             '{0} updated {1}.',
             [
                 $xaction->renderHandleLink($author_phid),
@@ -1328,7 +1347,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * @param PhabricatorMetaMTAMailBody $body
      * @param PhabricatorApplicationTransactionEditor $editor
      * @param array $xactions
-     * @return void
+     * @return mixed
      */
     public function updateTransactionMailBody(
         PhabricatorMetaMTAMailBody $body,
@@ -1347,9 +1366,9 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @param PhabricatorEditEngine $engine
-     * @return array
-     * @author 陈妙威
+     * @return PhabricatorEditField[]
      * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @author 陈妙威
      */
     public function getEditEngineFields(PhabricatorEditEngine $engine)
     {
@@ -1362,6 +1381,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @return mixed
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     protected function newEditField()
@@ -1389,7 +1409,7 @@ abstract class PhabricatorCustomField extends OranginsObject
             $field
                 ->setCustomFieldCommentAction($comment_action)
                 ->setCommentActionLabel(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Change {0}',
                         [
                             $this->getFieldName()
@@ -1431,6 +1451,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @return string
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     protected function getBulkEditLabel()
@@ -1439,7 +1460,7 @@ abstract class PhabricatorCustomField extends OranginsObject
             return $this->proxy->getBulkEditLabel();
         }
 
-        return \Yii::t("app", 'Set "{0}" to', [
+        return Yii::t("app", 'Set "{0}" to', [
             $this->getFieldName()
         ]);
     }
@@ -1503,7 +1524,7 @@ abstract class PhabricatorCustomField extends OranginsObject
     /**
      * @task edit
      * @param AphrontRequest $request
-     * @return
+     * @return mixed
      * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     public function readValueFromRequest(AphrontRequest $request)
@@ -1572,6 +1593,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @task view
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     public function renderPropertyViewLabel()
     {
@@ -1650,6 +1672,9 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @task array
+     * @param PHUIObjectItemView $view
+     * @return mixed
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     public function renderOnListItem(PHUIObjectItemView $view)
     {
@@ -1679,6 +1704,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * @task globalsearch
      * @param PhabricatorSearchAbstractDocument $document
      * @return PhabricatorSearchAbstractDocument
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     public function updateAbstractDocument(
         PhabricatorSearchAbstractDocument $document)
@@ -1770,6 +1796,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
     /**
      * @task conduit
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
     public function getConduitDictionaryValue()
     {
@@ -1879,6 +1906,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * normal field name.
      *
      * @return string Herald field name.
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @task herald
      */
     public function getHeraldFieldName()
@@ -1909,7 +1937,7 @@ abstract class PhabricatorCustomField extends OranginsObject
     /**
      * Get the available conditions for this field in Herald.
      *
-     * @return array<const> List of Herald condition constants.
+     * @return array<string> List of Herald condition constants.
      * @task herald
      * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
@@ -1925,8 +1953,8 @@ abstract class PhabricatorCustomField extends OranginsObject
     /**
      * Get the Herald value type for the given condition.
      *
-     * @param   const       Herald condition constant.
-     * @return  const|null  Herald value type, or null to use the default.
+     * @param string       Herald condition constant.
+     * @return  string|null  Herald value type, or null to use the default.
      * @task herald
      */
     public function getHeraldFieldValueType($condition)

@@ -1,6 +1,10 @@
 <?php
 namespace orangins\modules\config\check;
 
+use orangins\lib\env\PhabricatorEnv;
+use orangins\modules\config\exception\PhabricatorConfigValidationException;
+use orangins\modules\config\option\PhabricatorApplicationConfigOptions;
+
 final class PhabricatorInvalidConfigSetupCheck extends PhabricatorSetupCheck {
 
   public function getDefaultGroup() {

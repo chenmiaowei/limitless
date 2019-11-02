@@ -4,6 +4,7 @@ namespace orangins\modules\config\customer;
 
 use orangins\modules\config\option\PhabricatorConfigOption;
 use Exception;
+use Yii;
 
 /**
  * Class PhabricatorConfigRegexOptionType
@@ -26,7 +27,7 @@ class PhabricatorConfigRegexOptionType
             $ok = preg_match($pattern, '');
             if ($ok === false) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'The following regex is malformed and cannot be used: %s',
                         $pattern));
             }

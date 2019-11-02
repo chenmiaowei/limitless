@@ -7,6 +7,8 @@ use PhutilClassMapQuery;
 use orangins\modules\config\exception\PhabricatorConfigValidationException;
 use Exception;
 use orangins\lib\OranginsObject;
+use PhutilInvalidStateException;
+use Yii;
 
 /**
  * Class PhabricatorApplicationConfigOptions
@@ -46,9 +48,10 @@ abstract class PhabricatorApplicationConfigOptions extends OranginsObject
     /**
      * @param PhabricatorConfigOption $option
      * @param $value
-     * @return void
+     * @return mixed
      * @throws PhabricatorConfigValidationException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      */
     public function validateOption(PhabricatorConfigOption $option, $value)
     {
@@ -79,13 +82,13 @@ abstract class PhabricatorApplicationConfigOptions extends OranginsObject
 
         if ($option->isCustomType()) {
             try {
-                return $option->newOptionType()->validateOption($option, $value);
+                return $option->getCustomObject()->validateOption($option, $value);
             } catch (Exception $ex) {
                 throw new PhabricatorConfigValidationException($ex->getMessage());
             }
         } else {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Unknown configuration option type "{0}".', [
                         $option->getType()
                     ]));
@@ -179,7 +182,7 @@ abstract class PhabricatorApplicationConfigOptions extends OranginsObject
                 $key = $option->getKey();
                 if (isset($options[$key])) {
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             "Multiple {0} subclasses contain an option named '{1}'!",
                             [
                                 __CLASS__,

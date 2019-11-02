@@ -2,17 +2,29 @@
 
 namespace orangins\modules\config\customer;
 
+use AphrontQueryException;
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\exception\ActiveRecordException;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\control\AphrontFormCheckboxControl;
 use orangins\lib\view\form\control\AphrontFormFileControl;
 use orangins\lib\view\form\control\AphrontFormTextControl;
 use orangins\modules\config\option\PhabricatorConfigOption;
+use orangins\modules\file\exception\PhabricatorFileStorageConfigurationException;
+use orangins\modules\file\FilesystemException;
 use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\policy\constants\PhabricatorPolicies;
 use Exception;
+use PhutilAggregateException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
 use PhutilTypeSpec;
+use ReflectionException;
+use Throwable;
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -72,7 +84,18 @@ final class PhabricatorCustomLogoConfigType
      * @param PhabricatorConfigOption $option
      * @param AphrontRequest $request
      * @return array
-     * @throws Exception
+     * @throws AphrontQueryException
+     * @throws PhutilAggregateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws ActiveRecordException
+     * @throws FilesystemException
+     * @throws PhabricatorFileStorageConfigurationException
+     * @throws InvalidConfigException
+     * @throws UnknownPropertyException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     public function readRequest(

@@ -2,12 +2,15 @@
 
 namespace orangins\modules\people\customfield;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorCustomFieldInterface;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\control\AphrontFormTextControl;
 use orangins\modules\conduit\parametertype\ConduitStringParameterType;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilJSONParserException;
+use Yii;
 
 /**
  * Class PhabricatorUserRealNameField
@@ -56,7 +59,7 @@ final class PhabricatorUserRealNameField
      */
     public function getFieldName()
     {
-        return \Yii::t("app", 'Real Name');
+        return Yii::t("app", 'Real Name');
     }
 
     /**
@@ -65,7 +68,7 @@ final class PhabricatorUserRealNameField
      */
     public function getFieldDescription()
     {
-        return \Yii::t("app", 'Stores the real name of the user, like "Abraham Lincoln".');
+        return Yii::t("app", 'Stores the real name of the user, like "Abraham Lincoln".');
     }
 
     /**
@@ -97,7 +100,7 @@ final class PhabricatorUserRealNameField
 
     /**
      * @param PhabricatorCustomFieldInterface $object
-     * @return \orangins\lib\infrastructure\customfield\field\this|void
+     * @return void
      * @author 陈妙威
      */
     public function readValueFromObject(PhabricatorCustomFieldInterface $object)
@@ -116,8 +119,8 @@ final class PhabricatorUserRealNameField
 
     /**
      * @return string
+     * @throws Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     public function getNewValueForApplicationTransactions()
     {
@@ -129,6 +132,7 @@ final class PhabricatorUserRealNameField
 
     /**
      * @param PhabricatorApplicationTransaction $xaction
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function applyApplicationTransactionInternalEffects(
@@ -148,7 +152,7 @@ final class PhabricatorUserRealNameField
 
     /**
      * @param $value
-     * @return $this|\orangins\lib\infrastructure\customfield\field\this
+     * @return $this|this
      * @author 陈妙威
      */
     public function setValueFromStorage($value)
@@ -160,6 +164,7 @@ final class PhabricatorUserRealNameField
     /**
      * @param array $handles
      * @return AphrontFormTextControl
+     * @throws Exception
      * @author 陈妙威
      */
     public function renderEditControl(array $handles)
@@ -173,7 +178,7 @@ final class PhabricatorUserRealNameField
 
     /**
      * @return mixed
-     * @throws \yii\base\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function isEditable()

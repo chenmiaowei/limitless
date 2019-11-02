@@ -6,6 +6,7 @@ use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\request\AphrontRequest;
 use orangins\modules\guides\view\PhabricatorGuideItemView;
 use orangins\modules\guides\view\PhabricatorGuideListView;
+use yii\helpers\Url;
 
 /**
  * Class PhabricatorGuideQuickStartModule
@@ -173,7 +174,8 @@ final class PhabricatorGuideQuickStartModule extends PhabricatorGuideModule
 
         $title = \Yii::t("app",'Personalize your Install');
         $wordmark = PhabricatorEnv::getEnvConfig('ui.logo');
-        $href = PhabricatorEnv::getURI('/config/edit/ui.logo/');
+
+        $href = Url::to(['/config/index/edit', 'key' => 'ui.logo']);
         if ($wordmark) {
             $icon = 'fa-check';
             $icon_bg = 'bg-green';

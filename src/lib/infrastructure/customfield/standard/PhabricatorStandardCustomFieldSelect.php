@@ -1,23 +1,31 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
+use orangins\lib\infrastructure\customfield\datasource\PhabricatorStandardSelectCustomFieldDatasource;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\request\httpparametertype\AphrontSelectHTTPParameterType;
 use orangins\lib\view\form\AphrontFormView;
 use orangins\lib\view\form\control\AphrontFormCheckboxControl;
+use orangins\lib\view\form\control\AphrontFormSelectControl;
 use orangins\modules\conduit\parametertype\ConduitStringListParameterType;
 use orangins\modules\conduit\parametertype\ConduitStringParameterType;
+use orangins\modules\herald\adapter\HeraldAdapter;
+use orangins\modules\herald\value\HeraldTokenizerFieldValue;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
 use orangins\modules\transactions\bulk\type\BulkSelectParameterType;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilJSONParserException;
+use Yii;
+use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorStandardCustomFieldSelect
- * @package orangins\lib\infrastructure\standard
+ * @package orangins\lib\infrastructure\customfield\standard
  * @author 陈妙威
  */
 final class PhabricatorStandardCustomFieldSelect
@@ -34,8 +42,8 @@ final class PhabricatorStandardCustomFieldSelect
     }
 
     /**
-     * @return array|\orangins\lib\infrastructure\customfield\field\list
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return array
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function buildFieldIndexes()
@@ -53,7 +61,7 @@ final class PhabricatorStandardCustomFieldSelect
     /**
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontRequest $request
-     * @return array|\orangins\lib\infrastructure\customfield\field\array
+     * @return array|array
      * @author 陈妙威
      */
     public function readApplicationSearchValueFromRequest(
@@ -68,7 +76,7 @@ final class PhabricatorStandardCustomFieldSelect
      * @param PhabricatorCursorPagedPolicyAwareQuery $query
      * @param $value
      * @return mixed|void
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function applyApplicationSearchConstraintToQuery(
@@ -87,8 +95,9 @@ final class PhabricatorStandardCustomFieldSelect
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontFormView $form
      * @param $value
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function appendToApplicationSearchForm(
@@ -128,7 +137,7 @@ final class PhabricatorStandardCustomFieldSelect
     /**
      * @param array $handles
      * @return mixed
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function renderEditControl(array $handles)
@@ -157,9 +166,10 @@ final class PhabricatorStandardCustomFieldSelect
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhutilJSONParserException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getApplicationTransactionTitle(
@@ -173,22 +183,22 @@ final class PhabricatorStandardCustomFieldSelect
         $new = ArrayHelper::getValue($this->getOptions(), $new, $new);
 
         if (!$old) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} set {1} to {2}.',
-               [
-                   $xaction->renderHandleLink($author_phid),
-                   $this->getFieldName(),
-                   $new
-               ]);
+                [
+                    $xaction->renderHandleLink($author_phid),
+                    $this->getFieldName(),
+                    $new
+                ]);
         } else if (!$new) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} removed {1}.',
                 [
                     $xaction->renderHandleLink($author_phid),
                     $this->getFieldName()
                 ]);
         } else {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} changed {1} from {2} to {3}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -222,7 +232,7 @@ final class PhabricatorStandardCustomFieldSelect
 
     /**
      * @param $condition
-     * @return null|\orangins\lib\infrastructure\customfield\field\const
+     * @return null
      * @author 陈妙威
      */
     public function getHeraldFieldValueType($condition)

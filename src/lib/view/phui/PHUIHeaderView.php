@@ -123,6 +123,36 @@ class PHUIHeaderView extends AphrontTagView
     private $actionListID;
 
     /**
+     * @var bool
+     */
+    private $collapsed = false;
+    /**
+     * @var bool
+     */
+    private $enable_collapse = false;
+
+    /**
+     * @param bool $enable_collapse
+     * @return self
+     */
+    public function setEnableCollapse($enable_collapse)
+    {
+        $this->enable_collapse = $enable_collapse;
+        return $this;
+    }
+
+
+    /**
+     * @param bool $collapsed
+     * @return self
+     */
+    public function setCollapsed($collapsed)
+    {
+        $this->collapsed = $collapsed;
+        return $this;
+    }
+
+    /**
      * @param $header
      * @return $this
      * @author 陈妙威
@@ -555,6 +585,17 @@ class PHUIHeaderView extends AphrontTagView
                     'class' => 'list-inline list-inline-condensed  mt-0 mb-0',
                 ),
                 $action_list);
+        }
+
+        if($this->enable_collapse) {
+            $right[] = JavelinHtml::phutil_tag(
+                'div',
+                array(
+                    'class' => 'list-icons',
+                ),
+                [
+                    JavelinHtml::phutil_tag("a", ['class' => 'list-icons-item' . ($this->collapsed ? ' rotate-180' : ''), 'data-action' => 'collapse'])
+                ]);
         }
 
         $icon = null;

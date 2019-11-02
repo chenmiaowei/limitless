@@ -7,6 +7,7 @@ use orangins\modules\config\customer\PhabricatorConfigJSONOptionType;
 use orangins\modules\config\option\PhabricatorConfigOption;
 use PhutilNumber;
 use PhutilTypeSpec;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -28,7 +29,7 @@ final class PhabricatorKeyringConfigOptionType
     {
         if (!is_array($value)) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Keyring configuration is not valid: value must be a ' .
                     'list of encryption keys.'));
         }
@@ -36,7 +37,7 @@ final class PhabricatorKeyringConfigOptionType
         foreach ($value as $index => $spec) {
             if (!is_array($spec)) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Keyring configuration is not valid: each entry in the list must ' .
                         'be a dictionary describing an encryption key, but the value ' .
                         'with index "%s" is not a dictionary.',
@@ -59,7 +60,7 @@ final class PhabricatorKeyringConfigOptionType
                     ));
             } catch (Exception $ex) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Keyring configuration has an invalid key specification (at ' .
                         'index "%s"): %s.',
                         $index,
@@ -69,7 +70,7 @@ final class PhabricatorKeyringConfigOptionType
             $name = $spec['name'];
             if (isset($map[$name])) {
                 throw new Exception(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Keyring configuration is invalid: it describes multiple keys ' .
                         'with the same name ("%s"). Each key must have a unique name.',
                         $name));
@@ -85,7 +86,7 @@ final class PhabricatorKeyringConfigOptionType
                 case 'aes-256-cbc':
                     if (!function_exists('openssl_encrypt')) {
                         throw new Exception(
-                            \Yii::t("app",
+                            Yii::t("app",
                                 'Keyring is configured with a "%s" key, but the PHP OpenSSL ' .
                                 'extension is not installed. Install the OpenSSL extension ' .
                                 'to enable encryption.',
@@ -96,7 +97,7 @@ final class PhabricatorKeyringConfigOptionType
                     $material = base64_decode($material, true);
                     if ($material === false) {
                         throw new Exception(
-                            \Yii::t("app",
+                            Yii::t("app",
                                 'Keyring specifies an invalid key ("%s"): key material ' .
                                 'should be base64 encoded.',
                                 $name));
@@ -104,7 +105,7 @@ final class PhabricatorKeyringConfigOptionType
 
                     if (strlen($material) != 32) {
                         throw new Exception(
-                            \Yii::t("app",
+                            Yii::t("app",
                                 'Keyring specifies an invalid key ("%s"): key material ' .
                                 'should be 32 bytes (256 bits) but has length %s.',
                                 $name,
@@ -113,7 +114,7 @@ final class PhabricatorKeyringConfigOptionType
                     break;
                 default:
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Keyring configuration is invalid: it describes a key with ' .
                             'type "%s", but this type is unknown.',
                             $type));
@@ -122,7 +123,7 @@ final class PhabricatorKeyringConfigOptionType
 
         if (count($defaults) > 1) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Keyring configuration is invalid: it describes multiple default ' .
                     'encryption keys. No more than one key may be the default key. ' .
                     'Keys currently configured as defaults: %s.',

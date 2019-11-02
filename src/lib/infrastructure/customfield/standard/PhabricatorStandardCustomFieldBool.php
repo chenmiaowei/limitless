@@ -1,6 +1,6 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
 use Exception;
 use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
@@ -22,7 +22,7 @@ use Yii;
 
 /**
  * Class PhabricatorStandardCustomFieldBool
- * @package orangins\lib\infrastructure\standard
+ * @package orangins\lib\infrastructure\customfield\standard
  * @author 陈妙威
  */
 final class PhabricatorStandardCustomFieldBool

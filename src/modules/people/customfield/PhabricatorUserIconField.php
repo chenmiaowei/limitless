@@ -2,12 +2,16 @@
 
 namespace orangins\modules\people\customfield;
 
+use Exception;
+use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorCustomFieldInterface;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\control\PHUIFormIconSetControl;
 use orangins\modules\conduit\parametertype\ConduitStringParameterType;
 use orangins\modules\people\iconset\PhabricatorPeopleIconSet;
+use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use Yii;
 
 /**
  * Class PhabricatorUserIconField
@@ -56,7 +60,7 @@ final class PhabricatorUserIconField
      */
     public function getFieldName()
     {
-        return \Yii::t("app", 'Icon');
+        return Yii::t("app", 'Icon');
     }
 
     /**
@@ -65,7 +69,7 @@ final class PhabricatorUserIconField
      */
     public function getFieldDescription()
     {
-        return \Yii::t("app", 'User icon to accompany their title.');
+        return Yii::t("app", 'User icon to accompany their title.');
     }
 
     /**
@@ -96,8 +100,9 @@ final class PhabricatorUserIconField
     }
 
     /**
-     * @param PhabricatorCustomFieldInterface $object
-     * @return \orangins\lib\infrastructure\customfield\field\PhabricatorCustomField|void
+     * @param PhabricatorCustomFieldInterface|PhabricatorUser $object
+     * @return PhabricatorCustomField|void
+     * @throws Exception
      * @author 陈妙威
      */
     public function readValueFromObject(PhabricatorCustomFieldInterface $object)
@@ -107,11 +112,14 @@ final class PhabricatorUserIconField
 
     /**
      * @return string
+     * @throws Exception
      * @author 陈妙威
      */
     public function getOldValueForApplicationTransactions()
     {
-        return $this->getObject()->loadUserProfile()->getIcon();
+        /** @var PhabricatorUser $phabricatorCustomField */
+        $phabricatorCustomField = $this->getObject();
+        return $phabricatorCustomField->loadUserProfile()->getIcon();
     }
 
     /**
@@ -125,12 +133,16 @@ final class PhabricatorUserIconField
 
     /**
      * @param PhabricatorApplicationTransaction $xaction
+     * @throws \PhutilJSONParserException
+     * @throws Exception
      * @author 陈妙威
      */
     public function applyApplicationTransactionInternalEffects(
         PhabricatorApplicationTransaction $xaction)
     {
-        $this->getObject()->loadUserProfile()->setIcon($xaction->getNewValue());
+        /** @var PhabricatorUser $user */
+        $user = $this->getObject();
+        $user->loadUserProfile()->setIcon($xaction->getNewValue());
     }
 
     /**
@@ -144,7 +156,7 @@ final class PhabricatorUserIconField
 
     /**
      * @param $value
-     * @return $this|\orangins\lib\infrastructure\customfield\field\this
+     * @return $this
      * @author 陈妙威
      */
     public function setValueFromStorage($value)

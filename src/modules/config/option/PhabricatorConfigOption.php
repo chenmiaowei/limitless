@@ -11,6 +11,7 @@ use orangins\modules\config\type\PhabricatorConfigType;
 use orangins\lib\OranginsObject;
 use PhutilSafeHTML;
 use Exception;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -49,7 +50,7 @@ final class PhabricatorConfigOption extends OranginsObject
      */
     private $enumOptions;
     /**
-     * @var
+     * @var PhabricatorApplicationConfigOptions
      */
     private $group;
     /**
@@ -174,7 +175,7 @@ final class PhabricatorConfigOption extends OranginsObject
 
     /**
      * @return string
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function getLockedMessage()
@@ -182,7 +183,7 @@ final class PhabricatorConfigOption extends OranginsObject
         if ($this->lockedMessage !== null) {
             return $this->lockedMessage;
         }
-        return new PhutilSafeHTML(\Yii::t("app",
+        return new PhutilSafeHTML(Yii::t("app",
             'This configuration is locked and can not be edited from the web ' .
             'interface. Use {0} in {1} to edit it.', [
                 phutil_tag('tt', array(), './bin/config'),
@@ -223,7 +224,7 @@ final class PhabricatorConfigOption extends OranginsObject
     }
 
     /**
-     * @return mixed
+     * @return PhabricatorApplicationConfigOptions
      * @author 陈妙威
      */
     public function getGroup()
@@ -252,8 +253,8 @@ final class PhabricatorConfigOption extends OranginsObject
             return $this->boolOptions;
         }
         return array(
-            \Yii::t("app", 'True'),
-            \Yii::t("app", 'False'),
+            Yii::t("app", 'True'),
+            Yii::t("app", 'False'),
         );
     }
 
@@ -387,6 +388,7 @@ final class PhabricatorConfigOption extends OranginsObject
 
     /**
      * @return PhabricatorConfigType
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function newOptionType()
@@ -414,9 +416,13 @@ final class PhabricatorConfigOption extends OranginsObject
     {
         if (!$this->customObject) {
             if (!$this->isCustomType()) {
-                throw new Exception(\Yii::t("app", 'This option does not have a custom type!'));
+                throw new Exception(Yii::t("app", 'This option does not have a custom type!'));
             }
-            $this->customObject = newv(PhabricatorConfigType::getAllTypes()[substr($this->getType(), 7)], array());
+
+            $allTypes1 = PhabricatorConfigOptionType::getAllTypes();
+            $substr = substr($this->getType(), 7);
+            $object = $allTypes1[$substr];
+            $this->customObject = $object;
         }
         return $this->customObject;
     }

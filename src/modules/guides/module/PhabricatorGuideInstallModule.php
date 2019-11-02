@@ -2,10 +2,20 @@
 
 namespace orangins\modules\guides\module;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\markup\view\PHUIRemarkupView;
 use orangins\lib\request\AphrontRequest;
+use orangins\lib\view\phui\PHUIDocumentView;
+use orangins\modules\auth\query\PhabricatorAuthProviderConfigQuery;
+use orangins\modules\config\check\PhabricatorSetupCheck;
 use orangins\modules\config\models\PhabricatorConfigEntry;
+use orangins\modules\guides\view\PhabricatorGuideItemView;
 use orangins\modules\guides\view\PhabricatorGuideListView;
+use orangins\modules\people\models\PhabricatorUser;
+use orangins\modules\settings\models\PhabricatorUserPreferences;
+use Yii;
+use yii\helpers\Url;
 
 /**
  * Class PhabricatorGuideInstallModule
@@ -30,7 +40,7 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
      */
     public function getModuleName()
     {
-        return \Yii::t("app",'Install Phabricator');
+        return Yii::t("app",'Install Phabricator');
     }
 
     /**
@@ -44,6 +54,7 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
 
     /**
      * @return bool|mixed
+     * @throws Exception
      * @author 陈妙威
      */
     public function getIsModuleEnabled()
@@ -57,6 +68,7 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
     /**
      * @param AphrontRequest $request
      * @return array|mixed
+     * @throws Exception
      * @author 陈妙威
      */
     public function renderModuleStatus(AphrontRequest $request)
@@ -65,19 +77,19 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
 
         $guide_items = new PhabricatorGuideListView();
 
-        $title = \Yii::t("app",'Resolve Setup Issues');
+        $title = Yii::t("app",'Resolve Setup Issues');
         $issues_resolved = !PhabricatorSetupCheck::getOpenSetupIssueKeys();
         $href = PhabricatorEnv::getURI('/config/issue/');
         if ($issues_resolved) {
             $icon = 'fa-check';
             $icon_bg = 'bg-green';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 "You've resolved (or ignored) all outstanding setup issues.");
         } else {
             $icon = 'fa-warning';
             $icon_bg = 'bg-red';
             $description =
-                \Yii::t("app",'You have some unresolved setup issues to take care of.');
+                Yii::t("app",'You have some unresolved setup issues to take care of.');
         }
 
         $item = (new PhabricatorGuideItemView())
@@ -92,18 +104,18 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
             ->setViewer(PhabricatorUser::getOmnipotentUser())
             ->execute();
 
-        $title = \Yii::t("app",'Login and Registration');
+        $title = Yii::t("app",'Login and Registration');
         $href = PhabricatorEnv::getURI('/auth/');
         $have_auth = (bool)$configs;
         if ($have_auth) {
             $icon = 'fa-check';
             $icon_bg = 'bg-green';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 "You've configured at least one authentication provider.");
         } else {
             $icon = 'fa-key';
             $icon_bg = 'bg-sky';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 'Authentication providers allow users to register accounts and ' .
                 'log in to Phabricator.');
         }
@@ -117,7 +129,7 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
         $guide_items->addItem($item);
 
 
-        $title = \Yii::t("app",'Configure Phabricator');
+        $title = Yii::t("app",'Configure Phabricator');
         $href = PhabricatorEnv::getURI('/config/');
 
         // Just load any config value at all; if one exists the install has figured
@@ -128,12 +140,12 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
         if ($have_config) {
             $icon = 'fa-check';
             $icon_bg = 'bg-green';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 "You've configured at least one setting from the web interface.");
         } else {
             $icon = 'fa-sliders';
             $icon_bg = 'bg-sky';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 'Learn how to configure mail and other options in Phabricator.');
         }
 
@@ -146,7 +158,7 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
         $guide_items->addItem($item);
 
 
-        $title = \Yii::t("app",'User Account Settings');
+        $title = Yii::t("app",'User Account Settings');
         $href = PhabricatorEnv::getURI('/settings/');
         $preferences = PhabricatorUserPreferences::find()
             ->setViewer($viewer)
@@ -157,12 +169,12 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
         if ($have_settings) {
             $icon = 'fa-check';
             $icon_bg = 'bg-green';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 "You've adjusted at least one setting on your account.");
         } else {
             $icon = 'fa-wrench';
             $icon_bg = 'bg-sky';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 'Configure account settings for all users, or just yourself');
         }
 
@@ -175,18 +187,18 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
         $guide_items->addItem($item);
 
 
-        $title = \Yii::t("app",'Notification Server');
-        $href = PhabricatorEnv::getURI('/config/edit/notification.servers/');
+        $title = Yii::t("app",'Notification Server');
+        $href =  Url::to(['/config/index/edit', 'key' => 'notification.servers']);
         $have_notifications = PhabricatorEnv::getEnvConfig('notification.servers');
         if ($have_notifications) {
             $icon = 'fa-check';
             $icon_bg = 'bg-green';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 "You've set up a real-time notification server.");
         } else {
             $icon = 'fa-bell';
             $icon_bg = 'bg-sky';
-            $description = \Yii::t("app",
+            $description = Yii::t("app",
                 'Phabricator can deliver notifications in real-time with WebSockets.');
         }
 
@@ -199,7 +211,7 @@ final class PhabricatorGuideInstallModule extends PhabricatorGuideModule
 
         $guide_items->addItem($item);
 
-        $intro = \Yii::t("app",
+        $intro = Yii::t("app",
             'Phabricator has been successfully installed. These next guides will ' .
             'take you through configuration and new user orientation. ' .
             'These steps are optional, and you can go through them in any order. ' .

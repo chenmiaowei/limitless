@@ -2,7 +2,9 @@
 
 namespace orangins\modules\people\config;
 
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\modules\config\option\PhabricatorApplicationConfigOptions;
+use orangins\modules\config\option\PhabricatorConfigOption;
 use orangins\modules\people\customfield\PhabricatorUserBlurbField;
 use orangins\modules\people\customfield\PhabricatorUserIconField;
 use orangins\modules\people\customfield\PhabricatorUserRealNameField;
@@ -11,6 +13,7 @@ use orangins\modules\people\customfield\PhabricatorUserSinceField;
 use orangins\modules\people\customfield\PhabricatorUserStatusField;
 use orangins\modules\people\customfield\PhabricatorUserTitleField;
 use orangins\modules\people\models\PhabricatorUser;
+use Yii;
 
 /**
  * Class PhabricatorUserConfigOptions
@@ -26,7 +29,7 @@ final class PhabricatorUserConfigOptions extends PhabricatorApplicationConfigOpt
      */
     public function getName()
     {
-        return \Yii::t("app",'User Profiles');
+        return Yii::t("app",'User Profiles');
     }
 
     /**
@@ -35,7 +38,7 @@ final class PhabricatorUserConfigOptions extends PhabricatorApplicationConfigOpt
      */
     public function getDescription()
     {
-        return \Yii::t("app",'User profiles configuration.');
+        return Yii::t("app",'User profiles configuration.');
     }
 
     /**
@@ -57,9 +60,9 @@ final class PhabricatorUserConfigOptions extends PhabricatorApplicationConfigOpt
     }
 
     /**
-     * @return array|\orangins\modules\config\option\PhabricatorConfigOption[]
-     * @author 陈妙威
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return array|PhabricatorConfigOption[]
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     *@author 陈妙威
      */
     public function getOptions()
     {
@@ -85,15 +88,15 @@ final class PhabricatorUserConfigOptions extends PhabricatorApplicationConfigOpt
         return array(
             $this->newOption('user.fields', $custom_field_type, $default)
                 ->setCustomData((new PhabricatorUser())->getCustomFieldBaseClass())
-                ->setDescription(\Yii::t("app",'Select and reorder user profile fields.')),
+                ->setDescription(Yii::t("app",'Select and reorder user profile fields.')),
             $this->newOption('user.custom-field-definitions', 'wild', array())
-                ->setDescription(\Yii::t("app",'Add new simple fields to user profiles.')),
+                ->setDescription(Yii::t("app",'Add new simple fields to user profiles.')),
             $this->newOption('user.require-real-name', 'bool', true)
-                ->setDescription(\Yii::t("app",'Always require real name for user profiles.'))
+                ->setDescription(Yii::t("app",'Always require real name for user profiles.'))
                 ->setBoolOptions(
                     array(
-                        \Yii::t("app",'Make real names required'),
-                        \Yii::t("app",'Make real names optional'),
+                        Yii::t("app",'Make real names required'),
+                        Yii::t("app",'Make real names optional'),
                     )),
         );
     }

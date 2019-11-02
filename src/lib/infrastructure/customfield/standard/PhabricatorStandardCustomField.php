@@ -1,11 +1,13 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
+use Exception;
 use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
-use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldNotProxyException;
 use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorStandardCustomFieldInterface;
+use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\AphrontFormView;
 use orangins\lib\view\form\control\AphrontFormTextControl;
@@ -15,11 +17,14 @@ use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEdito
 use orangins\modules\transactions\error\PhabricatorApplicationTransactionValidationError;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use PhutilClassMapQuery;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class PhabricatorStandardCustomField
- * @package orangins\lib\infrastructure\standard
+ * @package orangins\lib\infrastructure\customfield\standard
  * @author 陈妙威
  */
 abstract class PhabricatorStandardCustomField
@@ -51,7 +56,7 @@ abstract class PhabricatorStandardCustomField
      */
     private $fieldConfig;
     /**
-     * @var
+     * @var PhabricatorCustomField
      */
     private $applicationField;
     /**
@@ -94,13 +99,15 @@ abstract class PhabricatorStandardCustomField
     abstract public function getFieldType();
 
     /**
-     * @param PhabricatorCustomField $template
+     * @param PhabricatorCustomField|PhabricatorStandardCustomFieldInterface $template
      * @param array $config
      * @param bool $builtin
      * @return array
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhutilInvalidStateException
+     * @throws PhabricatorCustomFieldNotProxyException
+     * @throws PhabricatorCustomFieldNotProxyException
      * @author 陈妙威
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldNotProxyException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
      */
     public static function buildStandardFields(
         PhabricatorCustomField $template,
@@ -126,6 +133,8 @@ abstract class PhabricatorStandardCustomField
             $full_key = "std:{$namespace}:{$key}";
 
             $template = clone $template;
+
+            /** @var PhabricatorStandardCustomField $var */
             $var = clone $types[$type];
             $standard = $var
                 ->setRawStandardFieldKey($key)
@@ -157,7 +166,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
-     * @return mixed
+     * @return PhabricatorCustomField
      * @author 陈妙威
      */
     public function getApplicationField()
@@ -292,7 +301,7 @@ abstract class PhabricatorStandardCustomField
     /**
      * @param $key
      * @param null $default
-     * @return \array
+     * @return array
      * @author 陈妙威
      */
     public function getFieldConfigValue($key, $default = null)
@@ -386,8 +395,8 @@ abstract class PhabricatorStandardCustomField
 
     /**
      * @return mixed|string
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
      */
     public function getFieldName()
     {
@@ -416,7 +425,7 @@ abstract class PhabricatorStandardCustomField
     /**
      * @param $key
      * @param null $default
-     * @return \array
+     * @return array
      * @author 陈妙威
      */
     public function getString($key, $default = null)
@@ -469,7 +478,7 @@ abstract class PhabricatorStandardCustomField
 
     /**
      * @param $value
-     * @return \orangins\lib\infrastructure\customfield\field\this|PhabricatorStandardCustomField
+     * @return PhabricatorStandardCustomField
      * @author 陈妙威
      */
     public function setValueFromStorage($value)
@@ -510,7 +519,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
-     * @return bool|\array
+     * @return bool|array
      * @author 陈妙威
      */
     public function shouldAppearInEditView()
@@ -541,7 +550,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
-     * @return \array
+     * @return array
      * @author 陈妙威
      */
     public function getPlaceholder()
@@ -552,8 +561,8 @@ abstract class PhabricatorStandardCustomField
     /**
      * @param array $handles
      * @return mixed
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
      */
     public function renderEditControl(array $handles)
     {
@@ -567,6 +576,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function newStorageObject()
@@ -575,7 +585,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
-     * @return bool|\array
+     * @return bool|array
      * @author 陈妙威
      */
     public function shouldAppearInPropertyView()
@@ -597,7 +607,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
-     * @return bool|\array
+     * @return bool|array
      * @author 陈妙威
      */
     public function shouldAppearInApplicationSearch()
@@ -606,6 +616,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     protected function newStringIndexStorage()
@@ -614,6 +625,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     protected function newNumericIndexStorage()
@@ -640,7 +652,7 @@ abstract class PhabricatorStandardCustomField
     /**
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontRequest $request
-     * @return \orangins\lib\infrastructure\customfield\field\array|void
+     * @return array|void
      * @author 陈妙威
      */
     public function readApplicationSearchValueFromRequest(
@@ -682,9 +694,9 @@ abstract class PhabricatorStandardCustomField
      * @param PhabricatorApplicationTransactionEditor $editor
      * @param $type
      * @param array $xactions
-     * @author 陈妙威
      * @return array
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @author 陈妙威
      */
     public function validateApplicationTransactions(
         PhabricatorApplicationTransactionEditor $editor,
@@ -713,14 +725,14 @@ abstract class PhabricatorStandardCustomField
             if ($this->isValueEmpty($value)) {
                 $error = new PhabricatorApplicationTransactionValidationError(
                     $type,
-                    \Yii::t("app", 'Required'),
-                    \Yii::t("app", '{0} is required.', [
+                    Yii::t("app", 'Required'),
+                    Yii::t("app", '{0} is required.', [
                         $this->getFieldName()
                     ]),
                     $transaction);
                 $error->setIsMissingFieldError(true);
                 $errors[] = $error;
-                $this->setFieldError(\Yii::t("app", 'Required'));
+                $this->setFieldError(Yii::t("app", 'Required'));
             }
         }
 
@@ -743,9 +755,9 @@ abstract class PhabricatorStandardCustomField
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \Exception
+     * @throws PhutilJSONParserException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
      * @author 陈妙威
      */
     public function getApplicationTransactionTitle(
@@ -756,7 +768,7 @@ abstract class PhabricatorStandardCustomField
         $new = $xaction->getNewValue();
 
         if (!$old) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} set {1} to {2}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -764,14 +776,14 @@ abstract class PhabricatorStandardCustomField
                     $new
                 ]);
         } else if (!$new) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} removed {1}.',
                 [
                     $xaction->renderHandleLink($author_phid),
                     $this->getFieldName()
                 ]);
         } else {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} changed {1} from {2} to {3}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -785,9 +797,9 @@ abstract class PhabricatorStandardCustomField
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \Exception
+     * @throws PhutilJSONParserException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
      * @author 陈妙威
      */
     public function getApplicationTransactionTitleForFeed(
@@ -801,7 +813,7 @@ abstract class PhabricatorStandardCustomField
         $new = $xaction->getNewValue();
 
         if (!$old) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} set {1} to {2} on {3}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -810,7 +822,7 @@ abstract class PhabricatorStandardCustomField
                     $xaction->renderHandleLink($object_phid)
                 ]);
         } else if (!$new) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} removed {1} on {2}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -818,7 +830,7 @@ abstract class PhabricatorStandardCustomField
                     $xaction->renderHandleLink($object_phid)
                 ]);
         } else {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} changed {1} from {2} to {3} on {4}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -831,7 +843,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
-     * @return mixed|\orangins\lib\infrastructure\customfield\field\array
+     * @return mixed|array
      * @author 陈妙威
      */
     public function getHeraldFieldValue()
@@ -851,7 +863,7 @@ abstract class PhabricatorStandardCustomField
     }
 
     /**
-     * @return bool|\array
+     * @return bool|array
      * @author 陈妙威
      */
     public function shouldAppearInGlobalSearch()
@@ -861,8 +873,8 @@ abstract class PhabricatorStandardCustomField
 
     /**
      * @param PhabricatorSearchAbstractDocument $document
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
      */
     public function updateAbstractDocument(
         PhabricatorSearchAbstractDocument $document)
@@ -884,8 +896,8 @@ abstract class PhabricatorStandardCustomField
 
     /**
      * @return mixed
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
      */
     protected function newStandardEditField()
     {

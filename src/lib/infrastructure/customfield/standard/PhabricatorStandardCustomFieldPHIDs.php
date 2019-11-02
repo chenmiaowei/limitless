@@ -1,13 +1,22 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\request\AphrontRequest;
+use orangins\lib\request\httpparametertype\AphrontPHIDListHTTPParameterType;
+use orangins\modules\herald\adapter\HeraldAdapter;
+use orangins\modules\herald\field\HeraldField;
+use orangins\modules\phid\query\PhabricatorObjectQuery;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
 use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
 use orangins\modules\transactions\error\PhabricatorApplicationTransactionValidationError;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilJSONParserException;
+use PhutilSafeHTML;
+use Yii;
+use yii\base\Exception;
 
 /**
  * Common code for standard field types which store lists of PHIDs.
@@ -17,8 +26,8 @@ abstract class PhabricatorStandardCustomFieldPHIDs
 {
 
     /**
-     * @return array|\orangins\lib\infrastructure\customfield\field\list
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return array
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function buildFieldIndexes()
@@ -61,7 +70,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
 
     /**
      * @param $value
-     * @return $this|\orangins\lib\infrastructure\customfield\field\this|PhabricatorStandardCustomField
+     * @return $this|PhabricatorStandardCustomField
      * @author 陈妙威
      */
     public function setValueFromStorage($value)
@@ -87,7 +96,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
     /**
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontRequest $request
-     * @return array|\orangins\lib\infrastructure\customfield\field\array|void
+     * @return array|array|void
      * @author 陈妙威
      */
     public function readApplicationSearchValueFromRequest(
@@ -102,7 +111,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
      * @param PhabricatorCursorPagedPolicyAwareQuery $query
      * @param $value
      * @return mixed|void
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function applyApplicationSearchConstraintToQuery(
@@ -132,7 +141,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
 
     /**
      * @param array $handles
-     * @return array|\dict|mixed|null|\PhutilSafeHTML
+     * @return array|mixed|null|PhutilSafeHTML
      * @author 陈妙威
      */
     public function renderPropertyViewValue(array $handles)
@@ -164,7 +173,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return array
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getApplicationTransactionRequiredHandlePHIDs(
@@ -183,9 +192,10 @@ abstract class PhabricatorStandardCustomFieldPHIDs
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhutilJSONParserException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getApplicationTransactionTitle(
@@ -200,7 +210,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
         $rem = array_diff($old, $new);
 
         if ($add && !$rem) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} updated {1}, added {2}: {3}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -209,16 +219,16 @@ abstract class PhabricatorStandardCustomFieldPHIDs
                     $xaction->renderHandleList($add)
                 ]);
         } else if ($rem && !$add) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} updated {1}, removed {2}: {3}.',
-               [
-                   $xaction->renderHandleLink($author_phid),
-                   $this->getFieldName(),
-                   phutil_count($rem),
-                   $xaction->renderHandleList($rem)
-               ]);
+                [
+                    $xaction->renderHandleLink($author_phid),
+                    $this->getFieldName(),
+                    phutil_count($rem),
+                    $xaction->renderHandleList($rem)
+                ]);
         } else {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} updated {1}, added {2}: {3}; removed {4}: {5}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -234,9 +244,10 @@ abstract class PhabricatorStandardCustomFieldPHIDs
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return string
-     * @throws \PhutilJSONParserException
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhutilJSONParserException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getApplicationTransactionTitleForFeed(
@@ -252,7 +263,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
         $rem = array_diff($old, $new);
 
         if ($add && !$rem) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} updated {1} for {2}, added {3}: {4}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -262,7 +273,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
                     $xaction->renderHandleList($add)
                 ]);
         } else if ($rem && !$add) {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} updated {1} for {2}, removed {3}: {4}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -272,7 +283,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
                     $xaction->renderHandleList($rem)
                 ]);
         } else {
-            return \Yii::t("app",
+            return Yii::t("app",
                 '{0} updated {1} for {2}, added {3}: {4}; removed {5}: {6}.',
                 [
                     $xaction->renderHandleLink($author_phid),
@@ -290,8 +301,10 @@ abstract class PhabricatorStandardCustomFieldPHIDs
      * @param PhabricatorApplicationTransactionEditor $editor
      * @param $type
      * @param array $xactions
-     * @return array|\orangins\lib\infrastructure\customfield\field\list
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return array
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
      * @author 陈妙威
      */
     public function validateApplicationTransactions(
@@ -322,17 +335,17 @@ abstract class PhabricatorStandardCustomFieldPHIDs
             if ($invalid) {
                 $error = new PhabricatorApplicationTransactionValidationError(
                     $type,
-                    \Yii::t("app", 'Invalid'),
-                    \Yii::t("app",
+                    Yii::t("app", 'Invalid'),
+                    Yii::t("app",
                         'Some of the selected PHIDs in field "{0}" are invalid or ' .
                         'restricted: {1}.',
-                       [
-                           $this->getFieldName(),
-                           implode(', ', $invalid)
-                       ]),
+                        [
+                            $this->getFieldName(),
+                            implode(', ', $invalid)
+                        ]),
                     $xaction);
                 $errors[] = $error;
-                $this->setFieldError(\Yii::t("app", 'Invalid'));
+                $this->setFieldError(Yii::t("app", 'Invalid'));
             }
         }
 
@@ -373,7 +386,7 @@ abstract class PhabricatorStandardCustomFieldPHIDs
     }
 
     /**
-     * @return array|mixed|\orangins\lib\infrastructure\customfield\field\array
+     * @return array|mixed|array
      * @author 陈妙威
      */
     public function getHeraldFieldValue()

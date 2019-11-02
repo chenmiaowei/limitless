@@ -1,15 +1,23 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\markup\view\PHUIRemarkupView;
+use orangins\lib\request\httpparametertype\AphrontStringHTTPParameterType;
 use orangins\lib\view\form\control\PhabricatorRemarkupControl;
+use orangins\modules\conduit\parametertype\ConduitStringParameterType;
+use orangins\modules\herald\adapter\HeraldAdapter;
+use orangins\modules\herald\field\HeraldField;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilJSONParserException;
+use Yii;
+use yii\base\Exception;
 
 /**
  * Class PhabricatorStandardCustomFieldRemarkup
- * @package orangins\lib\infrastructure\standard
+ * @package orangins\lib\infrastructure\customfield\standard
  * @author 陈妙威
  */
 final class PhabricatorStandardCustomFieldRemarkup
@@ -28,7 +36,7 @@ final class PhabricatorStandardCustomFieldRemarkup
     /**
      * @param array $handles
      * @return mixed|PhabricatorRemarkupControl
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function renderEditControl(array $handles)
@@ -53,7 +61,7 @@ final class PhabricatorStandardCustomFieldRemarkup
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return array
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getApplicationTransactionRemarkupBlocks(
@@ -88,15 +96,16 @@ final class PhabricatorStandardCustomFieldRemarkup
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return string
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getApplicationTransactionTitle(
         PhabricatorApplicationTransaction $xaction)
     {
         $author_phid = $xaction->getAuthorPHID();
-        return \Yii::t("app",
+        return Yii::t("app",
             '{0} edited {1}.',
             [
                 $xaction->renderHandleLink($author_phid),
@@ -107,8 +116,9 @@ final class PhabricatorStandardCustomFieldRemarkup
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return string
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function getApplicationTransactionTitleForFeed(
@@ -116,7 +126,7 @@ final class PhabricatorStandardCustomFieldRemarkup
     {
         $author_phid = $xaction->getAuthorPHID();
         $object_phid = $xaction->getObjectPHID();
-        return \Yii::t("app",
+        return Yii::t("app",
             '{0} edited {1} on {2}.',
             [
                 $xaction->renderHandleLink($author_phid),
@@ -140,7 +150,7 @@ final class PhabricatorStandardCustomFieldRemarkup
      * @param PhabricatorApplicationTransaction $xaction
      * @param PhabricatorUser $viewer
      * @return null
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     public function getApplicationTransactionChangeDetails(

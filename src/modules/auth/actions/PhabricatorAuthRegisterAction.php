@@ -2,7 +2,12 @@
 
 namespace orangins\modules\auth\actions;
 
+use AphrontObjectMissingQueryException;
+use AphrontQueryException;
 use AphrontWriteGuard;
+use Exception;
+use orangins\lib\view\AphrontDialogView;
+use orangins\lib\view\page\PhabricatorStandardPageView;
 use orangins\modules\auth\engine\PhabricatorAuthPasswordEngine;
 use orangins\modules\auth\events\AuthWillRegisterUserEvent;
 use orangins\modules\auth\models\PhabricatorAuthPassword;
@@ -15,6 +20,8 @@ use orangins\modules\auth\view\PhabricatorAuthAccountView;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\modules\metamta\models\PhabricatorMetaMTAMail;
 use orangins\modules\metamta\view\PhabricatorMetaMTAMailBody;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
 use PhutilOpaqueEnvelope;
 use orangins\lib\events\constant\PhabricatorEventType;
 use orangins\lib\helpers\JavelinHtml;
@@ -39,8 +46,13 @@ use orangins\modules\people\editors\PhabricatorUserEditor;
 use orangins\modules\people\models\PhabricatorExternalAccount;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\people\models\PhabricatorUserEmail;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\db\IntegrityException;
+use yii\helpers\Url;
 
 /**
  * Class PhabricatorAuthRegisterAction
@@ -60,18 +72,18 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
     }
 
     /**
-     * @return AphrontResponse|\orangins\lib\view\AphrontDialogView|\orangins\lib\view\page\PhabricatorStandardPageView
+     * @return AphrontResponse|AphrontDialogView|PhabricatorStandardPageView
      * @throws AphrontDuplicateKeyQueryException
-     * @throws \AphrontObjectMissingQueryException
-     * @throws \AphrontQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
      * @throws \yii\base\Exception
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
-     * @throws \Exception
+     * @throws IntegrityException
+     * @throws Exception
      * @author 陈妙威
      */
     public function run()
@@ -118,7 +130,7 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
                 // more tailored.
 
                 return $this->renderError(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'The account you are attempting to register with uses an ' .
                         'authentication provider ("{0}") which does not allow ' .
                         'registration. An administrator may have recently disabled ' .
@@ -146,7 +158,7 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
 
         if ($default_email !== null) {
             if (!PhabricatorUserEmail::isValidAddress($default_email)) {
-                $errors[] = \Yii::t("app",
+                $errors[] = Yii::t("app",
                     'The email address associated with this external account ("%s") is ' .
                     'not a valid email address and can not be used to register a ' .
                     'Phabricator account. Choose a different, valid address.',
@@ -164,7 +176,7 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
                 ->withAddresses(array($default_email))
                 ->executeOne();
             if ($application_email) {
-                $errors[] = \Yii::t("app",
+                $errors[] = Yii::t("app",
                     'The email address associated with this account ("%s") is ' .
                     'already in use by an application and can not be used to ' .
                     'register a new Phabricator account. Choose a different, valid ' .
@@ -185,7 +197,7 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
                 $debug_email = new PHUIInvisibleCharacterView($default_email);
                 return $this->renderError(
                     array(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'The account you are attempting to register with has an invalid ' .
                             'email address (%s). This Phabricator install only allows ' .
                             'registration with specific email addresses:',
@@ -216,14 +228,14 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         if ($show_existing !== null) {
             if (!$request->getInt('phase')) {
                 return $this->newDialog()
-                    ->setTitle(\Yii::t("app", 'Email Address Already in Use'))
+                    ->setTitle(Yii::t("app", 'Email Address Already in Use'))
                     ->addHiddenInput('phase', 1)
                     ->appendParagraph(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'You are creating a new Phabricator account linked to an ' .
                             'existing external account from outside Phabricator.'))
                     ->appendParagraph(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'The email address ("%s") associated with the external account ' .
                             'is already in use by an existing Phabricator account. Multiple ' .
                             'Phabricator accounts may not have the same email address, so ' .
@@ -231,24 +243,24 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
                             'Phabricator account.',
                             JavelinHtml::phutil_tag('strong', array(), $show_existing)))
                     ->appendParagraph(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'If you want to register a new account, continue with this ' .
                             'registration workflow and choose a new, unique email address ' .
                             'for the new account.'))
                     ->appendParagraph(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'If you want to link an existing Phabricator account to this ' .
                             'external account, do not continue. Instead: log in to your ' .
                             'existing account, then go to "Settings" and link the account ' .
                             'in the "External Accounts" panel.'))
                     ->appendParagraph(
-                        \Yii::t("app",
+                        Yii::t("app",
                             'If you continue, you will create a new account. You will not ' .
                             'be able to link this external account to an existing account.'))
-                    ->addCancelButton('/auth/login/', \Yii::t("app", 'Cancel'))
-                    ->addSubmitButton(\Yii::t("app", 'Create New Account'));
+                    ->addCancelButton('/auth/login/', Yii::t("app", 'Cancel'))
+                    ->addSubmitButton(Yii::t("app", 'Create New Account'));
             } else {
-                $errors[] = \Yii::t("app",
+                $errors[] = Yii::t("app",
                     'The external account you are registering with has an email address ' .
                     'that is already in use ("%s") by an existing Phabricator account. ' .
                     'Choose a new, valid email address to register a new Phabricator ' .
@@ -333,22 +345,22 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
             $unguarded = AphrontWriteGuard::beginScopedUnguardedWrites();
 
             if ($must_set_password && !$skip_captcha) {
-                $e_captcha = \Yii::t("app", 'Again');
+                $e_captcha = Yii::t("app", 'Again');
 
                 $captcha_ok = AphrontFormRecaptchaControl::processCaptcha($request);
                 if (!$captcha_ok) {
-                    $errors[] = \Yii::t("app", 'Captcha response is incorrect, try again.');
-                    $e_captcha = \Yii::t("app", 'Invalid');
+                    $errors[] = Yii::t("app", 'Captcha response is incorrect, try again.');
+                    $e_captcha = Yii::t("app", 'Invalid');
                 }
             }
 
             if ($can_edit_username) {
                 $value_username = $request->getStr('username');
                 if (!strlen($value_username)) {
-                    $e_username = \Yii::t("app", 'Required');
-                    $errors[] = \Yii::t("app", 'Username is required.');
+                    $e_username = Yii::t("app", 'Required');
+                    $errors[] = Yii::t("app", 'Username is required.');
                 } else if (!PhabricatorUser::validateUsername($value_username)) {
-                    $e_username = \Yii::t("app", 'Invalid');
+                    $e_username = Yii::t("app", 'Invalid');
                     $errors[] = PhabricatorUser::describeValidUsername();
                 } else {
                     $e_username = null;
@@ -380,13 +392,13 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
             if ($can_edit_email) {
                 $value_email = $request->getStr('email');
                 if (!strlen($value_email)) {
-                    $e_email = \Yii::t("app", 'Required');
-                    $errors[] = \Yii::t("app", 'Email is required.');
+                    $e_email = Yii::t("app", 'Required');
+                    $errors[] = Yii::t("app", 'Email is required.');
                 } else if (!PhabricatorUserEmail::isValidAddress($value_email)) {
-                    $e_email = \Yii::t("app", 'Invalid');
+                    $e_email = Yii::t("app", 'Invalid');
                     $errors[] = PhabricatorUserEmail::describeValidAddresses();
                 } else if (!PhabricatorUserEmail::isAllowedAddress($value_email)) {
-                    $e_email = \Yii::t("app", 'Disallowed');
+                    $e_email = Yii::t("app", 'Disallowed');
                     $errors[] = PhabricatorUserEmail::describeAllowedAddresses();
                 } else {
                     $e_email = null;
@@ -396,8 +408,8 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
             if ($can_edit_realname) {
                 $value_realname = $request->getStr('realName');
                 if (!strlen($value_realname) && $require_real_name) {
-                    $e_realname = \Yii::t("app", 'Required');
-                    $errors[] = \Yii::t("app", 'Real name is required.');
+                    $e_realname = Yii::t("app", 'Required');
+                    $errors[] = Yii::t("app", 'Real name is required.');
                 } else {
                     $e_realname = null;
                 }
@@ -516,14 +528,14 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
                     ])->one();
 
                     if ($same_username) {
-                        $e_username = \Yii::t("app", 'Duplicate');
-                        $errors[] = \Yii::t("app", 'Another user already has that username.');
+                        $e_username = Yii::t("app", 'Duplicate');
+                        $errors[] = Yii::t("app", 'Another user already has that username.');
                     }
 
                     if ($same_email) {
                         // TODO: See T3340.
-                        $e_email = \Yii::t("app", 'Duplicate');
-                        $errors[] = \Yii::t("app", 'Another user already has that email.');
+                        $e_email = Yii::t("app", 'Duplicate');
+                        $errors[] = Yii::t("app", 'Another user already has that email.');
                     }
 
                     if (!$same_username && !$same_email) {
@@ -542,7 +554,7 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         if (!$is_default) {
             $form->appendChild(
                 (new AphrontFormMarkupControl())
-                    ->setLabel(\Yii::t("app", 'External Account'))
+                    ->setLabel(Yii::t("app", 'External Account'))
                     ->setValue(
                         (new PhabricatorAuthAccountView())
                             ->setViewer($request->getViewer())
@@ -554,14 +566,14 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         if ($can_edit_username) {
             $form->appendChild(
                 (new AphrontFormTextControl())
-                    ->setLabel(\Yii::t("app", 'Username'))
+                    ->setLabel(Yii::t("app", 'Username'))
                     ->setName('username')
                     ->setValue($value_username)
                     ->setError($e_username));
         } else {
             $form->appendChild(
                 (new AphrontFormMarkupControl())
-                    ->setLabel(\Yii::t("app", 'Username'))
+                    ->setLabel(Yii::t("app", 'Username'))
                     ->setValue($value_username)
                     ->setError($e_username));
         }
@@ -569,7 +581,7 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         if ($can_edit_realname) {
             $form->appendChild(
                 (new AphrontFormTextControl())
-                    ->setLabel(\Yii::t("app", 'Real Name'))
+                    ->setLabel(Yii::t("app", 'Real Name'))
                     ->setName('realName')
                     ->setValue($value_realname)
                     ->setError($e_realname));
@@ -578,17 +590,17 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         if ($must_set_password) {
             $form->appendChild(
                 (new AphrontFormPasswordControl())
-                    ->setLabel(\Yii::t("app", 'Password'))
+                    ->setLabel(Yii::t("app", 'Password'))
                     ->setName('password')
                     ->setError($e_password));
             $form->appendChild(
                 (new AphrontFormPasswordControl())
-                    ->setLabel(\Yii::t("app", 'Confirm Password'))
+                    ->setLabel(Yii::t("app", 'Confirm Password'))
                     ->setName('confirm')
                     ->setError($e_password)
                     ->setCaption(
                         $min_len
-                            ? \Yii::t("app", 'Minimum length of {0} characters.', [
+                            ? Yii::t("app", 'Minimum length of {0} characters.', [
                             $min_len
                         ])
                             : null));
@@ -597,7 +609,7 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         if ($can_edit_email) {
             $form->appendChild(
                 (new AphrontFormTextControl())
-                    ->setLabel(\Yii::t("app", 'Email'))
+                    ->setLabel(Yii::t("app", 'Email'))
                     ->setName('email')
                     ->setValue($value_email)
                     ->setCaption(PhabricatorUserEmail::describeAllowedAddresses())
@@ -607,7 +619,7 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         if ($must_set_password && !$skip_captcha) {
             $form->appendChild(
                 (new AphrontFormRecaptchaControl())
-                    ->setLabel(\Yii::t("app", 'Captcha'))
+                    ->setLabel(Yii::t("app", 'Captcha'))
                     ->setError($e_captcha));
         }
 
@@ -615,11 +627,11 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
 
         if ($is_setup) {
             $submit
-                ->setValue(\Yii::t("app", 'Create Admin Account'));
+                ->setValue(Yii::t("app", 'Create Admin Account'));
         } else {
             $submit
                 ->addCancelButton($this->getApplicationURI('start/'))
-                ->setValue(\Yii::t("app", 'Register Account'));
+                ->setValue(Yii::t("app", 'Register Account'));
         }
 
 
@@ -628,12 +640,12 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         $crumbs = $this->buildApplicationCrumbs();
 
         if ($is_setup) {
-            $crumbs->addTextCrumb(\Yii::t("app", 'Setup Admin Account'));
-            $title = \Yii::t("app", 'Welcome to {0}', PhabricatorEnv::getEnvConfig("orangins.site-name"));
+            $crumbs->addTextCrumb(Yii::t("app", 'Setup Admin Account'));
+            $title = Yii::t("app", 'Welcome to {0}', PhabricatorEnv::getEnvConfig("orangins.site-name"));
         } else {
-            $crumbs->addTextCrumb(\Yii::t("app", 'Register'));
+            $crumbs->addTextCrumb(Yii::t("app", 'Register'));
             $crumbs->addTextCrumb($provider->getProviderName());
-            $title = \Yii::t("app", 'Create a New Account');
+            $title = Yii::t("app", 'Create a New Account');
         }
         $crumbs->setBorder(true);
 
@@ -641,9 +653,9 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
         if ($is_setup) {
             $welcome_view = (new PHUIInfoView())
                 ->setSeverity(PHUIInfoView::SEVERITY_NOTICE)
-                ->setTitle(\Yii::t("app", 'Welcome to {0}', PhabricatorEnv::getEnvConfig("orangins.site-name")))
+                ->setTitle(Yii::t("app", 'Welcome to {0}', PhabricatorEnv::getEnvConfig("orangins.site-name")))
                 ->appendChild(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Installation is complete. Register your administrator account ' .
                         'below to log in. You will be able to configure options and add ' .
                         'other authentication mechanisms (like LDAP or OAuth) later on.'));
@@ -677,9 +689,9 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
 
     /**
      * @return array
-     * @throws \ReflectionException
-     * @throws \PhutilInvalidStateException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     private function loadDefaultAccount()
@@ -701,12 +713,12 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
 
         if (!$providers) {
             $response = $this->renderError(
-                \Yii::t("app",
+                Yii::t("app",
                     'There are no configured default registration providers.'));
             return array($account, $provider, $response);
         } else if (count($providers) > 1) {
             $response = $this->renderError(
-                \Yii::t("app", 'There are too many configured default registration providers.'));
+                Yii::t("app", 'There are too many configured default registration providers.'));
             return array($account, $provider, $response);
         }
 
@@ -739,53 +751,53 @@ final class PhabricatorAuthRegisterAction extends PhabricatorAuthAction
 
     /**
      * @param $message
-     * @return \orangins\lib\view\page\PhabricatorStandardPageView
-     * @throws \Exception
+     * @return PhabricatorStandardPageView
+     * @throws Exception
      * @author 陈妙威
      */
     protected function renderError($message)
     {
         return $this->renderErrorPage(
-            \Yii::t("app", 'Registration Failed'),
+            Yii::t("app", 'Registration Failed'),
             array($message));
     }
 
     /**
      * @param PhabricatorUser $user
      * @throws InvalidConfigException
-     * @throws \AphrontQueryException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
+     * @throws AphrontQueryException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
      * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
-     * @throws \Exception
+     * @throws IntegrityException
+     * @throws Exception
+     * @throws \Throwable
      * @author 陈妙威
      */
     private function sendWaitingForApprovalEmail(PhabricatorUser $user)
     {
-        $title = '[Phabricator] ' . \Yii::t("app",
+        $title = '[Phabricator] ' . Yii::t("app",
                 'New User "%s" Awaiting Approval',
                 $user->getUsername());
 
         $body = new PhabricatorMetaMTAMailBody();
 
         $body->addRawSection(
-            \Yii::t("app",
+            Yii::t("app",
                 'Newly registered user "%s" is awaiting account approval by an ' .
                 'administrator.',
                 $user->getUsername()));
 
         $body->addLinkSection(
-            \Yii::t("app", 'APPROVAL QUEUE'),
+            Yii::t("app", 'APPROVAL QUEUE'),
             PhabricatorEnv::getProductionURI(
                 '/people/query/approval/'));
 
         $body->addLinkSection(
-            \Yii::t("app", 'DISABLE APPROVAL QUEUE'),
-            PhabricatorEnv::getProductionURI(
-                '/config/edit/auth.require-approval/'));
+            Yii::t("app", 'DISABLE APPROVAL QUEUE'),
+            Url::to(['/config/index/edit', 'key' => 'auth.require-approval']));
 
         $admins = PhabricatorUser::find()
             ->setViewer(PhabricatorUser::getOmnipotentUser())

@@ -2,13 +2,17 @@
 
 namespace orangins\modules\config\actions;
 
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\control\AphrontTableView;
+use orangins\lib\view\page\PhabricatorStandardPageView;
 use orangins\lib\view\phui\PHUITwoColumnView;
 use orangins\modules\config\json\PhabricatorConfigJSON;
 use orangins\modules\config\models\PhabricatorConfigEntry;
 use orangins\modules\config\option\PhabricatorApplicationConfigOptions;
+use PhutilMethodNotImplementedException;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -21,10 +25,10 @@ final class PhabricatorConfigAllAction
 {
 
     /**
-     * @return \orangins\lib\view\page\PhabricatorStandardPageView
+     * @return PhabricatorStandardPageView
      * @throws \yii\base\Exception
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \Exception
+     * @throws PhutilMethodNotImplementedException
+     * @throws Exception
      * @author 陈妙威
      */
     public function run()
@@ -38,8 +42,8 @@ final class PhabricatorConfigAllAction
             $key = $option->getKey();
 
             if ($option->getHidden()) {
-                
-                $value = JavelinHtml::phutil_tag('em', array(), \Yii::t("app",'Hidden'));
+
+                $value = JavelinHtml::phutil_tag('em', array(), Yii::t("app", 'Hidden'));
             } else {
                 $value = PhabricatorEnv::getEnvConfig($key);
                 $value = PhabricatorConfigJSON::prettyPrintJSON($value);
@@ -50,11 +54,13 @@ final class PhabricatorConfigAllAction
                 JavelinHtml::phutil_tag(
                     'a',
                     array(
-                        'href' => $this->getApplicationURI('edit/' . $key . '/'),
+                        'href' => $this->getApplicationURI('index/edit', [
+                            'key' => $key
+                        ]),
                     ),
                     $key),
                 $value,
-                $db_value && !$db_value->getIsDeleted() ? \Yii::t("app",'Customized') : '',
+                $db_value && !$db_value->getIsDeleted() ? Yii::t("app", 'Customized') : '',
             );
         }
         $table = (new AphrontTableView($rows))
@@ -65,19 +71,19 @@ final class PhabricatorConfigAllAction
                 ))
             ->setHeaders(
                 array(
-                    \Yii::t("app",'Key'),
-                    \Yii::t("app",'Value'),
-                    \Yii::t("app",'Customized'),
+                    Yii::t("app", 'Key'),
+                    Yii::t("app", 'Value'),
+                    Yii::t("app", 'Customized'),
                 ));
 
-        $title = \Yii::t("app",'Current Settings');
+        $title = Yii::t("app", 'Current Settings');
         $header = $this->buildHeaderView($title);
 
         $nav = $this->buildSideNavView();
         $nav->selectFilter('all/');
 
         $view = $this->buildConfigBoxView(
-            \Yii::t("app",'All Settings'),
+            Yii::t("app", 'All Settings'),
             $table);
 
         $crumbs = $this->buildApplicationCrumbs()

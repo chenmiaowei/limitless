@@ -1,17 +1,27 @@
 <?php
 
-namespace orangins\lib\infrastructure\standard;
+namespace orangins\lib\infrastructure\customfield\standard;
 
+use orangins\lib\export\field\PhabricatorIntExportField;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
+use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldIndexStorage;
+use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldNumericIndexStorage;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\request\AphrontRequest;
+use orangins\lib\request\httpparametertype\AphrontIntHTTPParameterType;
 use orangins\lib\view\form\AphrontFormView;
+use orangins\lib\view\form\control\AphrontFormTextControl;
+use orangins\modules\conduit\parametertype\ConduitIntParameterType;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
 use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
+use orangins\modules\transactions\error\PhabricatorApplicationTransactionValidationError;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use Yii;
+use yii\base\Exception;
 
 /**
  * Class PhabricatorStandardCustomFieldInt
- * @package orangins\lib\infrastructure\standard
+ * @package orangins\lib\infrastructure\customfield\standard
  * @author 陈妙威
  */
 final class PhabricatorStandardCustomFieldInt
@@ -28,8 +38,8 @@ final class PhabricatorStandardCustomFieldInt
     }
 
     /**
-     * @return array|\orangins\lib\infrastructure\customfield\field\list
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return array
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function buildFieldIndexes()
@@ -45,8 +55,8 @@ final class PhabricatorStandardCustomFieldInt
     }
 
     /**
-     * @return null|\orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldIndexStorage|\orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldNumericIndexStorage
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return null|PhabricatorCustomFieldIndexStorage|PhabricatorCustomFieldNumericIndexStorage
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function buildOrderIndex()
@@ -70,7 +80,7 @@ final class PhabricatorStandardCustomFieldInt
 
     /**
      * @param $value
-     * @return \orangins\lib\infrastructure\customfield\field\this|PhabricatorStandardCustomField|PhabricatorStandardCustomFieldInt
+     * @return PhabricatorStandardCustomField|PhabricatorStandardCustomFieldInt
      * @author 陈妙威
      */
     public function setValueFromStorage($value)
@@ -86,7 +96,7 @@ final class PhabricatorStandardCustomFieldInt
     /**
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontRequest $request
-     * @return mixed|null|\orangins\lib\infrastructure\customfield\field\array|string|void
+     * @return mixed|null|array|string|void
      * @author 陈妙威
      */
     public function readApplicationSearchValueFromRequest(
@@ -102,7 +112,7 @@ final class PhabricatorStandardCustomFieldInt
      * @param PhabricatorCursorPagedPolicyAwareQuery $query
      * @param $value
      * @return mixed|void
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function applyApplicationSearchConstraintToQuery(
@@ -122,8 +132,9 @@ final class PhabricatorStandardCustomFieldInt
      * @param PhabricatorApplicationSearchEngine $engine
      * @param AphrontFormView $form
      * @param $value
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function appendToApplicationSearchForm(
@@ -143,8 +154,8 @@ final class PhabricatorStandardCustomFieldInt
      * @param PhabricatorApplicationTransactionEditor $editor
      * @param $type
      * @param array $xactions
-     * @return array|\orangins\lib\infrastructure\customfield\field\list
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @return array
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function validateApplicationTransactions(
@@ -164,12 +175,12 @@ final class PhabricatorStandardCustomFieldInt
                 if (!preg_match('/^-?\d+/', $value)) {
                     $errors[] = new PhabricatorApplicationTransactionValidationError(
                         $type,
-                        \Yii::t("app", 'Invalid'),
-                        \Yii::t("app", '{0} must be an integer.',[
+                        Yii::t("app", 'Invalid'),
+                        Yii::t("app", '{0} must be an integer.', [
                             $this->getFieldName()
                         ]),
                         $xaction);
-                    $this->setFieldError(\Yii::t("app", 'Invalid'));
+                    $this->setFieldError(Yii::t("app", 'Invalid'));
                 }
             }
         }
@@ -180,6 +191,7 @@ final class PhabricatorStandardCustomFieldInt
     /**
      * @param PhabricatorApplicationTransaction $xaction
      * @return bool
+     * @throws \PhutilJSONParserException
      * @author 陈妙威
      */
     public function getApplicationTransactionHasEffect(

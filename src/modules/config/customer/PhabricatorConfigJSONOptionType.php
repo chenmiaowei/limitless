@@ -2,11 +2,12 @@
 
 namespace orangins\modules\config\customer;
 
-use orangins\lib\helpers\OranginsUtil;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\control\AphrontFormTextAreaControl;
+use orangins\lib\view\form\control\AphrontFormTextControl;
 use orangins\modules\config\option\PhabricatorConfigOption;
 use Exception;
+use Yii;
 
 /**
  * Class PhabricatorConfigJSONOptionType
@@ -39,7 +40,7 @@ abstract class PhabricatorConfigJSONOptionType
                 $storage_value = phutil_json_decode($display_value);
                 $this->validateOption($option, $storage_value);
             } catch (Exception $ex) {
-                $e_value = \Yii::t("app",'Invalid');
+                $e_value = Yii::t("app",'Invalid');
                 $errors[] = $ex->getMessage();
             }
         } else {
@@ -53,7 +54,7 @@ abstract class PhabricatorConfigJSONOptionType
      * @param PhabricatorConfigOption $option
      * @param $display_value
      * @param $e_value
-     * @return AphrontFormTextAreaControl|\orangins\lib\view\form\control\AphrontFormTextControl
+     * @return AphrontFormTextAreaControl|AphrontFormTextControl
      * @author 陈妙威
      */
     public function renderControl(
@@ -61,11 +62,10 @@ abstract class PhabricatorConfigJSONOptionType
         $display_value,
         $e_value)
     {
-
         return (new AphrontFormTextAreaControl())
             ->setHeight(AphrontFormTextAreaControl::HEIGHT_VERY_TALL)
             ->setName('value')
-            ->setLabel(\Yii::t("app",'Value'))
+            ->setLabel(Yii::t("app",'Value'))
             ->setValue($display_value)
             ->setError($e_value);
     }

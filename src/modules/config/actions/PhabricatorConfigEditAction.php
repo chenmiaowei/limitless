@@ -9,6 +9,7 @@ use orangins\lib\response\AphrontRedirectResponse;
 use orangins\lib\view\form\AphrontFormView;
 use orangins\lib\view\form\control\AphrontFormMarkupControl;
 use orangins\lib\view\form\control\AphrontFormSubmitControl;
+use orangins\lib\view\page\PhabricatorStandardPageView;
 use orangins\lib\view\phui\PHUIInfoView;
 use orangins\lib\view\phui\PHUITagView;
 use orangins\lib\view\phui\PHUITwoColumnView;
@@ -20,6 +21,18 @@ use orangins\modules\config\models\PhabricatorConfigTransaction;
 use orangins\modules\config\option\PhabricatorApplicationConfigOptions;
 use orangins\modules\config\option\PhabricatorConfigOption;
 use Exception;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\InvalidConfigException;
 use yii\helpers\Url;
 
 /**
@@ -32,19 +45,19 @@ final class PhabricatorConfigEditAction
 {
 
     /**
-     * @return AphrontRedirectResponse|\orangins\lib\view\page\PhabricatorStandardPageView
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \Throwable
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
+     * @return AphrontRedirectResponse|PhabricatorStandardPageView
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function run()
@@ -57,12 +70,12 @@ final class PhabricatorConfigEditAction
         if (empty($options[$key])) {
             $ancient = PhabricatorExtraConfigSetupCheck::getAncientConfig();
             if (isset($ancient[$key])) {
-                $desc = \Yii::t("app",
+                $desc = Yii::t("app",
                     "This configuration has been removed. You can safely delete " .
                     "it.\n\n%s",
                     $ancient[$key]);
             } else {
-                $desc = \Yii::t("app",
+                $desc = Yii::t("app",
                     'This configuration option is unknown. It may be misspelled, ' .
                     'or have existed in a previous version of Phabricator.');
             }
@@ -126,7 +139,7 @@ final class PhabricatorConfigEditAction
                     $editor->applyTransactions($config_entry, array($xaction));
                     return (new AphrontRedirectResponse())->setURI($done_uri);
                 } catch (PhabricatorConfigValidationException $ex) {
-                    $e_value = \Yii::t("app", 'Invalid');
+                    $e_value = Yii::t("app", 'Invalid');
                     $errors[] = $ex->getMessage();
                 }
             }
@@ -161,25 +174,25 @@ final class PhabricatorConfigEditAction
                 'href' => $doc_href,
                 'target' => '_blank',
             ),
-            \Yii::t("app", 'Learn more about locked and hidden options.'));
+            Yii::t("app", 'Learn more about locked and hidden options.'));
 
         $status_items = array();
         $tag = null;
         if ($option->getHidden()) {
             $tag = (new PHUITagView())
-                ->setName(\Yii::t("app", 'Hidden'))
+                ->setName(Yii::t("app", 'Hidden'))
                 ->setColor(PHUITagView::COLOR_GREY)
                 ->setBorder(PHUITagView::BORDER_NONE)
                 ->setType(PHUITagView::TYPE_SHADE);
 
-            $message = \Yii::t("app",
+            $message = Yii::t("app",
                 'This configuration is hidden and can not be edited or viewed from ' .
                 'the web interface.');
             $status_items[] = (new PHUIInfoView())
                 ->appendChild(array($message, ' ', $doc_link));
         } else if ($option->getLocked()) {
             $tag = (new PHUITagView())
-                ->setName(\Yii::t("app", 'Locked'))
+                ->setName(Yii::t("app", 'Locked'))
                 ->setColor(PHUITagView::COLOR_DANGER)
                 ->setBorder(PHUITagView::BORDER_NONE)
                 ->setType(PHUITagView::TYPE_SHADE);
@@ -207,7 +220,7 @@ final class PhabricatorConfigEditAction
             $form->appendChild(
                 (new AphrontFormMarkupControl())
                     ->addInputClass("p-2")
-                    ->setLabel(\Yii::t("app", 'Description'))
+                    ->setLabel(Yii::t("app", 'Description'))
                     ->setValue($description));
         }
 
@@ -230,21 +243,21 @@ final class PhabricatorConfigEditAction
             $form->appendChild(
                 (new AphrontFormSubmitControl())
                     ->addCancelButton($done_uri)
-                    ->setValue(\Yii::t("app", 'Save Config Entry')));
+                    ->setValue(Yii::t("app", 'Save Config Entry')));
         }
 
         $current_config = null;
         if (!$option->getHidden()) {
             $current_config = $this->renderDefaults($option, $config_entry);
             $current_config = $this->buildConfigBoxView(
-                \Yii::t("app", 'Current Configuration'),
+                Yii::t("app", 'Current Configuration'),
                 $current_config);
         }
 
         $examples = $this->renderExamples($option);
         if ($examples) {
             $examples = $this->buildConfigBoxView(
-                \Yii::t("app", 'Examples'),
+                Yii::t("app", 'Examples'),
                 $examples);
         }
 
@@ -334,7 +347,7 @@ final class PhabricatorConfigEditAction
                 }
 
                 return array(
-                    $errors ? \Yii::t("app", 'Invalid') : null,
+                    $errors ? Yii::t("app", 'Invalid') : null,
                     $errors,
                     $value,
                     $xaction,
@@ -371,7 +384,7 @@ final class PhabricatorConfigEditAction
             list($e_value, $errors, $set_value, $value) = $info;
         } else {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Unknown configuration option type "{0}".', [
                         $option->getType()
                     ]));
@@ -417,7 +430,7 @@ final class PhabricatorConfigEditAction
         }
 
         throw new Exception(
-            \Yii::t("app",
+            Yii::t("app",
                 'Unknown configuration option type "{0}".', [
                     $option->getType()
                 ]));
@@ -454,7 +467,7 @@ final class PhabricatorConfigEditAction
                     $e_value);
         } else {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Unknown configuration option type "{0}".', [
                         $option->getType()
                     ]));
@@ -466,7 +479,7 @@ final class PhabricatorConfigEditAction
     /**
      * @param PhabricatorConfigOption $option
      * @return string
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderExamples(PhabricatorConfigOption $option)
@@ -478,14 +491,14 @@ final class PhabricatorConfigEditAction
 
         $table = array();
         $table[] = JavelinHtml::phutil_tag('tr', array('class' => 'column-labels'), array(
-            JavelinHtml::phutil_tag('th', array(), \Yii::t("app", 'Example')),
-            JavelinHtml::phutil_tag('th', array(), \Yii::t("app", 'Value')),
+            JavelinHtml::phutil_tag('th', array(), Yii::t("app", 'Example')),
+            JavelinHtml::phutil_tag('th', array(), Yii::t("app", 'Value')),
         ));
         foreach ($examples as $example) {
             list($value, $description) = $example;
 
             if ($value === null) {
-                $value = JavelinHtml::phutil_tag('em', array(), \Yii::t("app", '(empty)'));
+                $value = JavelinHtml::phutil_tag('em', array(), Yii::t("app", '(empty)'));
             } else {
                 if (is_array($value)) {
                     $value = implode("\n", $value);
@@ -526,8 +539,8 @@ final class PhabricatorConfigEditAction
 
         $table = array();
         $table[] = JavelinHtml::phutil_tag('tr', array('class' => 'column-labels'), array(
-            JavelinHtml::phutil_tag('th', array(), \Yii::t("app", 'Source')),
-            JavelinHtml::phutil_tag('th', array(), \Yii::t("app", 'Value')),
+            JavelinHtml::phutil_tag('th', array(), Yii::t("app", 'Source')),
+            JavelinHtml::phutil_tag('th', array(), Yii::t("app", 'Value')),
         ));
 
         $is_effective_value = true;
@@ -542,7 +555,7 @@ final class PhabricatorConfigEditAction
                 ));
 
             if (!array_key_exists($option->getKey(), $value)) {
-                $value = JavelinHtml::phutil_tag('em', array(), \Yii::t("app", '(No Value Configured)'));
+                $value = JavelinHtml::phutil_tag('em', array(), Yii::t("app", '(No Value Configured)'));
             } else {
                 $value = $this->getDisplayValue(
                     $option,

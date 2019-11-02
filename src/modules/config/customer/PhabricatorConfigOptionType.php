@@ -8,6 +8,9 @@ use orangins\lib\view\form\control\AphrontFormTextControl;
 use orangins\modules\config\json\PhabricatorConfigJSON;
 use orangins\modules\config\models\PhabricatorConfigEntry;
 use orangins\modules\config\option\PhabricatorConfigOption;
+use PhutilClassMapQuery;
+use PhutilInvalidStateException;
+use Yii;
 
 /**
  * Class PhabricatorConfigOptionType
@@ -16,6 +19,18 @@ use orangins\modules\config\option\PhabricatorConfigOption;
  */
 abstract class PhabricatorConfigOptionType extends OranginsObject
 {
+    /**
+     * @return PhabricatorConfigOptionType[]
+     * @throws PhutilInvalidStateException
+     * @author 陈妙威
+     */
+    final public static function getAllTypes()
+    {
+        return (new PhutilClassMapQuery())
+            ->setUniqueMethod("getClassShortName")
+            ->setAncestorClass(__CLASS__)
+            ->execute();
+    }
 
     /**
      * @param PhabricatorConfigOption $option
@@ -97,10 +112,9 @@ abstract class PhabricatorConfigOptionType extends OranginsObject
         $display_value,
         $e_value)
     {
-
         return (new AphrontFormTextControl())
             ->setName('value')
-            ->setLabel(\Yii::t("app",'Value'))
+            ->setLabel(Yii::t("app",'Value'))
             ->setValue($display_value)
             ->setError($e_value);
     }
