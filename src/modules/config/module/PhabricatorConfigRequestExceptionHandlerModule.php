@@ -2,8 +2,11 @@
 
 namespace orangins\modules\config\module;
 
+use orangins\aphront\handler\AphrontRequestExceptionHandler;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\control\AphrontTableView;
+use PhutilInvalidStateException;
+use Yii;
 
 /**
  * Class PhabricatorConfigRequestExceptionHandlerModule
@@ -29,12 +32,13 @@ final class PhabricatorConfigRequestExceptionHandlerModule
      */
     public function getModuleName()
     {
-        return \Yii::t("app", 'Exception Handlers');
+        return Yii::t("app", 'Exception Handlers');
     }
 
     /**
      * @param AphrontRequest $request
-     * @return mixed
+     * @return AphrontTableView
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function renderModuleStatus(AphrontRequest $request)
@@ -55,9 +59,9 @@ final class PhabricatorConfigRequestExceptionHandlerModule
         return (new AphrontTableView($rows))
             ->setHeaders(
                 array(
-                    \Yii::t("app", 'Priority'),
-                    \Yii::t("app", 'Class'),
-                    \Yii::t("app", 'Description'),
+                    Yii::t("app", 'Priority'),
+                    Yii::t("app", 'Class'),
+                    Yii::t("app", 'Description'),
                 ))
             ->setColumnClasses(
                 array(

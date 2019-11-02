@@ -2,10 +2,14 @@
 
 namespace orangins\modules\macro\phid;
 
+use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;
+use orangins\modules\macro\application\PhabricatorMacroApplication;
+use orangins\modules\macro\models\FileImagemacroQuery;
 use orangins\modules\macro\models\PhabricatorFileImageMacro;
 use orangins\modules\phid\PhabricatorPHIDType;
 use orangins\modules\phid\query\PhabricatorHandleQuery;
 use orangins\modules\phid\query\PhabricatorObjectQuery;
+use yii\base\InvalidConfigException;
 
 /**
  * Class PhabricatorMacroMacroPHIDType
@@ -35,7 +39,7 @@ final class PhabricatorMacroMacroPHIDType extends PhabricatorPHIDType
      */
     public function getPHIDTypeApplicationClass()
     {
-        return 'PhabricatorMacroApplication';
+        return PhabricatorMacroApplication::className();
     }
 
     /**
@@ -59,8 +63,8 @@ final class PhabricatorMacroMacroPHIDType extends PhabricatorPHIDType
     /**
      * @param PhabricatorObjectQuery $query
      * @param array $phids
-     * @return \orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery|\orangins\modules\macro\models\FileImagemacroQuery
-     * @throws \yii\base\InvalidConfigException
+     * @return PhabricatorPolicyAwareQuery|FileImagemacroQuery
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     protected function buildQueryForObjects(

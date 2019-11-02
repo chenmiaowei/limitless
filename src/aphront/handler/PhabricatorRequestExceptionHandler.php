@@ -36,7 +36,7 @@ abstract class PhabricatorRequestExceptionHandler
      */
     protected function getViewer(AphrontRequest $request)
     {
-        $viewer = $request->getUser();
+        $viewer = $request->getViewer();
 
         if ($viewer) {
             return $viewer;

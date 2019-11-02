@@ -13,7 +13,6 @@ namespace orangins\modules\config\controllers;
 use orangins\lib\controllers\PhabricatorController;
 use orangins\modules\config\actions\PhabricatorConfigClusterDatabasesAction;
 use orangins\modules\config\actions\PhabricatorConfigClusterNotificationsAction;
-use orangins\modules\config\actions\PhabricatorConfigClusterRepositoriesAction;
 use orangins\modules\config\actions\PhabricatorConfigClusterSearchAction;
 
 /**
@@ -32,7 +31,6 @@ class ClusterController extends PhabricatorController
         return [
             'databases' => PhabricatorConfigClusterDatabasesAction::class,
             'notifications' => PhabricatorConfigClusterNotificationsAction::class,
-            'repositories' => PhabricatorConfigClusterRepositoriesAction::class,
             'search' => PhabricatorConfigClusterSearchAction::class
         ];
     }

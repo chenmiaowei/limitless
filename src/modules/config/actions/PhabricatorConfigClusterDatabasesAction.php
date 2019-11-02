@@ -2,14 +2,32 @@
 
 namespace orangins\modules\config\actions;
 
+use AphrontQueryException;
+use Exception;
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\exception\ActiveRecordException;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\infrastructure\cluster\PhabricatorDatabaseRef;
 use orangins\lib\view\control\AphrontTableView;
+use orangins\lib\view\page\PhabricatorStandardPageView;
 use orangins\lib\view\phui\PHUIButtonView;
 use orangins\lib\view\phui\PHUIIconView;
+use orangins\lib\view\phui\PHUITwoColumnView;
+use orangins\modules\file\exception\PhabricatorFileStorageConfigurationException;
+use orangins\modules\file\FilesystemException;
 use orangins\modules\widgets\javelin\JavelinTooltipAsset;
+use PhutilAggregateException;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
 use PhutilNumber;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -22,11 +40,21 @@ final class PhabricatorConfigClusterDatabasesAction
 {
 
     /**
-     * @return \orangins\lib\view\page\PhabricatorStandardPageView
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \Exception
+     * @return PhabricatorStandardPageView
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws AphrontQueryException
+     * @throws PhutilAggregateException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws Throwable
+     * @throws ActiveRecordException
+     * @throws FilesystemException
+     * @throws PhabricatorFileStorageConfigurationException
+     * @throws InvalidConfigException
+     * @throws UnknownPropertyException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     public function run()
@@ -35,30 +63,30 @@ final class PhabricatorConfigClusterDatabasesAction
         $nav = $this->buildSideNavView();
         $nav->selectFilter('cluster/databases/');
 
-        $title = \Yii::t("app", 'Cluster Database Status');
+        $title = Yii::t("app", 'Cluster Database Status');
         $doc_href = PhabricatorEnv::getDoclink('Cluster: Databases');
         $button = (new PHUIButtonView())
             ->setIcon('fa-book')
             ->setHref($doc_href)
             ->setTag('a')
-            ->setText(\Yii::t("app", 'Documentation'));
+            ->setText(Yii::t("app", 'Documentation'));
 
         $header = $this->buildHeaderView($title, $button);
 
         $database_status = $this->buildClusterDatabaseStatus();
-        $status = $this->buildConfigBoxView(\Yii::t("app", 'Status'), $database_status);
+        $status = $this->buildConfigBoxView(Yii::t("app", 'Status'), $database_status);
 
         $crumbs = $this->buildApplicationCrumbs()
             ->addTextCrumb($title)
             ->setBorder(true);
 
         $content = (new PHUITwoColumnView())
-            ->setHeader($header)
             ->setNavigation($nav)
             ->setFixed(true)
             ->setMainColumn($status);
 
         return $this->newPage()
+            ->setHeader($header)
             ->setTitle($title)
             ->setCrumbs($crumbs)
             ->appendChild($content);
@@ -66,7 +94,8 @@ final class PhabricatorConfigClusterDatabasesAction
 
     /**
      * @return mixed
-     * @throws \ReflectionException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     private function buildClusterDatabaseStatus()
@@ -88,7 +117,7 @@ final class PhabricatorConfigClusterDatabasesAction
                     ->addSigil('has-tooltip')
                     ->setMetadata(
                         array(
-                            'tip' => \Yii::t("app", 'Master'),
+                            'tip' => Yii::t("app", 'Master'),
                         ));
             } else {
                 $role_icon = (new PHUIIconView())
@@ -96,14 +125,14 @@ final class PhabricatorConfigClusterDatabasesAction
                     ->addSigil('has-tooltip')
                     ->setMetadata(
                         array(
-                            'tip' => \Yii::t("app", 'Replica'),
+                            'tip' => Yii::t("app", 'Replica'),
                         ));
             }
 
             if ($database->getDisabled()) {
                 $conn_icon = 'fa-times';
                 $conn_color = 'grey';
-                $conn_label = \Yii::t("app", 'Disabled');
+                $conn_label = Yii::t("app", 'Disabled');
             } else {
                 $status = $database->getConnectionStatus();
 
@@ -115,7 +144,9 @@ final class PhabricatorConfigClusterDatabasesAction
                 if ($status === PhabricatorDatabaseRef::STATUS_OKAY) {
                     $latency = $database->getConnectionLatency();
                     $latency = (int)(1000000 * $latency);
-                    $conn_label = \Yii::t("app", '%s us', new PhutilNumber($latency));
+                    $conn_label = Yii::t("app", '{0} us', [
+                        new PhutilNumber($latency)
+                    ]);
                 }
             }
 
@@ -128,7 +159,7 @@ final class PhabricatorConfigClusterDatabasesAction
             if ($database->getDisabled()) {
                 $replica_icon = 'fa-times';
                 $replica_color = 'grey';
-                $replica_label = \Yii::t("app", 'Disabled');
+                $replica_label = Yii::t("app", 'Disabled');
             } else {
                 $status = $database->getReplicaStatus();
 
@@ -147,9 +178,9 @@ final class PhabricatorConfigClusterDatabasesAction
                         case PhabricatorDatabaseRef::REPLICATION_SLOW:
                             $delay = $database->getReplicaDelay();
                             if ($delay) {
-                                $replica_label = \Yii::t("app", '%ss Behind', new PhutilNumber($delay));
+                                $replica_label = Yii::t("app", '{0}s Behind',[ new PhutilNumber($delay)]);
                             } else {
-                                $replica_label = \Yii::t("app", 'Up to Date');
+                                $replica_label = Yii::t("app", 'Up to Date');
                             }
                             break;
                     }
@@ -172,15 +203,17 @@ final class PhabricatorConfigClusterDatabasesAction
             } else {
                 $health_icon = (new PHUIIconView())
                     ->setIcon('fa-times red');
-                $messages[] = \Yii::t("app",
+                $messages[] = Yii::t("app",
                     'UNHEALTHY: This database has failed recent health checks. Traffic ' .
                     'will not be sent to it until it recovers.');
             }
 
-            $health_count = \Yii::t("app",
-                '%s / %s',
-                new PhutilNumber($health_up),
-                new PhutilNumber($health_up + $health_down));
+            $health_count = Yii::t("app",
+                '{0} / {1}',
+                [
+                    new PhutilNumber($health_up),
+                    new PhutilNumber($health_up + $health_down)
+                ]);
 
             $health_status = array(
                 $health_icon,
@@ -208,14 +241,14 @@ final class PhabricatorConfigClusterDatabasesAction
                         ->addSigil('has-tooltip')
                         ->setMetadata(
                             array(
-                                'tip' => \Yii::t("app", 'Default Partition'),
+                                'tip' => Yii::t("app", 'Default Partition'),
                             ));
                 } else {
                     $map = $database->getApplicationMap();
                     if ($map) {
                         $list = implode(', ', $map);
                     } else {
-                        $list = \Yii::t("app", 'Empty');
+                        $list = Yii::t("app", 'Empty');
                     }
 
                     $partition = (new PHUIIconView())
@@ -223,7 +256,7 @@ final class PhabricatorConfigClusterDatabasesAction
                         ->addSigil('has-tooltip')
                         ->setMetadata(
                             array(
-                                'tip' => \Yii::t("app", 'Partition: %s', $list),
+                                'tip' => Yii::t("app", 'Partition: {0}', [$list]),
                             ));
                 }
             }
@@ -244,18 +277,18 @@ final class PhabricatorConfigClusterDatabasesAction
 
         $table = (new AphrontTableView($rows))
             ->setNoDataString(
-                \Yii::t("app", 'Phabricator is not configured in cluster mode.'))
+                Yii::t("app", 'Phabricator is not configured in cluster mode.'))
             ->setHeaders(
                 array(
                     null,
                     null,
-                    \Yii::t("app", 'Host'),
-                    \Yii::t("app", 'Port'),
-                    \Yii::t("app", 'User'),
-                    \Yii::t("app", 'Connection'),
-                    \Yii::t("app", 'Replication'),
-                    \Yii::t("app", 'Health'),
-                    \Yii::t("app", 'Messages'),
+                    Yii::t("app", 'Host'),
+                    Yii::t("app", 'Port'),
+                    Yii::t("app", 'User'),
+                    Yii::t("app", 'Connection'),
+                    Yii::t("app", 'Replication'),
+                    Yii::t("app", 'Health'),
+                    Yii::t("app", 'Messages'),
                 ))
             ->setColumnClasses(
                 array(

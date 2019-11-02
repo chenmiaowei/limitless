@@ -1,26 +1,67 @@
 <?php
 
-final class PhutilNumber extends Phobject {
+/**
+ * Class PhutilNumber
+ * @author 陈妙威
+ */
+final class PhutilNumber extends Phobject
+{
 
-  private $value;
-  private $decimals = 0;
+    /**
+     * @var
+     */
+    private $value;
+    /**
+     * @var int
+     */
+    private $decimals = 0;
 
-  public function __construct($value, $decimals = 0) {
-    $this->value = $value;
-    $this->decimals = $decimals;
-  }
+    /**
+     * PhutilNumber constructor.
+     * @param $value
+     * @param int $decimals
+     */
+    public function __construct($value, $decimals = 0)
+    {
+        $this->value = $value;
+        $this->decimals = $decimals;
+    }
 
-  public function getNumber() {
-    return $this->value;
-  }
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
+    public function getNumber()
+    {
+        return $this->value;
+    }
 
-  public function setDecimals($decimals) {
-    $this->decimals = $decimals;
-    return $this;
-  }
+    /**
+     * @param $decimals
+     * @return $this
+     * @author 陈妙威
+     */
+    public function setDecimals($decimals)
+    {
+        $this->decimals = $decimals;
+        return $this;
+    }
 
-  public function getDecimals() {
-    return $this->decimals;
-  }
+    /**
+     * @return int
+     * @author 陈妙威
+     */
+    public function getDecimals()
+    {
+        return $this->decimals;
+    }
 
+    /**
+     * @return string
+     * @author 陈妙威
+     */
+    public function __toString()
+    {
+        return bcadd($this->value, 0, $this->decimals);
+    }
 }

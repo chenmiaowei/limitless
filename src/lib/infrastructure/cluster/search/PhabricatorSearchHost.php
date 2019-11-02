@@ -245,4 +245,9 @@ abstract class PhabricatorSearchHost
      */
     abstract public function getConnectionStatus();
 
+    /**
+     * @return string
+     * @author 陈妙威
+     */
+    abstract public function getDisplayName();
 }

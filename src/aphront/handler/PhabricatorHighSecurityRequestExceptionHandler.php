@@ -2,11 +2,14 @@
 
 namespace orangins\aphront\handler;
 
+use Exception;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\AphrontDialogView;
 use orangins\lib\view\phui\PHUIInfoView;
 use orangins\modules\auth\engine\PhabricatorAuthSessionEngine;
 use orangins\modules\auth\exception\PhabricatorAuthHighSecurityRequiredException;
+use PhutilInvalidStateException;
+use yii\base\InvalidConfigException;
 
 /**
  * Class PhabricatorHighSecurityRequestExceptionHandler
@@ -57,12 +60,11 @@ final class PhabricatorHighSecurityRequestExceptionHandler
 
     /**
      * @param AphrontRequest $request
-     * @param $throwable
+     * @param PhabricatorAuthHighSecurityRequiredException $throwable
      * @return mixed|AphrontDialogView
-     * @throws \PhutilInvalidStateException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \Exception
+     * @throws PhutilInvalidStateException
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     public function handleRequestThrowable(

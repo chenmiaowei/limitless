@@ -2,7 +2,9 @@
 
 namespace orangins\modules\config\actions;
 
+use Exception;
 use orangins\lib\view\control\AphrontTableView;
+use orangins\lib\view\page\PhabricatorStandardPageView;
 use orangins\lib\view\phui\PHUIButtonView;
 use orangins\lib\view\phui\PHUIIconView;
 use orangins\lib\view\phui\PHUIPropertyListView;
@@ -11,6 +13,7 @@ use orangins\modules\cache\spec\PhabricatorCacheSpec;
 use orangins\modules\cache\spec\PhabricatorDataCacheSpec;
 use orangins\modules\cache\spec\PhabricatorOpcodeCacheSpec;
 use PhutilNumber;
+use Yii;
 use yii\helpers\Url;
 
 /**
@@ -23,7 +26,7 @@ final class PhabricatorConfigCacheAction
 {
 
     /**
-     * @return \orangins\lib\view\page\PhabricatorStandardPageView
+     * @return PhabricatorStandardPageView
      * @throws \yii\base\Exception
      * @author 陈妙威
      */
@@ -36,13 +39,13 @@ final class PhabricatorConfigCacheAction
         $nav->selectFilter('cache/');
 
         $purge_button = (new PHUIButtonView())
-            ->setText(\Yii::t("app",'Purge Caches'))
+            ->setText(Yii::t("app",'Purge Caches'))
             ->setHref(Url::to(['/config/cache/purge']))
             ->setTag('a')
             ->setWorkflow(true)
             ->setIcon('fa-exclamation-triangle');
 
-        $title = \Yii::t("app",'Cache Status');
+        $title = Yii::t("app",'Cache Status');
         $header = $this->buildHeaderView($title, $purge_button);
 
         $code_box = $this->renderCodeBox();
@@ -72,7 +75,7 @@ final class PhabricatorConfigCacheAction
     /**
      * @return mixed
      * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderCodeBox()
@@ -80,13 +83,13 @@ final class PhabricatorConfigCacheAction
         $cache = PhabricatorOpcodeCacheSpec::getActiveCacheSpec();
         $properties = (new PHUIPropertyListView())->addClass("m-3");
         $this->renderCommonProperties($properties, $cache);
-        return $this->buildConfigBoxView(\Yii::t("app",'Opcode Cache'), $properties);
+        return $this->buildConfigBoxView(Yii::t("app",'Opcode Cache'), $properties);
     }
 
     /**
      * @return array
      * @throws \yii\base\Exception
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderDataBox()
@@ -109,7 +112,7 @@ final class PhabricatorConfigCacheAction
             foreach ($summary as $key => $info) {
                 $rows[] = array(
                     $key,
-                    \Yii::t("app",'%s', new PhutilNumber($info['count'])),
+                    Yii::t("app",'%s', new PhutilNumber($info['count'])),
                     phutil_format_bytes($info['max']),
                     phutil_format_bytes($info['total']),
                     sprintf('%.1f%%', (100 * ($info['total'] / $total_memory))),
@@ -119,11 +122,11 @@ final class PhabricatorConfigCacheAction
             $table = (new AphrontTableView($rows))
                 ->setHeaders(
                     array(
-                        \Yii::t("app",'Pattern'),
-                        \Yii::t("app",'Count'),
-                        \Yii::t("app",'Largest'),
-                        \Yii::t("app",'Total'),
-                        \Yii::t("app",'Usage'),
+                        Yii::t("app",'Pattern'),
+                        Yii::t("app",'Count'),
+                        Yii::t("app",'Largest'),
+                        Yii::t("app",'Total'),
+                        Yii::t("app",'Usage'),
                     ))
                 ->setColumnClasses(
                     array(
@@ -135,15 +138,15 @@ final class PhabricatorConfigCacheAction
                     ));
         }
 
-        $properties = $this->buildConfigBoxView(\Yii::t("app",'Data Cache'), $properties);
-        $table = $this->buildConfigBoxView(\Yii::t("app",'Cache Storage'), $table);
+        $properties = $this->buildConfigBoxView(Yii::t("app",'Data Cache'), $properties);
+        $table = $this->buildConfigBoxView(Yii::t("app",'Cache Storage'), $table);
         return array($properties, $table);
     }
 
     /**
      * @param PHUIPropertyListView $properties
      * @param PhabricatorCacheSpec $cache
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderCommonProperties(
@@ -154,20 +157,20 @@ final class PhabricatorConfigCacheAction
         if ($cache->getName() !== null) {
             $name = $this->renderYes($cache->getName());
         } else {
-            $name = $this->renderNo(\Yii::t("app",'None'));
+            $name = $this->renderNo(Yii::t("app",'None'));
         }
-        $properties->addProperty(\Yii::t("app",'Cache'), $name);
+        $properties->addProperty(Yii::t("app",'Cache'), $name);
 
         if ($cache->getIsEnabled()) {
-            $enabled = $this->renderYes(\Yii::t("app",'Enabled'));
+            $enabled = $this->renderYes(Yii::t("app",'Enabled'));
         } else {
-            $enabled = $this->renderNo(\Yii::t("app",'Not Enabled'));
+            $enabled = $this->renderNo(Yii::t("app",'Not Enabled'));
         }
-        $properties->addProperty(\Yii::t("app",'Enabled'), $enabled);
+        $properties->addProperty(Yii::t("app",'Enabled'), $enabled);
 
         $version = $cache->getVersion();
         if ($version) {
-            $properties->addProperty(\Yii::t("app",'Version'), $this->renderInfo($version));
+            $properties->addProperty(Yii::t("app",'Version'), $this->renderInfo($version));
         }
 
         if ($cache->getName() === null) {
@@ -181,18 +184,20 @@ final class PhabricatorConfigCacheAction
             $percent = 100 * ($mem_used / $mem_total);
 
             $properties->addProperty(
-                \Yii::t("app",'Memory Usage'),
-                \Yii::t("app",
-                    '%s of %s',
-                    phutil_tag('strong', array(), sprintf('%.1f%%', $percent)),
-                    phutil_format_bytes($mem_total)));
+                Yii::t("app",'Memory Usage'),
+                new \PhutilSafeHTML(Yii::t("app",
+                    '{0} of {1}',
+                    [
+                        phutil_tag('strong', array(), sprintf('%.1f%%', $percent)),
+                        phutil_format_bytes($mem_total)
+                    ])));
         }
 
         $entry_count = $cache->getEntryCount();
         if ($entry_count !== null) {
             $properties->addProperty(
-                \Yii::t("app",'Cache Entries'),
-                \Yii::t("app",'%s', new PhutilNumber($entry_count)));
+                Yii::t("app",'Cache Entries'),
+                Yii::t("app",'{0}', [new PhutilNumber($entry_count)]));
         }
 
     }

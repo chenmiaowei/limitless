@@ -43,7 +43,7 @@ class PhabricatorSearchService
      */
     protected $engine;
     /**
-     * @var array
+     * @var PhabricatorSearchHost[]
      */
     protected $hosts = array();
     /**
@@ -228,7 +228,7 @@ class PhabricatorSearchService
     }
 
     /**
-     * @return array
+     * @return PhabricatorSearchHost[]
      * @author 陈妙威
      */
     public function getHosts()

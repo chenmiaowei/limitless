@@ -189,7 +189,7 @@ final class PhabricatorNotificationServerRef
     }
 
     /**
-     * @return array
+     * @return PhabricatorNotificationServerRef[]
      * @throws Exception
      * @author 陈妙威
      */

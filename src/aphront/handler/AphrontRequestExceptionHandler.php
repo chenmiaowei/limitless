@@ -24,6 +24,12 @@ abstract class AphrontRequestExceptionHandler extends OranginsObject
     abstract public function getRequestExceptionHandlerPriority();
 
     /**
+     * @return string
+     * @author 陈妙威
+     */
+    abstract public function getRequestExceptionHandlerDescription();
+
+    /**
      * @param AphrontRequest $request
      * @param $throwable
      * @return mixed
@@ -44,7 +50,8 @@ abstract class AphrontRequestExceptionHandler extends OranginsObject
         $throwable);
 
     /**
-     * @return mixed
+     * @return AphrontRequestExceptionHandler[]
+     * @throws \PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getAllHandlers()
