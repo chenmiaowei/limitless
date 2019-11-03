@@ -5,6 +5,8 @@ namespace orangins\modules\search\index;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\control\AphrontTableView;
 use orangins\modules\config\module\PhabricatorConfigModule;
+use PhutilInvalidStateException;
+use Yii;
 
 /**
  * Class PhabricatorFulltextEngineExtensionModule
@@ -30,12 +32,13 @@ final class PhabricatorFulltextEngineExtensionModule
      */
     public function getModuleName()
     {
-        return \Yii::t("app",'Engine: Fulltext');
+        return Yii::t("app",'Engine: Fulltext');
     }
 
     /**
      * @param AphrontRequest $request
      * @return mixed
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function renderModuleStatus(AphrontRequest $request)
@@ -55,8 +58,8 @@ final class PhabricatorFulltextEngineExtensionModule
         return (new AphrontTableView($rows))
             ->setHeaders(
                 array(
-                    \Yii::t("app",'Class'),
-                    \Yii::t("app",'Name'),
+                    Yii::t("app",'Class'),
+                    Yii::t("app",'Name'),
                 ))
             ->setColumnClasses(
                 array(

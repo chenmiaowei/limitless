@@ -2,11 +2,16 @@
 
 namespace orangins\modules\people\customfield;
 
+use Exception;
+use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorCustomFieldInterface;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\control\AphrontFormTextControl;
 use orangins\modules\conduit\parametertype\ConduitStringParameterType;
+use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilJSONParserException;
+use Yii;
 
 /**
  * Class PhabricatorUserTitleField
@@ -39,6 +44,28 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
         return 'title';
     }
 
+//    public function shouldAppearInApplicationSearch()
+//    {
+//        return true;
+//    }
+//
+//    public function buildFieldIndexes()
+//    {
+//        $indexes = array();
+//
+//        $value = $this->value;
+//        if (strlen($value)) {
+//            $indexes[] = $this->newStringIndex($value);
+//        }
+//
+//        return $indexes;
+//    }
+//
+//    protected function newStringIndexStorage()
+//    {
+//        return new PhabricatorUserCustomFieldStringIndex();
+//    }
+
     /**
      * @return string
      * @author 陈妙威
@@ -54,7 +81,7 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
      */
     public function getFieldName()
     {
-        return \Yii::t("app", 'Title');
+        return Yii::t("app", 'Title');
     }
 
     /**
@@ -63,7 +90,7 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
      */
     public function getFieldDescription()
     {
-        return \Yii::t("app", 'User title, like "CEO" or "Assistant to the Manager".');
+        return Yii::t("app", 'User title, like "CEO" or "Assistant to the Manager".');
     }
 
     /**
@@ -94,8 +121,9 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
     }
 
     /**
-     * @param PhabricatorCustomFieldInterface $object
-     * @return \orangins\lib\infrastructure\customfield\field\PhabricatorCustomField|void
+     * @param PhabricatorCustomFieldInterface|PhabricatorUser $object
+     * @return PhabricatorCustomField|void
+     * @throws Exception
      * @author 陈妙威
      */
     public function readValueFromObject(PhabricatorCustomFieldInterface $object)
@@ -105,11 +133,15 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
 
     /**
      * @return string
+     * @throws Exception
      * @author 陈妙威
      */
+
     public function getOldValueForApplicationTransactions()
     {
-        return $this->getObject()->loadUserProfile()->getTitle();
+        /** @var PhabricatorUser $phabricatorCustomField */
+        $phabricatorCustomField = $this->getObject();
+        return $phabricatorCustomField->loadUserProfile()->getTitle();
     }
 
     /**
@@ -123,13 +155,17 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
 
     /**
      * @param PhabricatorApplicationTransaction $xaction
+     * @throws PhutilJSONParserException
+     * @throws Exception
      * @author 陈妙威
-     * @throws \PhutilJSONParserException
      */
     public function applyApplicationTransactionInternalEffects(
         PhabricatorApplicationTransaction $xaction)
     {
-        $this->getObject()->loadUserProfile()->setTitle($xaction->getNewValue());
+        /** @var PhabricatorUser $phabricatorCustomField */
+        $phabricatorCustomField = $this->getObject();
+        $title = $xaction->getNewValue();
+        $phabricatorCustomField->loadUserProfile()->setTitle($title);
     }
 
     /**
@@ -143,7 +179,7 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
 
     /**
      * @param $value
-     * @return $this|\orangins\lib\infrastructure\customfield\field\this
+     * @return $this
      * @author 陈妙威
      */
     public function setValueFromStorage($value)

@@ -10,6 +10,9 @@ use orangins\lib\infrastructure\customfield\interfaces\PhabricatorStandardCustom
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStorage;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStringIndexStorage;
 use orangins\lib\infrastructure\customfield\standard\PhabricatorStandardCustomField;
+use orangins\modules\people\models\PhabricatorUserConfiguredCustomFieldStorage;
+use orangins\modules\people\models\PhabricatorUserCustomFieldNumericIndex;
+use orangins\modules\people\models\PhabricatorUserCustomFieldStringIndex;
 use PhutilInvalidStateException;
 
 /**

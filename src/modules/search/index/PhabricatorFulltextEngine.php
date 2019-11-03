@@ -7,6 +7,8 @@ use orangins\lib\infrastructure\cluster\search\PhabricatorSearchService;
 use orangins\lib\OranginsObject;
 use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\phid\helpers\PhabricatorPHID;
+use PhutilAggregateException;
+use PhutilInvalidStateException;
 
 /**
  * Class PhabricatorFulltextEngine
@@ -62,8 +64,9 @@ abstract class PhabricatorFulltextEngine
         $object);
 
     /**
+     * @throws PhutilAggregateException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
-     * @throws \PhutilAggregateException
      */
     final public function buildFulltextIndexes()
     {

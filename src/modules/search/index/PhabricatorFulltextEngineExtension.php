@@ -5,6 +5,8 @@ namespace orangins\modules\search\index;
 use orangins\lib\OranginsObject;
 use orangins\modules\people\models\PhabricatorUser;
 use PhutilClassMapQuery;
+use PhutilInvalidStateException;
+use ReflectionException;
 
 /**
  * Class PhabricatorFulltextEngineExtension
@@ -16,7 +18,7 @@ abstract class PhabricatorFulltextEngineExtension extends OranginsObject
 
     /**
      * @return string
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final public function getExtensionKey()
@@ -85,6 +87,7 @@ abstract class PhabricatorFulltextEngineExtension extends OranginsObject
 
     /**
      * @return PhabricatorFulltextEngineExtension[]
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getAllExtensions()

@@ -4,7 +4,6 @@ namespace orangins\lib\infrastructure\customfield\field;
 
 use orangins\lib\infrastructure\customfield\editor\PhabricatorCustomFieldEditField;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldIndexStorage;
-use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldNumericIndexStorage;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStorage;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStringIndexStorage;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
@@ -57,11 +56,11 @@ abstract class PhabricatorCustomField extends OranginsObject
 {
 
     /**
-     * @var
+     * @var PhabricatorUser
      */
     private $viewer;
     /**
-     * @var
+     * @var PhabricatorCustomFieldInterface
      */
     private $object;
     /**
@@ -390,9 +389,10 @@ abstract class PhabricatorCustomField extends OranginsObject
      * methods specific to roles you want to enable. For example, implement
      * @{method:shouldUseStorage()} to activate the `'storage'` role.
      *
+     * @param $role
      * @return bool True to enable the field for the given role.
-     * @task core
      * @throws Exception
+     * @task core
      */
     public function shouldEnableForRole($role)
     {
@@ -813,7 +813,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      *   }
      *   return $indexes;
      *
-     * @return array
+     * @return PhabricatorCustomFieldIndexStorage[]
      * @task appsearch
      */
     public function buildFieldIndexes()
@@ -906,7 +906,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * Build and populate storage for a numeric index.
      *
      * @param string Numeric value to index.
-     * @return PhabricatorCustomFieldNumericIndexStorage Populated storage.
+     * @return PhabricatorCustomFieldIndexStorage
      * @task appsearch
      * @throws PhabricatorCustomFieldImplementationIncompleteException
      */

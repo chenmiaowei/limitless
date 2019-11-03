@@ -4,6 +4,7 @@ namespace orangins\lib\infrastructure\customfield\field;
 
 use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldNotAttachedException;
 use orangins\lib\OranginsObject;
+use Yii;
 
 /**
  * Convenience class which simplifies the implementation of
@@ -17,7 +18,7 @@ final class PhabricatorCustomFieldAttachment extends OranginsObject
 {
 
     /**
-     * @var array
+     * @var PhabricatorCustomFieldList[]
      */
     private $lists = array();
 
@@ -43,7 +44,7 @@ final class PhabricatorCustomFieldAttachment extends OranginsObject
     {
         if (empty($this->lists[$role])) {
             throw new PhabricatorCustomFieldNotAttachedException(
-                \Yii::t("app", "Role list '{0}' is not available!", [
+                Yii::t("app", "Role list '{0}' is not available!", [
                         $role
                     ]));
         }

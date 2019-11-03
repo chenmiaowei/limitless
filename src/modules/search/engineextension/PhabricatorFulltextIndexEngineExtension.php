@@ -9,6 +9,9 @@ use orangins\modules\search\index\PhabricatorIndexEngine;
 use orangins\modules\search\index\PhabricatorIndexEngineExtension;
 use orangins\modules\search\interfaces\PhabricatorFulltextInterface;
 use orangins\modules\transactions\interfaces\PhabricatorApplicationTransactionInterface;
+use PhutilAggregateException;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
 use yii\db\Query;
 
 /**
@@ -80,7 +83,8 @@ final class PhabricatorFulltextIndexEngineExtension extends PhabricatorIndexEngi
      * @param PhabricatorIndexEngine $engine
      * @param PhabricatorFulltextInterface $object
      * @return mixed|void
-     * @throws \PhutilAggregateException
+     * @throws PhutilAggregateException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function indexObject(
@@ -120,6 +124,7 @@ final class PhabricatorFulltextIndexEngineExtension extends PhabricatorIndexEngi
             ->andWhere([
                 'object_phid' => $object->getPHID()
             ])
+            ->orderBy('id desc')
             ->one();
         if (!$xaction_row) {
             return 'none';
@@ -131,8 +136,7 @@ final class PhabricatorFulltextIndexEngineExtension extends PhabricatorIndexEngi
     /**
      * @param PhabricatorApplicationTransactionInterface|ActiveRecordPHID $object
      * @return string
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \yii\db\Exception
+     * @throws Exception
      * @author 陈妙威
      */
     private function getCommentVersion($object)

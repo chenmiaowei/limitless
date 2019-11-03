@@ -11,7 +11,12 @@ use orangins\lib\db\ActiveRecord;
  */
 abstract class PhabricatorCustomFieldIndexStorage extends ActiveRecord
 {
-
+    /**
+     * @param $phid
+     * @return mixed
+     * @author 陈妙威
+     */
+    abstract public function setObjectPHID($phid);
     /**
      * @return mixed
      * @author 陈妙威

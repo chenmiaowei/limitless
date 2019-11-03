@@ -6,7 +6,10 @@ use orangins\lib\OranginsObject;
 use orangins\modules\search\engineextension\PhabricatorFulltextIndexEngineExtension;
 use orangins\modules\search\models\PhabricatorSearchIndexVersion;
 use PhutilAggregateException;
+use PhutilInvalidStateException;
+use Yii;
 use yii\db\Exception;
+use yii\db\Expression;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
@@ -23,7 +26,7 @@ final class PhabricatorIndexEngine extends OranginsObject
      */
     private $object;
     /**
-     * @var PhabricatorFulltextIndexEngineExtension[]
+     * @var PhabricatorIndexEngineExtension[]
      */
     private $extensions;
     /**
@@ -77,6 +80,7 @@ final class PhabricatorIndexEngine extends OranginsObject
 
     /**
      * @return bool
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function shouldIndexObject()
@@ -127,7 +131,6 @@ final class PhabricatorIndexEngine extends OranginsObject
 
     /**
      * @return $this
-     * @throws PhutilAggregateException
      * @throws Exception
      * @author 陈妙威
      */
@@ -147,6 +150,7 @@ final class PhabricatorIndexEngine extends OranginsObject
 
     /**
      * @return PhabricatorIndexEngineExtension[]
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     private function newExtensions()
@@ -226,12 +230,12 @@ final class PhabricatorIndexEngine extends OranginsObject
 //                $key,
 //                $version);
 
-            \Yii::$app->getDb()->createCommand()->upsert(PhabricatorSearchIndexVersion::tableName(), [
+            Yii::$app->getDb()->createCommand()->upsert(PhabricatorSearchIndexVersion::tableName(), [
                 'object_phid' => $object_phid,
                 'extension_key' => $key,
                 'version' => $version
             ], [
-                'version' => new \yii\db\Expression('VALUES(version)'),
+                'version' => new Expression('VALUES(version)'),
             ])->execute();
         }
 

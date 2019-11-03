@@ -1435,7 +1435,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     }
 
     /**
-     * @param ActiveRecord|ActiveRecordPHID $object
+     * @param ActiveRecord|ActiveRecordPHID|PhabricatorApplicationTransactionInterface $object
      * @param PhabricatorApplicationTransaction[] $xactions
      * @return array
      * @throws AphrontQueryException
@@ -1828,6 +1828,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
         //
         // As a secondary benefit, this tends to reduce the amount of state that
         // Editors need to pass into workers.
+        /** @var ActiveRecordPHID $object */
         $object = $this->willPublish($object, $xactions);
 
         if (!$this->getIsSilent()) {
@@ -4008,7 +4009,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
 
     /**
      * @param ActiveRecordPHID $object
-     * @return void
+     * @return string[]
      * @throws Exception
      * @task mail
      */

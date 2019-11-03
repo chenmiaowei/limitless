@@ -2,8 +2,12 @@
 
 namespace orangins\lib\infrastructure\customfield\query;
 
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
+use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStorage;
 use orangins\lib\OranginsObject;
+use yii\base\Exception;
+use yii\helpers\ArrayHelper;
 
 /**
  * Load custom field data from storage.
@@ -27,8 +31,8 @@ final class PhabricatorCustomFieldStorageQuery extends OranginsObject
     /**
      * @param array $fields
      * @return $this
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
      * @author 陈妙威
      */
     public function addFields(array $fields)
@@ -45,8 +49,9 @@ final class PhabricatorCustomFieldStorageQuery extends OranginsObject
     /**
      * @param PhabricatorCustomField $field
      * @return $this
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
-     * @throws \yii\base\Exception
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws Exception
+     * @throws \Exception
      * @author 陈妙威
      */
     public function addField(PhabricatorCustomField $field)
@@ -81,11 +86,11 @@ final class PhabricatorCustomFieldStorageQuery extends OranginsObject
     }
 
     /**
-     * @param $storage
+     * @param PhabricatorCustomFieldStorage $storage
      * @param array $fields
      * @author 陈妙威
      */
-    private function loadFieldsFromStorage($storage, array $fields)
+    private function loadFieldsFromStorage(PhabricatorCustomFieldStorage $storage, array $fields)
     {
         // Only try to load fields which have a persisted object.
         $loadable = array();

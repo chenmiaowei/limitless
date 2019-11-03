@@ -8,6 +8,7 @@
 
 namespace orangins\modules\people\models;
 
+use AphrontQueryException;
 use AphrontWriteGuard;
 use Filesystem;
 use orangins\lib\db\ActiveRecord;
@@ -25,10 +26,13 @@ use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\modules\auth\provider\PhabricatorAuthProvider;
 use orangins\modules\auth\provider\PhabricatorMobileAuthProvider;
+use orangins\modules\file\exception\PhabricatorFileStorageConfigurationException;
+use orangins\modules\file\FilesystemException;
 use orangins\modules\people\cache\PhabricatorUserProfileImageCacheType;
 use orangins\modules\people\cache\PhabricatorUserRbacCacheType;
 use orangins\modules\people\editors\PhabricatorUserTransactionEditor;
 use orangins\modules\people\search\PhabricatorUserFulltextEngine;
+use orangins\modules\search\index\PhabricatorFulltextEngine;
 use orangins\modules\search\interfaces\PhabricatorFulltextInterface;
 use orangins\modules\settings\setting\PhabricatorTranslationSetting;
 use orangins\modules\auth\sshkey\PhabricatorSSHPublicKeyInterface;
@@ -65,11 +69,21 @@ use orangins\modules\search\ferret\PhabricatorFerretInterface;
 use orangins\modules\settings\models\PhabricatorUserPreferences;
 use orangins\modules\settings\setting\PhabricatorSetting;
 use orangins\modules\settings\setting\PhabricatorTimezoneSetting;
+use PhutilAggregateException;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
 use PhutilOpaqueEnvelope;
 use DateTime;
 use DateTimeZone;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
 use Yii;
 use Exception;
+use yii\base\InvalidConfigException;
+use yii\base\UnknownPropertyException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
@@ -148,7 +162,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @var UserProfiles
      */
-    public $user_profile;
+    public $profile;
     /**
      * @var array
      */
@@ -219,7 +233,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @param $address
      * @return array|null|\yii\db\ActiveRecord
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public static function loadOneWithEmailAddress($address)
@@ -240,9 +254,9 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @param $address
      * @return array|null|\yii\db\ActiveRecord
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public static function loadOneWithMobile($address)
@@ -279,7 +293,7 @@ class PhabricatorUser extends ActiveRecordPHID
      */
     public static function describeValidUsername()
     {
-        return \Yii::t("app",
+        return Yii::t("app",
             'Usernames must contain only numbers, letters, period, underscore and ' .
             'hyphen, and can not end with a period. They must have no more than {0} ' .
             'characters.', [self::MAXIMUM_USERNAME_LENGTH]);
@@ -288,18 +302,18 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @return mixed
      * @throws ActiveRecordException
-     * @throws \AphrontQueryException
-     * @throws \PhutilAggregateException
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-     * @throws \orangins\modules\file\FilesystemException
-     * @throws \orangins\modules\file\exception\PhabricatorFileStorageConfigurationException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\UnknownPropertyException
-     * @throws \yii\db\IntegrityException
-     * @throws Exception
+     * @throws AphrontQueryException
+     * @throws FilesystemException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
+     * @throws PhabricatorFileStorageConfigurationException
+     * @throws PhutilAggregateException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      * @author 陈妙威
      */
     public static function getDefaultProfileImageURI()
@@ -523,7 +537,7 @@ class PhabricatorUser extends ActiveRecordPHID
 
     /**
      * @return array|PhabricatorUserEmail|null|\yii\db\ActiveRecord
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @throws Exception
      * @author 陈妙威
      */
@@ -593,7 +607,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @return array|mixed
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getRecentBadgeAwards()
@@ -621,7 +635,7 @@ class PhabricatorUser extends ActiveRecordPHID
      * @param $value
      * @return bool True if the setting has the specified value.
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @task settings
      */
     public function compareUserSetting($key, $value)
@@ -659,7 +673,6 @@ class PhabricatorUser extends ActiveRecordPHID
     {
         return $this->profile_image_phid;
     }
-
 
 
     /**
@@ -743,6 +756,11 @@ class PhabricatorUser extends ActiveRecordPHID
         if (!strlen($this->getAccountSecret())) {
             $this->setAccountSecret(Filesystem::readRandomCharacters(64));
         }
+
+        if ($this->profile) {
+            $this->profile->save();
+        }
+
         return parent::beforeSave($insert);
     }
 
@@ -757,9 +775,20 @@ class PhabricatorUser extends ActiveRecordPHID
     }
 
     /**
-     * @throws \yii\base\Exception
-     * @throws \Exception
      * @return PhabricatorFile
+     * @throws ActiveRecordException
+     * @throws AphrontQueryException
+     * @throws FilesystemException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
+     * @throws PhabricatorFileStorageConfigurationException
+     * @throws PhutilAggregateException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      */
     public function getAvatar()
     {
@@ -770,7 +799,7 @@ class PhabricatorUser extends ActiveRecordPHID
             $loadBuiltin = PhabricatorFile::loadBuiltin($avator, $this);
             $this->profile_image_phid = $loadBuiltin->phid;
             if (!$this->save(false)) {
-                throw new ActiveRecordException(\Yii::t('app', "FileFiles save error"), $this->getErrorSummary(true));
+                throw new ActiveRecordException(Yii::t('app', "FileFiles save error"), $this->getErrorSummary(true));
             }
             return $loadBuiltin;
         } else {
@@ -783,7 +812,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @return string
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getProfileImageURI()
@@ -792,31 +821,16 @@ class PhabricatorUser extends ActiveRecordPHID
         return $this->requireCacheData($uri_key);
     }
 
-    /**
-     * @return UserProfiles
-     * @author 陈妙威
-     */
-    public function getUserProfile()
-    {
-        $adminProfiles = UserProfiles::find()->where(['user_phid' => $this->phid])->one();
-        if (!$adminProfiles) {
-            $adminProfiles = new UserProfiles();
-            $adminProfiles->user_phid = $this->getPHID();
-            $adminProfiles->save();
-        }
-        return $adminProfiles;
-    }
 
     /**
      * @param PhabricatorUser $admin
      * @return void
-     * @throws Exception
-     * @throws \AphrontQueryException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
-     * @throws \yii\db\IntegrityException
+     * @throws AphrontQueryException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws Throwable
+     * @throws InvalidConfigException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     public function sendWelcomeEmail(PhabricatorUser $admin)
@@ -824,7 +838,7 @@ class PhabricatorUser extends ActiveRecordPHID
 
         if (!$this->canEstablishWebSessions()) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'Can not send welcome mail to users who can not establish ' .
                     'web sessions!'));
         }
@@ -843,7 +857,7 @@ class PhabricatorUser extends ActiveRecordPHID
             PhabricatorAuthSessionEngine::ONETIME_WELCOME);
 
         $siteName = PhabricatorEnv::getEnvConfig("orangins.site-name");
-        $body = \Yii::t("app",
+        $body = Yii::t("app",
             "Welcome to {0}!\n\n" .
             "{1} ({2}) has created an account for you.\n\n" .
             "  Username: {3}\n\n" .
@@ -870,14 +884,14 @@ class PhabricatorUser extends ActiveRecordPHID
         (new PhabricatorMetaMTAMail())
             ->addTos(array($this->getPHID()))
             ->setForceDelivery(true)
-            ->setSubject(\Yii::t("app", '[{0}] Welcome to {1}', $siteName, $siteName))
+            ->setSubject(Yii::t("app", '[{0}] Welcome to {1}', $siteName, $siteName))
             ->setBody($body)
             ->saveAndSend();
     }
 
     /**
      * @return PhabricatorPeopleQuery
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public static function find()
@@ -920,8 +934,8 @@ class PhabricatorUser extends ActiveRecordPHID
      * @param $capability
      * @param PhabricatorUser $viewer
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     public function hasAutomaticCapability($capability, PhabricatorUser $viewer)
     {
@@ -933,7 +947,7 @@ class PhabricatorUser extends ActiveRecordPHID
      * @param $key
      * @return mixed
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getUserSetting($key)
@@ -1004,9 +1018,9 @@ class PhabricatorUser extends ActiveRecordPHID
 
     /**
      * @return mixed
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @throws Exception
-     * @throws \PhutilJSONParserException
+     * @throws PhutilJSONParserException
      * @author 陈妙威
      */
     private function loadGlobalSettings()
@@ -1030,7 +1044,7 @@ class PhabricatorUser extends ActiveRecordPHID
      * @param $key
      * @return array|mixed
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function requireCacheData($key)
     {
@@ -1217,6 +1231,17 @@ class PhabricatorUser extends ActiveRecordPHID
         return !($this->getPHID() === null);
     }
 
+    /**
+     * @return UserProfiles
+     * @throws PhabricatorDataNotAttachedException
+     * @author 陈妙威
+     */
+    public function getUserProfile()
+    {
+        return $this->assertAttached($this->profile);
+
+    }
+
 
     /**
      * @param UserProfiles $profile
@@ -1225,8 +1250,26 @@ class PhabricatorUser extends ActiveRecordPHID
      */
     public function attachUserProfile(UserProfiles $profile)
     {
-        $this->user_profile = $profile;
+        $this->profile = $profile;
         return $this;
+    }
+
+
+    /**
+     * @return array|UserProfiles|null|\yii\db\ActiveRecord
+     * @throws Exception
+     * @author 陈妙威
+     */
+    public function loadUserProfile()
+    {
+        if ($this->profile) {
+            return $this->profile;
+        }
+        $this->profile = UserProfiles::find()->where(['user_phid' => $this->getPHID()])->one();
+        if (!$this->profile) {
+            $this->profile = UserProfiles::initializeNewProfile($this);
+        }
+        return $this->profile;
     }
 
 
@@ -1298,27 +1341,11 @@ class PhabricatorUser extends ActiveRecordPHID
         return $this;
     }
 
-    /**
-     * @return array|UserProfiles|null|\yii\db\ActiveRecord
-     * @throws Exception
-     * @author 陈妙威
-     */
-    public function loadUserProfile()
-    {
-        if ($this->user_profile) {
-            return $this->user_profile;
-        }
-        $this->user_profile = UserProfiles::find()->where(['user_phid' => $this->getPHID()])->one();
-        if (!$this->user_profile) {
-            $this->user_profile = UserProfiles::initializeNewProfile($this);
-        }
-        return $this->user_profile;
-    }
 
     /**
      * @return mixed
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTranslation()
@@ -1330,7 +1357,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @return mixed
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTimezoneIdentifier()
@@ -1341,7 +1368,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @return int
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTimeZoneOffset()
@@ -1359,7 +1386,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @return DateTimeZone
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getTimeZone()
@@ -1370,7 +1397,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @return array|mixed
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getUnreadMessageCount()
@@ -1382,7 +1409,7 @@ class PhabricatorUser extends ActiveRecordPHID
     /**
      * @return array|mixed
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getUnreadNotificationCount()
@@ -1393,7 +1420,7 @@ class PhabricatorUser extends ActiveRecordPHID
 
     /**
      * @return array|mixed
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getRbacSettings()
@@ -1502,8 +1529,8 @@ class PhabricatorUser extends ActiveRecordPHID
 
     /**
      * @return bool
-     * @throws \AphrontQueryException
-     * @throws \yii\db\IntegrityException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     public function saveWithoutIndex()
@@ -1741,7 +1768,7 @@ class PhabricatorUser extends ActiveRecordPHID
      * @param PhabricatorUser $viewer
      * @param PhabricatorAuthPasswordEngine $engine
      * @return array
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function newPasswordBlocklist(
@@ -1874,7 +1901,7 @@ class PhabricatorUser extends ActiveRecordPHID
      *
      * This benefits from the viewer's internal handle pool.
      *
-     * @param array<phid> List of PHIDs to render.
+     * @param array $phids List of PHIDs to render.
      * @return PHUIHandleListView View of the handles.
      * @task handle
      */
@@ -2002,7 +2029,7 @@ class PhabricatorUser extends ActiveRecordPHID
 
 
     /**
-     * @return PhabricatorUserFulltextEngine|\orangins\modules\search\index\PhabricatorFulltextEngine
+     * @return PhabricatorUserFulltextEngine|PhabricatorFulltextEngine
      * @author 陈妙威
      */
     public function newFulltextEngine()
@@ -2065,8 +2092,8 @@ class PhabricatorUser extends ActiveRecordPHID
      * multi-factor configuration.
      *
      * @return void
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
      * @task factors
      */
     public function updateMultiFactorEnrollment()
