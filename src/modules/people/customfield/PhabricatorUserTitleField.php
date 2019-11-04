@@ -4,6 +4,7 @@ namespace orangins\modules\people\customfield;
 
 use Exception;
 use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
+use orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldGroup;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorCustomFieldInterface;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\control\AphrontFormTextControl;
@@ -35,6 +36,7 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
         return 'user:title';
     }
 
+
     /**
      * @return string
      * @author 陈妙威
@@ -44,27 +46,6 @@ final class PhabricatorUserTitleField extends PhabricatorUserCustomField
         return 'title';
     }
 
-//    public function shouldAppearInApplicationSearch()
-//    {
-//        return true;
-//    }
-//
-//    public function buildFieldIndexes()
-//    {
-//        $indexes = array();
-//
-//        $value = $this->value;
-//        if (strlen($value)) {
-//            $indexes[] = $this->newStringIndex($value);
-//        }
-//
-//        return $indexes;
-//    }
-//
-//    protected function newStringIndexStorage()
-//    {
-//        return new PhabricatorUserCustomFieldStringIndex();
-//    }
 
     /**
      * @return string

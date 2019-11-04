@@ -4,6 +4,7 @@ namespace orangins\lib\infrastructure\customfield\field;
 
 use orangins\lib\db\ActiveRecord;
 use orangins\lib\db\ActiveRecordPHID;
+use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorCustomFieldInterface;
 use orangins\lib\infrastructure\customfield\query\PhabricatorCustomFieldStorageQuery;
@@ -20,6 +21,8 @@ use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
 use Exception;
 use PhutilInvalidStateException;
 use PhutilJSONParserException;
+use PhutilSafeHTML;
+use PhutilSortVector;
 use Yii;
 
 /**
@@ -132,10 +135,11 @@ final class PhabricatorCustomFieldList extends OranginsObject
         }
 
         $phids = array();
-        foreach ($enabled as $field_key => $field) {
-            $phids[$field_key] = $field->getRequiredHandlePHIDsForEdit();
+        foreach ($enabled as $field) {
+            $phids[$field->getFieldKey()] = $field->getRequiredHandlePHIDsForEdit();
         }
 
+        /** @var array $all_phids */
         $all_phids = array_mergev($phids);
         if ($all_phids) {
             $handles = (new PhabricatorHandleQuery())
@@ -146,15 +150,51 @@ final class PhabricatorCustomFieldList extends OranginsObject
             $handles = array();
         }
 
-        foreach ($enabled as $field_key => $field) {
-            $field_handles = array_select_keys($handles, $phids[$field_key]);
+
+        /** @var PhabricatorCustomFieldGroup[] $groups */
+        $groups = [];
+        $defaultGroup = (new PhabricatorCustomFieldGroup())->setName('General')->setSortOrder(1);
+        foreach ($enabled as $field) {
+//            /** @var array $field_handles */
+//            $field_handles = array_select_keys($handles, $phids[$field_key]);
 
             $instructions = $field->getInstructionsForEdit();
             if (strlen($instructions)) {
                 $form->appendRemarkupInstructions($instructions);
             }
 
-            $form->appendChild($field->renderEditControl($field_handles));
+//            $form->appendChild($field->renderEditControl($field_handles));
+
+            $group = $field->getFieldGroup() ? $field->getFieldGroup() : $defaultGroup;
+            if (!isset($groups[$group->getName()])) {
+                $groups[$group->getName()] = $group;
+            }
+
+            $groups[$group->getName()]->addField($field);
+        }
+        $groups = msortv($groups, 'getOrderVector');
+
+        $i = 0;
+        foreach ($groups as $group) {
+            $isFirst = $i++ === 0;
+
+            $fields = [];
+            foreach ($group->getFields() as $item) {
+                /** @var array $field_handles */
+                $field_handles = array_select_keys($handles, $phids[$item->getFieldKey()]);
+                $fields[] = $item->renderEditControl($field_handles);
+            }
+            $groupView = JavelinHtml::phutil_tag('div', ['class' => 'card-group-control card-group-control-left'], [
+                $group->getName() !== 'General' ?  JavelinHtml::phutil_tag('div', ['class' => 'card-header bg-light'], [
+                    JavelinHtml::phutil_tag("h6", ['class' => 'card-title'], new PhutilSafeHTML('<a data-toggle="collapse" class="text-default' . ($isFirst ? '' : ' collapsed') . '" href="#collapsible-item-group-' . $i . '">' . $group->getName() . '</a>'))
+                ]) : '',
+                JavelinHtml::phutil_tag('div', ['class' => 'collapse ' . ($isFirst ? ' show' : ''), 'id' => 'collapsible-item-group-' . $i], [
+                    JavelinHtml::phutil_tag('div', ['class' => 'card-body'], [
+                        JavelinHtml::phutil_implode_html("\n", $fields)
+                    ]),
+                ]),
+            ]);
+            $form->appendChild($groupView);
         }
     }
 
@@ -381,10 +421,10 @@ final class PhabricatorCustomFieldList extends OranginsObject
         foreach ($indexes as $table => $sql_list) {
 
             $any_index::deleteAll([
-               'AND',
-               [
-                   'object_phid' => $phid,
-               ],
+                'AND',
+                [
+                    'object_phid' => $phid,
+                ],
                 ['IN', 'index_key', array_keys($index_keys)]
             ]);
 //            queryfx(

@@ -417,8 +417,7 @@ final class PhabricatorRemarkupControl extends AphrontFormTextAreaControl
             $monospaced_textareas_class = null;
         }
 
-        $this->setCustomClass(
-            'd-block w-100 remarkup-assist-textarea ' . $monospaced_textareas_class);
+        $this->setCustomClass('d-block w-100  remarkup-assist-textarea border-1 border-grey-300 ' . $monospaced_textareas_class);
 
         return JavelinHtml::phutil_tag(
             'div',

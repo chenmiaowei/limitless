@@ -13,8 +13,10 @@ use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\AphrontFormView;
 use orangins\modules\transactions\bulk\type\BulkParameterType;
 use orangins\modules\people\models\PhabricatorUser;
+use orangins\modules\transactions\commentaction\PhabricatorEditEngineCommentAction;
 use orangins\modules\transactions\edittype\PhabricatorSimpleEditType;
 use orangins\modules\transactions\models\PhabricatorApplicationTransaction;
+use PhutilInvalidStateException;
 use PhutilMethodNotImplementedException;
 use Yii;
 use Exception;
@@ -29,11 +31,16 @@ abstract class PhabricatorEditField extends OranginsObject
 {
 
     /**
-     * @var
+     * @var string
      */
     private $key;
+
     /**
-     * @var
+     * @var string
+     */
+    private $groupKey;
+    /**
+     * @var PhabricatorUser
      */
     private $viewer;
     /**
@@ -60,7 +67,6 @@ abstract class PhabricatorEditField extends OranginsObject
      * @var ActiveRecordPHID
      */
     private $object;
-
     /**
      * @var
      */
@@ -275,6 +281,25 @@ abstract class PhabricatorEditField extends OranginsObject
     {
         return $this->bulkEditGroupKey;
     }
+
+    /**
+     * @return string
+     */
+    public function getGroupKey()
+    {
+        return $this->groupKey;
+    }
+
+    /**
+     * @param string $group
+     * @return self
+     */
+    public function setGroupKey($group)
+    {
+        $this->groupKey = $group;
+        return $this;
+    }
+
 
     /**
      * @param PhabricatorUser $viewer
@@ -906,7 +931,7 @@ abstract class PhabricatorEditField extends OranginsObject
      * @return $this
      * @throws Exception
      * @throws PhutilMethodNotImplementedException
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     public function appendToForm(AphrontFormView $form)
@@ -1226,7 +1251,7 @@ abstract class PhabricatorEditField extends OranginsObject
      * handling.
      *
      * @param AphrontRequest $request
-     * @return wild Value read from request.
+     * @return null Value read from request.
      */
     protected function getInitialValueFromSubmit(AphrontRequest $request, $key)
     {
@@ -1501,7 +1526,7 @@ abstract class PhabricatorEditField extends OranginsObject
 
         if (empty($edit_types[$key])) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'This EditField does not provide a Conduit EditType with key "%s".',
                     $key));
         }
@@ -1525,7 +1550,7 @@ abstract class PhabricatorEditField extends OranginsObject
     }
 
     /**
-     * @return mixed
+     * @return PhabricatorEditField[]
      * @author 陈妙威
      */
     final public function getBulkEditTypes()
@@ -1551,7 +1576,7 @@ abstract class PhabricatorEditField extends OranginsObject
 
         if (empty($edit_types[$key])) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'This EditField does not provide a Bulk EditType with key "%s".',
                     $key));
         }
@@ -1607,7 +1632,7 @@ abstract class PhabricatorEditField extends OranginsObject
     }
 
     /**
-     * @return null
+     * @return PhabricatorEditEngineCommentAction
      * @author 陈妙威
      */
     protected function newCommentAction()
@@ -1719,7 +1744,7 @@ abstract class PhabricatorEditField extends OranginsObject
         $edit_type = $this->getEditType();
         if (!$edit_type) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'EditField (with key "{0}", of class "{1}") is generating ' .
                     'transactions, but has no EditType.',
                     [

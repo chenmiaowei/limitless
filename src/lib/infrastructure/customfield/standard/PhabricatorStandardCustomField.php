@@ -6,6 +6,7 @@ use Exception;
 use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldNotProxyException;
 use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
+use orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldGroup;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorStandardCustomFieldInterface;
 use orangins\lib\infrastructure\query\policy\PhabricatorCursorPagedPolicyAwareQuery;
 use orangins\lib\request\AphrontRequest;
@@ -30,11 +31,18 @@ use yii\helpers\ArrayHelper;
 abstract class PhabricatorStandardCustomField
     extends PhabricatorCustomField
 {
-
+    /**
+     * @var int
+     */
+    public $sortOrder;
     /**
      * @var
      */
     private $rawKey;
+    /**
+     * @var string
+     */
+    private $fieldGroup;
     /**
      * @var
      */
@@ -205,6 +213,28 @@ abstract class PhabricatorStandardCustomField
         return $this;
     }
 
+
+    /**
+     * @param string $group
+     * @return self
+     */
+    public function setFieldGroup($group)
+    {
+        $this->fieldGroup = $group;
+        return $this;
+    }
+
+    /**
+     * @param string $group
+     * @return self
+     */
+    public function setSortOrder($group)
+    {
+        $this->sortOrder = $group;
+        return $this;
+    }
+
+
     /**
      * @param $caption
      * @return $this
@@ -267,6 +297,12 @@ abstract class PhabricatorStandardCustomField
             switch ($key) {
                 case 'name':
                     $this->setFieldName($value);
+                    break;
+                case 'group':
+                    $this->setFieldGroup((new PhabricatorCustomFieldGroup())->setName(ArrayHelper::getValue($value, 'name'))->setSortOrder(ArrayHelper::getValue($value, 'sort')));
+                    break;
+                case 'sort':
+                    $this->setSortOrder($value);
                     break;
                 case 'description':
                     $this->setFieldDescription($value);
@@ -391,6 +427,23 @@ abstract class PhabricatorStandardCustomField
     public function getFieldKey()
     {
         return $this->fieldKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldGroup()
+    {
+        return $this->fieldGroup;
+    }
+
+    /**
+     * @return int|string
+     * @author 陈妙威
+     */
+    public function getSortOrder()
+    {
+        return $this->sortOrder;
     }
 
     /**
@@ -905,6 +958,7 @@ abstract class PhabricatorStandardCustomField
 
         return parent::newStandardEditField()
             ->setEditTypeKey($short)
+            ->setGroupKey($this->getFieldGroup())
             ->setIsCopyable($this->getIsCopyable());
     }
 

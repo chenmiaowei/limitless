@@ -4,6 +4,7 @@ namespace orangins\modules\people\customfield;
 
 use Exception;
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldGroup;
 use orangins\lib\infrastructure\customfield\interfaces\PhabricatorCustomFieldInterface;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\form\control\AphrontFormTextControl;

@@ -33,6 +33,7 @@ use PhutilClassMapQuery;
 use Exception;
 use PhutilJSONParserException;
 use PhutilSafeHTML;
+use PhutilSortVector;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -340,6 +341,45 @@ abstract class PhabricatorCustomField extends OranginsObject
             return $this->proxy->getFieldDescription();
         }
         return null;
+    }
+
+    /**
+     * @return string|null Optional human-readable description.
+     * @task core
+     */
+    public function getFieldGroup()
+    {
+        if ($this->proxy) {
+            return $this->proxy->getFieldGroup();
+        }
+        return null;
+    }
+
+
+    /**
+     * @return string
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @author 陈妙威
+     */
+    public function getSortOrder()
+    {
+        if ($this->proxy) {
+            return $this->proxy->getSortOrder();
+        }
+        return null;
+    }
+
+    /**
+     * Generates a key to sort the list of panels.
+     *
+     * @return string Sortable key.
+     * @task internal
+     * @throws Exception
+     */
+    final public function getOrderVector()
+    {
+        return (new PhutilSortVector())
+            ->addInt($this->getSortOrder());
     }
 
 
@@ -1420,7 +1460,7 @@ abstract class PhabricatorCustomField extends OranginsObject
     }
 
     /**
-     * @return mixed
+     * @return PhabricatorEditField
      * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
@@ -1549,7 +1589,7 @@ abstract class PhabricatorCustomField extends OranginsObject
 
 
     /**
-     * @return array
+     * @return string[]
      * @task edit
      */
     public function getInstructionsForEdit()

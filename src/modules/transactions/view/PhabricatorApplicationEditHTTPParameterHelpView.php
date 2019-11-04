@@ -1,7 +1,15 @@
 <?php
+
 namespace orangins\modules\transactions\view;
 
+use Exception;
+use orangins\lib\markup\view\PHUIRemarkupView;
 use orangins\lib\view\AphrontView;
+use orangins\lib\view\control\AphrontTableView;
+use orangins\modules\config\view\PhabricatorHTTPParameterTypeTableView;
+use orangins\modules\transactions\editfield\PhabricatorSelectEditField;
+use PhutilInvalidStateException;
+use Yii;
 
 /**
  * Renders the "HTTP Parameters" help page for edit engines.
@@ -10,53 +18,89 @@ use orangins\lib\view\AphrontView;
  * just pulls it out of the main @{class:PhabricatorEditEngine}.
  */
 final class PhabricatorApplicationEditHTTPParameterHelpView
-  extends AphrontView {
+    extends AphrontView
+{
 
-  private $object;
-  private $fields;
+    /**
+     * @var
+     */
+    private $object;
+    /**
+     * @var
+     */
+    private $fields;
 
-  public function setObject($object) {
-    $this->object = $object;
-    return $this;
-  }
-
-  public function getObject() {
-    return $this->object;
-  }
-
-  public function setFields(array $fields) {
-    $this->fields = $fields;
-    return $this;
-  }
-
-  public function getFields() {
-    return $this->fields;
-  }
-
-  public function render() {
-    $object = $this->getObject();
-    $fields = $this->getFields();
-
-    $uri = 'https://your.install.com/application/edit/';
-
-    // Remove fields which do not expose an HTTP parameter type.
-    $types = array();
-    foreach ($fields as $key => $field) {
-      if (!$field->shouldGenerateTransactionsFromSubmit()) {
-        unset($fields[$key]);
-        continue;
-      }
-
-      $type = $field->getHTTPParameterType();
-      if ($type === null) {
-        unset($fields[$key]);
-        continue;
-      }
-
-      $types[$type->getTypeName()] = $type;
+    /**
+     * @param $object
+     * @return $this
+     * @author 陈妙威
+     */
+    public function setObject($object)
+    {
+        $this->object = $object;
+        return $this;
     }
 
-    $intro = \Yii::t("app",<<<EOTEXT
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
+    public function getObject()
+    {
+        return $this->object;
+    }
+
+    /**
+     * @param array $fields
+     * @return $this
+     * @author 陈妙威
+     */
+    public function setFields(array $fields)
+    {
+        $this->fields = $fields;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    /**
+     * @return array|mixed
+     * @throws PhutilInvalidStateException
+     * @throws Exception
+     * @author 陈妙威
+     */
+    public function render()
+    {
+        $object = $this->getObject();
+        $fields = $this->getFields();
+
+        $uri = 'https://your.install.com/application/edit/';
+
+        // Remove fields which do not expose an HTTP parameter type.
+        $types = array();
+        foreach ($fields as $key => $field) {
+            if (!$field->shouldGenerateTransactionsFromSubmit()) {
+                unset($fields[$key]);
+                continue;
+            }
+
+            $type = $field->getHTTPParameterType();
+            if ($type === null) {
+                unset($fields[$key]);
+                continue;
+            }
+
+            $types[$type->getTypeName()] = $type;
+        }
+
+        $intro = Yii::t("app", <<<EOTEXT
 When creating objects in the web interface, you can use HTTP parameters to
 prefill fields in the form. This allows you to quickly create a link to a
 form with some of the fields already filled in with default values.
@@ -96,37 +140,37 @@ Supported Fields
 This form supports these fields:
 
 EOTEXT
-      ,
-      $uri,
-      $uri);
+            ,
+            $uri,
+            $uri);
 
-    $rows = array();
-    foreach ($fields as $field) {
-      $rows[] = array(
-        $field->getLabel(),
-        head($field->getAllReadValueFromRequestKeys()),
-        $field->getHTTPParameterType()->getTypeName(),
-        $field->getDescription(),
-      );
-    }
+        $rows = array();
+        foreach ($fields as $field) {
+            $rows[] = array(
+                $field->getLabel(),
+                head($field->getAllReadValueFromRequestKeys()),
+                $field->getHTTPParameterType()->getTypeName(),
+                $field->getDescription(),
+            );
+        }
 
-    $main_table = (new AphrontTableView($rows))
-      ->setHeaders(
-        array(
-          \Yii::t("app",'Label'),
-          \Yii::t("app",'Key'),
-          \Yii::t("app",'Type'),
-          \Yii::t("app",'Description'),
-        ))
-      ->setColumnClasses(
-        array(
-          'pri',
-          null,
-          null,
-          'wide',
-        ));
+        $main_table = (new AphrontTableView($rows))
+            ->setHeaders(
+                array(
+                    Yii::t("app", 'Label'),
+                    Yii::t("app", 'Key'),
+                    Yii::t("app", 'Type'),
+                    Yii::t("app", 'Description'),
+                ))
+            ->setColumnClasses(
+                array(
+                    'pri',
+                    null,
+                    null,
+                    'wide',
+                ));
 
-    $aliases_text = \Yii::t("app",<<<EOTEXT
+        $aliases_text = Yii::t("app", <<<EOTEXT
 Aliases
 -------
 
@@ -152,40 +196,40 @@ primary key has precedence. Generally, you can not mix different aliases in
 a single URI.
 
 EOTEXT
-      ,
-      $uri,
-      $uri,
-      $uri);
+            ,
+            $uri,
+            $uri,
+            $uri);
 
-    $rows = array();
-    foreach ($fields as $field) {
-      $aliases = array_slice($field->getAllReadValueFromRequestKeys(), 1);
-      if (!$aliases) {
-        continue;
-      }
-      $rows[] = array(
-        $field->getLabel(),
-        $field->getKey(),
-        implode(', ', $aliases),
-      );
-    }
+        $rows = array();
+        foreach ($fields as $field) {
+            $aliases = array_slice($field->getAllReadValueFromRequestKeys(), 1);
+            if (!$aliases) {
+                continue;
+            }
+            $rows[] = array(
+                $field->getLabel(),
+                $field->getKey(),
+                implode(', ', $aliases),
+            );
+        }
 
-    $alias_table = (new AphrontTableView($rows))
-      ->setNoDataString(\Yii::t("app",'This object has no fields with aliases.'))
-      ->setHeaders(
-        array(
-          \Yii::t("app",'Label'),
-          \Yii::t("app",'Key'),
-          \Yii::t("app",'Aliases'),
-        ))
-      ->setColumnClasses(
-        array(
-          'pri',
-          null,
-          'wide',
-        ));
+        $alias_table = (new AphrontTableView($rows))
+            ->setNoDataString(Yii::t("app", 'This object has no fields with aliases.'))
+            ->setHeaders(
+                array(
+                    Yii::t("app", 'Label'),
+                    Yii::t("app", 'Key'),
+                    Yii::t("app", 'Aliases'),
+                ))
+            ->setColumnClasses(
+                array(
+                    'pri',
+                    null,
+                    'wide',
+                ));
 
-    $template_text = \Yii::t("app",<<<EOTEXT
+        $template_text = Yii::t("app", <<<EOTEXT
 Template Objects
 ----------------
 
@@ -208,37 +252,37 @@ object will be copied first, then any HTTP parameters will be read.
 
 When using `template`, these fields will be copied:
 EOTEXT
-      ,
-      $uri,
-      $uri,
-      $uri);
+            ,
+            $uri,
+            $uri,
+            $uri);
 
-    $yes = (new PHUIIconView())->setIcon('fa-check-circle green');
-    $no = (new PHUIIconView())->setIcon('fa-times grey');
+        $yes = (new PHUIIconView())->setIcon('fa-check-circle green');
+        $no = (new PHUIIconView())->setIcon('fa-times grey');
 
-    $rows = array();
-    foreach ($fields as $field) {
-      $rows[] = array(
-        $field->getLabel(),
-        $field->getIsCopyable() ? $yes : $no,
-      );
-    }
+        $rows = array();
+        foreach ($fields as $field) {
+            $rows[] = array(
+                $field->getLabel(),
+                $field->getIsCopyable() ? $yes : $no,
+            );
+        }
 
-    $template_table = (new AphrontTableView($rows))
-      ->setNoDataString(
-        \Yii::t("app",'None of the fields on this object support templating.'))
-      ->setHeaders(
-        array(
-          \Yii::t("app",'Field'),
-          \Yii::t("app",'Will Copy'),
-        ))
-      ->setColumnClasses(
-        array(
-          'pri',
-          'wide',
-        ));
+        $template_table = (new AphrontTableView($rows))
+            ->setNoDataString(
+                Yii::t("app", 'None of the fields on this object support templating.'))
+            ->setHeaders(
+                array(
+                    Yii::t("app", 'Field'),
+                    Yii::t("app", 'Will Copy'),
+                ))
+            ->setColumnClasses(
+                array(
+                    'pri',
+                    'wide',
+                ));
 
-    $select_text = \Yii::t("app",<<<EOTEXT
+        $select_text = Yii::t("app", <<<EOTEXT
 Select Fields
 -------------
 
@@ -247,83 +291,90 @@ these fields, use the value in the **Value** column to select the appropriate
 setting.
 
 EOTEXT
-      );
+        );
 
-    $rows = array();
-    foreach ($fields as $field) {
-      if (!($field instanceof PhabricatorSelectEditField)) {
-        continue;
-      }
+        $rows = array();
+        foreach ($fields as $field) {
+            if (!($field instanceof PhabricatorSelectEditField)) {
+                continue;
+            }
 
-      $options = $field->getOptions();
-      $label = $field->getLabel();
-      foreach ($options as $option_key => $option_value) {
-        if (strlen($option_key)) {
-          $option_display = $option_key;
-        } else {
-          $option_display = phutil_tag('em', array(), \Yii::t("app",'<empty>'));
+            $options = $field->getOptions();
+            $label = $field->getLabel();
+            foreach ($options as $option_key => $option_value) {
+                if (strlen($option_key)) {
+                    $option_display = $option_key;
+                } else {
+                    $option_display = phutil_tag('em', array(), Yii::t("app", '<empty>'));
+                }
+
+                $rows[] = array(
+                    $label,
+                    $option_display,
+                    $option_value,
+                );
+                $label = null;
+            }
         }
 
-        $rows[] = array(
-          $label,
-          $option_display,
-          $option_value,
-        );
-        $label = null;
-      }
-    }
+        $select_table = (new AphrontTableView($rows))
+            ->setNoDataString(Yii::t("app", 'This object has no select fields.'))
+            ->setHeaders(
+                array(
+                    Yii::t("app", 'Field'),
+                    Yii::t("app", 'Value'),
+                    Yii::t("app", 'Label'),
+                ))
+            ->setColumnClasses(
+                array(
+                    'pri',
+                    null,
+                    'wide',
+                ));
 
-    $select_table = (new AphrontTableView($rows))
-      ->setNoDataString(\Yii::t("app",'This object has no select fields.'))
-      ->setHeaders(
-        array(
-          \Yii::t("app",'Field'),
-          \Yii::t("app",'Value'),
-          \Yii::t("app",'Label'),
-        ))
-      ->setColumnClasses(
-        array(
-          'pri',
-          null,
-          'wide',
-        ));
-
-    $types_text = \Yii::t("app",<<<EOTEXT
+        $types_text = Yii::t("app", <<<EOTEXT
 Field Types
 -----------
 
 Fields in this form have the types described in the table below. This table
 shows how to format values for each field type.
 EOTEXT
-      );
+        );
 
-    $types_table = (new PhabricatorHTTPParameterTypeTableView())
-      ->setHTTPParameterTypes($types);
+        $types_table = (new PhabricatorHTTPParameterTypeTableView())
+            ->setHTTPParameterTypes($types);
 
-    return array(
-      $this->renderInstructions($intro),
-      $main_table,
-      $this->renderInstructions($aliases_text),
-      $alias_table,
-      $this->renderInstructions($template_text),
-      $template_table,
-      $this->renderInstructions($select_text),
-      $select_table,
-      $this->renderInstructions($types_text),
-      $types_table,
-    );
-  }
+        return array(
+            $this->renderInstructions($intro),
+            $main_table,
+            $this->renderInstructions($aliases_text),
+            $alias_table,
+            $this->renderInstructions($template_text),
+            $template_table,
+            $this->renderInstructions($select_text),
+            $select_table,
+            $this->renderInstructions($types_text),
+            $types_table,
+        );
+    }
 
-  protected function renderInstructions($corpus) {
-    $viewer = $this->getUser();
-    $view = new PHUIRemarkupView($viewer, $corpus);
+    /**
+     * @param $corpus
+     * @return PHUIRemarkupView
+     * @throws PhutilInvalidStateException
+     * @author 陈妙威
+     */
+    protected function renderInstructions($corpus)
+    {
+        $viewer = $this->getUser();
+        $view = new PHUIRemarkupView($viewer, $corpus);
 
-    $view->setRemarkupOptions(
-      array(
-        PHUIRemarkupView::OPTION_PRESERVE_LINEBREAKS => false,
-      ));
+        $view->setRemarkupOptions(
+            array(
+                PHUIRemarkupView::OPTION_PRESERVE_LINEBREAKS => false,
+            ));
 
-    return $view;
-  }
+        return $view;
+    }
 
 }

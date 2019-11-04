@@ -199,7 +199,7 @@ abstract class PhabricatorEditType extends OranginsObject
     /**
      * @param PhabricatorApplicationTransaction $template
      * @param array $spec
-     * @return mixed
+     * @return PhabricatorApplicationTransaction[]
      * @author 陈妙威
      */
     abstract public function generateTransactions(
@@ -208,7 +208,8 @@ abstract class PhabricatorEditType extends OranginsObject
 
     /**
      * @param PhabricatorApplicationTransaction $template
-     * @return mixed
+     * @return PhabricatorApplicationTransaction
+     * @throws \PhutilJSONParserException
      * @author 陈妙威
      */
     protected function newTransaction(
@@ -238,7 +239,7 @@ abstract class PhabricatorEditType extends OranginsObject
     }
 
     /**
-     * @return mixed
+     * @return PhabricatorEditField
      * @author 陈妙威
      */
     public function getEditField()
@@ -261,7 +262,7 @@ abstract class PhabricatorEditType extends OranginsObject
 
 
     /**
-     * @return null
+     * @return BulkParameterType|null
      * @author 陈妙威
      */
     protected function newBulkParameterType()
@@ -287,7 +288,7 @@ abstract class PhabricatorEditType extends OranginsObject
 
 
     /**
-     * @return null
+     * @return BulkParameterType
      * @author 陈妙威
      */
     public function getBulkParameterType()

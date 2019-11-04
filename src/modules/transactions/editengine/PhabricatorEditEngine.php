@@ -10,7 +10,7 @@ use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImpl
 use orangins\lib\OranginsObject;
 use orangins\lib\db\ActiveRecord;
 use orangins\lib\db\ActiveRecordPHID;
-use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;;
+use orangins\lib\infrastructure\query\policy\PhabricatorPolicyAwareQuery;
 use orangins\lib\editor\PhabricatorEditEngineExtension;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\view\page\PhabricatorStandardPageView;
@@ -19,6 +19,7 @@ use orangins\modules\draft\models\PhabricatorVersionedDraft;
 use orangins\modules\transactions\bulk\PhabricatorBulkEditGroup;
 use orangins\modules\transactions\draft\PhabricatorBuiltinDraftEngine;
 use orangins\modules\transactions\draft\PhabricatorDraftInterface;
+use orangins\modules\transactions\editors\PhabricatorApplicationTransactionEditor;
 use orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException;
 use orangins\modules\transactions\response\PhabricatorApplicationTransactionResponse;
 use orangins\lib\PhabricatorApplication;
@@ -63,6 +64,7 @@ use orangins\modules\transactions\query\PhabricatorEditEngineQuery;
 use orangins\modules\transactions\response\PhabricatorApplicationTransactionNoEffectResponse;
 use orangins\modules\transactions\response\PhabricatorApplicationTransactionValidationResponse;
 use orangins\modules\transactions\response\PhabricatorApplicationTransactionWarningResponse;
+use orangins\modules\transactions\view\PhabricatorApplicationEditHTTPParameterHelpView;
 use orangins\modules\transactions\view\PhabricatorApplicationTransactionCommentView;
 use orangins\lib\view\form\control\AphrontFormSubmitControl;
 use orangins\lib\view\form\AphrontFormView;
@@ -200,9 +202,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
+     * @author 陈妙威
      */
     final public function getEngineKey()
     {
@@ -218,8 +220,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return PhabricatorApplication
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     final public function getApplication()
     {
@@ -267,9 +269,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return array
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
+     * @author 陈妙威
      */
     public function getDefaultQuickCreateFormKeys()
     {
@@ -299,7 +301,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @return mixed
      * @throws Exception
-     *@author 陈妙威
+     * @author 陈妙威
      */
     public function getQuickCreateOrderVector()
     {
@@ -517,6 +519,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @task text
+     * @param $object
      */
     abstract protected function getObjectCreateTitleText($object);
 
@@ -531,6 +534,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @task text
+     * @param $object
      */
     abstract protected function getObjectEditTitleText($object);
 
@@ -595,6 +599,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @task text
+     * @param $object
+     * @return string
      */
     protected function getCommentViewHeaderText($object)
     {
@@ -604,6 +610,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @task text
+     * @param $object
+     * @return string
      */
     protected function getCommentViewButtonText($object)
     {
@@ -662,9 +670,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
+     * @author 陈妙威
      */
     private function newConfigurationQuery()
     {
@@ -706,10 +714,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $identifier
      * @return PhabricatorEditEngineConfiguration
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
      * @throws PhutilInvalidStateException
+     * @author 陈妙威
      */
     private function loadEditEngineConfigurationWithIdentifier($identifier)
     {
@@ -721,10 +729,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return PhabricatorEditEngineConfiguration
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
      * @throws PhutilInvalidStateException
+     * @author 陈妙威
      */
     private function loadDefaultConfiguration()
     {
@@ -740,10 +748,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return PhabricatorEditEngineConfiguration
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
      * @throws PhutilInvalidStateException
+     * @author 陈妙威
      */
     private function loadDefaultCreateConfiguration()
     {
@@ -758,13 +766,14 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * 获取配置里面编辑器自定义配置的额外字段
      * @param $object
      * @return PhabricatorEditEngineConfiguration
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
      * @throws PhutilInvalidStateException
+     * @author 陈妙威
      */
     public function loadDefaultEditConfiguration($object)
     {
+        /** @var PhabricatorEditEngineConfigurationQuery $query */
         $query = $this->newConfigurationQuery()
             ->withIsEdit(true)
             ->withIsDisabled(false);
@@ -785,9 +794,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return PhabricatorEditEngineConfiguration[]
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
+     * @author 陈妙威
      */
     final public function getBuiltinEngineConfigurations()
     {
@@ -908,6 +917,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @task uri
+     * @param $object
+     * @return string
+     * @throws PhutilMethodNotImplementedException
      * @throws Exception
      */
     protected function getObjectCreateCancelURI($object)
@@ -942,7 +954,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $form_key
      * @return null|string
      */
-    public function getCreateURI($form_key) {
+    public function getCreateURI($form_key)
+    {
         try {
             $create_uri = $this->getEditURI(null, ['formKey' => $form_key]);
 //            $create_uri = $this->getEditURI(null, "form/{$form_key}/");
@@ -1031,7 +1044,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * Initialize a new object for creation.
      *
-     * @return PhabricatorEditEngineSubtypeInterface Newly initialized object.
+     * @return PhabricatorEditEngineSubtypeInterface|PhabricatorApplicationTransactionInterface Newly initialized object.
      * @task load
      */
     abstract protected function newEditableObject();
@@ -1099,7 +1112,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * to make Conduit a little easier to use.
      *
      * @param array ID, PHID, or monogram.
-     * @param array<const> List of required capability constants, or omit for
+     * @param array $capabilities List of required capability constants, or omit for
      *   defaults.
      * @return object Corresponding editable object.
      * @task load
@@ -1187,8 +1200,6 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param array $capabilities
      * @return object|null Object, or null if no such object exists.
      * @throws Exception
-     * @throws ReflectionException
-     * @throws PhutilInvalidStateException
      * @task load
      */
     private function newObjectFromID($id, array $capabilities = array())
@@ -1208,8 +1219,6 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param array $capabilities
      * @return object|null Object, or null if no such object exists.
      * @throws Exception
-     * @throws ReflectionException
-     * @throws PhutilInvalidStateException
      * @task load
      */
     private function newObjectFromPHID($phid, array $capabilities = array())
@@ -1225,12 +1234,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * Load an object given a configured query.
      *
      * @param PhabricatorPolicyAwareQuery $query
-     * @param array<const> List of required capability constants, or omit for
-     *  defaults.
+     * @param array $capabilities
      * @return object|null Object, or null if no such object exists.
      * @throws Exception
-     * @throws ReflectionException
-     * @throws PhutilInvalidStateException
      * @task load
      */
     private function newObjectFromQuery(
@@ -1297,18 +1303,22 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return mixed
-     * @throws Exception
-     * @throws PhabricatorApplicationTransactionWarningException
      * @throws AphrontDuplicateKeyQueryException
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
+     * @throws InvalidConfigException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @throws PhutilInvalidStateException
      * @throws PhutilJSONParserException
      * @throws PhutilMethodNotImplementedException
      * @throws PhutilTypeExtraParametersException
      * @throws PhutilTypeMissingParametersException
      * @throws ReflectionException
-
-     * @throws PhabricatorApplicationTransactionStructureException
-     * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws UnknownPropertyException
      * @author 陈妙威
      */
     final public function buildResponse()
@@ -1433,8 +1443,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $object
      * @param bool $final
      * @return PHUICrumbsView
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildCrumbs($object, $final = false)
     {
@@ -1633,6 +1643,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
                 if ($template_object) {
                     $copy_fields = $this->buildEditFields($template_object);
+                    /** @var PhabricatorEditField[] $copy_fields */
                     $copy_fields = mpull($copy_fields, null, 'getKey');
                     foreach ($copy_fields as $copy_key => $copy_field) {
                         if (!$copy_field->getIsCopyable()) {
@@ -1751,7 +1762,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         }
 
         $mainNavigation = $this->getMainNavigation();
-        if($mainNavigation) {
+        if ($mainNavigation) {
             $page->setNavigation($mainNavigation);
         }
         return $page;
@@ -1776,8 +1787,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param PhabricatorEditField[] $fields
      * @return mixed
      * @throws Exception
-     * @throws Exception
-     *@author 陈妙威
+     * @author 陈妙威
      */
     private function buildEditForm($object, $fields)
     {
@@ -1859,7 +1869,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
         $action_button = (new PHUIButtonView())
             ->setTag('a')
-            ->setText(Yii::t("app",'Configure Form'))
+            ->setText(Yii::t("app", 'Configure Form'))
             ->setHref('#')
             ->setIcon('fa-gear')
             ->setDropdownMenu($action_view);
@@ -1899,15 +1909,15 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
             $actions[] = (new PhabricatorActionView())
                 ->setLabel(true)
-                ->setName(Yii::t("app",'Configuration'));
+                ->setName(Yii::t("app", 'Configuration'));
 
             $actions[] = (new PhabricatorActionView())
-                ->setName(Yii::t("app",'View Form Configurations'))
+                ->setName(Yii::t("app", 'View Form Configurations'))
                 ->setIcon('fa-list-ul')
                 ->setHref($view_uri);
 
             $actions[] = (new PhabricatorActionView())
-                ->setName(Yii::t("app",'Edit Form Configuration'))
+                ->setName(Yii::t("app", 'Edit Form Configuration'))
                 ->setIcon('fa-pencil')
                 ->setHref($manage_uri)
                 ->setDisabled(!$can_manage)
@@ -1916,16 +1926,16 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
         $actions[] = (new PhabricatorActionView())
             ->setLabel(true)
-            ->setName(Yii::t("app",'Documentation'));
+            ->setName(Yii::t("app", 'Documentation'));
 
         $actions[] = (new PhabricatorActionView())
-            ->setName(Yii::t("app",'Using HTTP Parameters'))
+            ->setName(Yii::t("app", 'Using HTTP Parameters'))
             ->setIcon('fa-book')
             ->setHref($this->getEditURI($object, ['editAction' => 'parameters']));
 
         $doc_href = PhabricatorEnv::getDoclink('User Guide: Customizing Forms');
         $actions[] = (new PhabricatorActionView())
-            ->setName(Yii::t("app",'User Guide: Customizing Forms'))
+            ->setName(Yii::t("app", 'User Guide: Customizing Forms'))
             ->setIcon('fa-book')
             ->setHref($doc_href);
 
@@ -1936,10 +1946,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $text
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
      * @throws PhutilInvalidStateException
+     * @author 陈妙威
      */
     public function newNUXButton($text)
     {
@@ -1959,10 +1969,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param PHUICrumbsView $crumbs
      * @param array $parameters
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
      * @throws PhutilInvalidStateException
+     * @author 陈妙威
      */
     final public function addActionToCrumbs(PHUICrumbsView $crumbs, array $parameters = array())
     {
@@ -2090,12 +2100,12 @@ abstract class PhabricatorEditEngine extends OranginsObject
     }
 
     /**
-     * @param $object
+     * @param ActiveRecordPHID $object
      * @return mixed
      * @throws Exception
      * @throws ReflectionException
      * @throws Exception
-     *@author 陈妙威
+     * @author 陈妙威
      */
     final public function buildEditEngineCommentView($object)
     {
@@ -2188,10 +2198,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
     }
 
     /**
-     * @param PhabricatorApplicationTransactionInterface $object
+     * @param PhabricatorApplicationTransactionInterface|ActiveRecordPHID $object
      * @return int|null
-     * @author 陈妙威
      * @throws InvalidConfigException
+     * @author 陈妙威
      */
     protected function loadDraftVersion($object)
     {
@@ -2265,8 +2275,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $title
      * @param $body
      * @return AphrontResponse
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildError($object, $title, $body)
     {
@@ -2292,8 +2302,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $object
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildNoDefaultResponse($object)
     {
@@ -2308,8 +2318,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $object
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildNoCreateResponse($object)
     {
@@ -2322,8 +2332,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $object
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildNoManageResponse($object)
     {
@@ -2338,8 +2348,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $object
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildNoEditResponse($object)
     {
@@ -2353,10 +2363,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @param $object
-     * @param $config
+     * @param PhabricatorEditEngineConfiguration $config
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildNotEditFormRespose($object, $config)
     {
@@ -2373,10 +2383,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @param $object
-     * @param $config
+     * @param PhabricatorEditEngineConfiguration $config
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildDisabledFormResponse($object, $config)
     {
@@ -2393,8 +2403,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
     /**
      * @param $object
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function buildLockedObjectResponse($object)
     {
@@ -2406,7 +2416,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     }
 
     /**
-     * @param PhabricatorApplicationTransactionInterface $object
+     * @param PhabricatorApplicationTransactionInterface|PhabricatorPolicyInterface $object
      * @return mixed
      * @throws AphrontDuplicateKeyQueryException
      * @throws AphrontObjectMissingQueryException
@@ -2646,14 +2656,26 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * either edits an existing object or creates a new one.
      *
      * @task conduit
+     * @param ConduitAPIRequest $request
      * @return array
-     * @throws Exception
-     * @throws PhutilProxyException
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws IntegrityException
      * @throws InvalidConfigException
-     * @throws ReflectionException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilProxyException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
      */
-    final public function buildConduitResponse()
+    final public function buildConduitResponse(ConduitAPIRequest $request)
     {
         $viewer = $this->getViewer();
 
@@ -2665,7 +2687,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
                     get_class($this)));
         }
 
-        $raw_xactions = $this->getRawConduitTransactions($this->getAction()->getRequest());
+        $raw_xactions = $this->getRawConduitTransactions();
 
         $identifier = $this->getAction()->getRequest()->getValue('objectIdentifier');
         if ($identifier) {
@@ -2698,7 +2720,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
         $template = $object->getApplicationTransactionTemplate();
 
         $xactions = $this->getConduitTransactions(
-            $this->getAction()->getRequest(),
+            $request,
             $raw_xactions,
             $types,
             $template);
@@ -2733,8 +2755,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function getRawConduitTransactions()
     {
@@ -2789,7 +2811,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
         ConduitAPIRequest $request,
         array $xactions,
         array $types,
-        PhabricatorApplicationTransaction $template) {
+        PhabricatorApplicationTransaction $template)
+    {
 
         $viewer = $request->getUser();
         $results = array();
@@ -2799,7 +2822,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
             if (empty($types[$type])) {
                 throw new Exception(
                     pht(
-                        'Transaction with key "%s" has invalid type "%s". This type is '.
+                        'Transaction with key "%s" has invalid type "%s". This type is ' .
                         'not recognized. Valid types are: %s.',
                         $key,
                         $type,
@@ -2808,7 +2831,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
         }
 
         if ($this->getIsCreate()) {
-            $results[] = id(clone $template)
+            /** @var PhabricatorApplicationTransaction $x */
+            $x = clone $template;
+            $results[] = $x
                 ->setTransactionType(PhabricatorTransactions::TYPE_CREATE);
         }
 
@@ -2911,8 +2936,6 @@ abstract class PhabricatorEditEngine extends OranginsObject
      * @param $key
      * @return mixed
      * @throws Exception
-     * @throws ReflectionException
-     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getByKey(PhabricatorUser $viewer, $key)
@@ -2925,8 +2948,8 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return mixed
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     public function getIcon()
     {
@@ -2936,10 +2959,10 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @return PhabricatorEditEngineConfiguration[]
-     * @author 陈妙威
      * @throws Exception
      * @throws ReflectionException
      * @throws PhutilInvalidStateException
+     * @author 陈妙威
      */
     private function loadUsableConfigurationsForCreate()
     {
@@ -3148,7 +3171,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
         }
 
         $page_picks = array();
-        $default_key = head($pages)->getKey();
+        /** @var PhabricatorEditPage $wild */
+        $wild = head($pages);
+        $default_key = $wild->getKey();
         foreach ($pages as $page_key => $page) {
             foreach ($page->getFieldKeys() as $field_key) {
                 $page_picks[$field_key] = $page_key;
@@ -3413,7 +3438,7 @@ abstract class PhabricatorEditEngine extends OranginsObject
     }
 
     /**
-     * @param PhabricatorEditEngine[] $fields
+     * @param PhabricatorEditField[] $fields
      * @return PhabricatorEditType[]
      * @author 陈妙威
      */
@@ -3464,9 +3489,9 @@ abstract class PhabricatorEditEngine extends OranginsObject
 
     /**
      * @param $capability
-     * @return mixed
-     * @author 陈妙威
+     * @return mixed|void
      * @throws Exception
+     * @author 陈妙威
      */
     public function getPolicy($capability)
     {
@@ -3488,7 +3513,6 @@ abstract class PhabricatorEditEngine extends OranginsObject
     {
         return false;
     }
-
 
 
 }

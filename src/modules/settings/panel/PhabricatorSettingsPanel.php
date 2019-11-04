@@ -2,7 +2,10 @@
 
 namespace orangins\modules\settings\panel;
 
+use AphrontObjectMissingQueryException;
+use AphrontQueryException;
 use orangins\lib\actions\PhabricatorAction;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\OranginsObject;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\layout\AphrontSideNavFilterView;
@@ -12,9 +15,22 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\modules\settings\editors\PhabricatorUserPreferencesEditor;
 use orangins\modules\settings\models\PhabricatorUserPreferences;
 use orangins\modules\settings\panelgroup\PhabricatorSettingsPanelGroup;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException;
+use orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException;
 use PhutilClassMapQuery;
+use PhutilInvalidStateException;
+use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
 use PhutilSortVector;
 use Exception;
+use PhutilTypeExtraParametersException;
+use PhutilTypeMissingParametersException;
+use ReflectionException;
+use Throwable;
+use Yii;
+use yii\base\InvalidConfigException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -169,8 +185,8 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
     }
 
     /**
-     * @return \list
-     * @throws \Exception
+     * @return array
+     * @throws Exception
      * @author 陈妙威
      */
     final public static function getAllPanels()
@@ -180,7 +196,7 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
             ->setUniqueMethod('getPanelKey')
             ->execute();
 
-        $settings = \Yii::$app->params['settings'];
+        $settings = Yii::$app->params['settings'];
         foreach ($panels as $k => $panel) {
             $get_class = get_class($panel);
             if(!in_array($get_class, $settings)) {
@@ -192,8 +208,8 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
 
     /**
      * @return PhabricatorSettingsPanel[]
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     final public static function getAllDisplayPanels()
     {
@@ -210,8 +226,8 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
 
     /**
      * @return object
-     * @author 陈妙威
-     * @throws \Exception
+     * @throws Exception
+     *@author 陈妙威
      */
     final public function getPanelGroup()
     {
@@ -221,7 +237,7 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
         $group = ArrayHelper::getValue($groups, $group_key);
         if (!$group) {
             throw new Exception(
-                \Yii::t("app",
+                Yii::t("app",
                     'No settings panel group with key "%s" exists!',
                     $group_key));
         }
@@ -238,7 +254,7 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
      * "example".
      *
      * @return string Unique panel identifier (used in URIs).
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws \yii\base\Exception
      * @task config
      */
@@ -261,7 +277,7 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
     /**
      * Return a panel group key constant for this panel.
      *
-     * @return const Panel group key.
+     * @return string Panel group key.
      * @task config
      */
     abstract public function getPanelGroupKey();
@@ -333,7 +349,7 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
      * a redirect when the user saves settings.
      *
      * @param   AphrontRequest  Incoming request.
-     * @return  wild            Response to request, either as an
+     * @return  mixed            Response to request, either as an
      *                          @{class:AphrontResponse} or something which can
      *                          be composed into a @{class:AphrontView}.
      * @task panel
@@ -347,7 +363,7 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
      * @param string? Optional path to append.
      * @return string Relative URI for the panel.
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @task panel
      */
     final public function getPanelURI($path = '')
@@ -391,7 +407,7 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
      *
      * @return string Sortable key.
      * @task internal
-     * @throws \Exception
+     * @throws Exception
      */
     final public function getPanelOrderVector()
     {
@@ -412,18 +428,21 @@ abstract class PhabricatorSettingsPanel extends OranginsObject
      * @param PhabricatorUserPreferences $preferences
      * @param $key
      * @param $value
-     * @throws Exception
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilJSONParserException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \PhutilTypeExtraParametersException
-     * @throws \PhutilTypeMissingParametersException
-     * @throws \ReflectionException
-
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionStructureException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionValidationException
-     * @throws \orangins\modules\transactions\exception\PhabricatorApplicationTransactionWarningException
-     * @throws \yii\base\InvalidConfigException
+     * @throws AphrontObjectMissingQueryException
+     * @throws AphrontQueryException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilJSONParserException
+     * @throws PhutilMethodNotImplementedException
+     * @throws PhutilTypeExtraParametersException
+     * @throws PhutilTypeMissingParametersException
+     * @throws ReflectionException
+     * @throws Throwable
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorApplicationTransactionStructureException
+     * @throws PhabricatorApplicationTransactionValidationException
+     * @throws PhabricatorApplicationTransactionWarningException
+     * @throws InvalidConfigException
+     * @throws IntegrityException
      * @author 陈妙威
      */
     protected function writeSetting(

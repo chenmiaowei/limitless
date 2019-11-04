@@ -2,6 +2,7 @@
 
 namespace orangins\modules\search\engine;
 
+use AphrontQueryException;
 use orangins\lib\actions\PhabricatorAction;
 use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\export\engine\PhabricatorExportEngineExtension;
@@ -46,7 +47,9 @@ use orangins\lib\view\form\AphrontFormView;
 use orangins\modules\typeahead\datasource\PhabricatorTypeaheadDatasource;
 use orangins\lib\view\AphrontView;
 use Exception;
+use ReflectionException;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -118,7 +121,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
     /**
      * @return mixed
      * @author 陈妙威
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function buildResponse()
     {
@@ -255,8 +258,8 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
     /**
      * @param PhabricatorSavedQuery $query
      * @throws Exception
-     * @throws \ReflectionException
-     * @throws \AphrontQueryException
+     * @throws ReflectionException
+     * @throws AphrontQueryException
      * @author 陈妙威
      */
     public function saveQuery(PhabricatorSavedQuery $query)
@@ -396,7 +399,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @throws Exception
      * @throws PhutilInvalidStateException
      * @throws PhutilMethodNotImplementedException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function buildSearchForm(
         AphrontFormView $form,
@@ -693,7 +696,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
     /**
      * @return PhabricatorSavedQuery
      * @author 陈妙威
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function newSavedQuery()
     {
@@ -706,7 +709,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return $this
      * @throws PhutilInvalidStateException
      * @throws Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function addNavigationItems(PHUIListView $menu)
@@ -749,8 +752,8 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return PhabricatorNamedQuery[]
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function loadAllNamedQueries()
@@ -797,7 +800,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return PhabricatorNamedQuery[]
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function loadEnabledNamedQueries()
@@ -815,9 +818,8 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return int|string
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-
-     * @throws \Exception
+     * @throws ReflectionException
+ * @throws Exception
      * @author 陈妙威
      */
     public function getDefaultQueryKey()
@@ -888,7 +890,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return mixed
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function getApplicationURI($path = '', $params = [])
@@ -900,7 +902,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return PhabricatorApplication
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     protected function getApplication()
@@ -1064,8 +1066,8 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return array<phid>     List of user PHIDs and selector functions.
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @task read
      */
     protected function readUsersFromRequest(
@@ -1120,8 +1122,8 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return array <phid>     List of object PHIDs.
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @task read
      */
     protected function readSubscribersFromRequest(
@@ -1150,7 +1152,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      *
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @task read
      */
     protected function readPHIDsFromRequest(
@@ -1257,7 +1259,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @param $date_time
      * @return int|null
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function parseDateTime($date_time)
     {
@@ -1499,7 +1501,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @return mixed
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function renderResults(
@@ -1602,12 +1604,10 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
      * @param ConduitAPIRequest $request
      * @param ConduitAPIMethod $method
      * @return array
-     * @throws Exception
      * @throws PhutilInvalidStateException
      * @throws PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
+     * @throws Exception
      * @author 陈妙威
      */
     public function buildConduitResponse(
