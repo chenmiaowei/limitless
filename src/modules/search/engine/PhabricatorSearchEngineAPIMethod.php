@@ -229,7 +229,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Builtin and Saved Queries'))
-            ->setEnableCollapse(true)
+            
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info))
             ->appendChild($table);
@@ -377,7 +377,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Custom Query Constraints'))
-            ->setEnableCollapse(true)
+            
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info))
             ->appendChild($table)
@@ -494,7 +494,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Result Ordering'))
-            ->setEnableCollapse(true)
+            
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($orders_info))
             ->appendChild($orders_table)
@@ -583,7 +583,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Object Fields'))
-            ->setEnableCollapse(true)
+            
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info))
             ->appendChild($table);
@@ -681,7 +681,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Attachments'))
-            ->setEnableCollapse(true)
+            
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info))
             ->appendChild($table);
@@ -759,7 +759,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Paging and Limits'))
-            ->setEnableCollapse(true)
+            
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info));
     }
