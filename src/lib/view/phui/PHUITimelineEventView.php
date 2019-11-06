@@ -798,7 +798,7 @@ final class PHUITimelineEventView extends AphrontView
             if ($this->badges && $show_badges) {
                 $flex = new PHUIBadgeBoxView();
                 $flex->addItems($this->badges);
-                $flex->setCollapsed(true);
+                $flex->setEnableCollapse(true);
                 $badges = JavelinHtml::phutil_tag(
                     'div',
                     array(

@@ -229,7 +229,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Builtin and Saved Queries'))
-            ->setCollapsed(true)
+            ->setEnableCollapse(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info))
             ->appendChild($table);
@@ -377,7 +377,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Custom Query Constraints'))
-            ->setCollapsed(true)
+            ->setEnableCollapse(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info))
             ->appendChild($table)
@@ -494,7 +494,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Result Ordering'))
-            ->setCollapsed(true)
+            ->setEnableCollapse(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($orders_info))
             ->appendChild($orders_table)
@@ -583,7 +583,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Object Fields'))
-            ->setCollapsed(true)
+            ->setEnableCollapse(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info))
             ->appendChild($table);
@@ -681,7 +681,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Attachments'))
-            ->setCollapsed(true)
+            ->setEnableCollapse(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info))
             ->appendChild($table);
@@ -759,7 +759,7 @@ EOTEXT
 
         return (new PHUIObjectBoxView())
             ->setHeaderText(pht('Paging and Limits'))
-            ->setCollapsed(true)
+            ->setEnableCollapse(true)
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->appendChild($this->newRemarkupDocumentationView($info));
     }

@@ -232,7 +232,7 @@ class PHUIHovercardView extends AphrontTagView {
         if ($this->badges) {
             $badges = (new PHUIBadgeBoxView())
                 ->addItems($this->badges)
-                ->setCollapsed(true);
+                ->setEnableCollapse(true);
             $body[] = phutil_tag(
                 'div',
                 array(
