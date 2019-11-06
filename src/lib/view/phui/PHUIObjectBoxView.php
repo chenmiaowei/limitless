@@ -347,7 +347,7 @@ final class PHUIObjectBoxView extends AphrontTagView
      * @return $this
      * @author 陈妙威
      */
-    public function setHeader(PHUIHeaderView $header)
+    public function setHeader(PHUIHeaderView $header = null)
     {
         $this->header = $header;
         return $this;
