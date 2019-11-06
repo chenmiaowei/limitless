@@ -870,7 +870,7 @@ class PhabricatorFile extends ActiveRecordPHID
         } else {
             $engine = $this->instantiateStorageEngine();
             $CDNURI = $engine->getCDNURI($this->getStorageHandle());
-            if ($CDNURI) {
+            if ($CDNURI && $request_kind !== 'download') {
                 return $CDNURI;
             } else {
                 $path = Url::to(["/file/data/{$request_kind}",
