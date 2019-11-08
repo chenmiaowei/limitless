@@ -114,8 +114,8 @@ final class PhabricatorCustomFieldExportEngineExtension
     /**
      * @param $object
      * @return mixed
+     * @throws \Exception
      * @author 陈妙威
-     * @throws \yii\base\Exception
      */
     private function newCustomFields($object)
     {

@@ -31,9 +31,34 @@ class PhabricatorCustomFieldGroup extends OranginsObject
     public $name;
 
     /**
+     * @var string
+     */
+    public $key;
+
+    /**
      * @var PhabricatorCustomField[]
      */
     public $fields;
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @param string $key
+     * @return self
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+        return $this;
+    }
+
+    
     /**
      * @return mixed
      */
