@@ -17,6 +17,13 @@ use Yii;
 abstract class PhabricatorCustomFieldStorage
     extends ActiveRecord
 {
+
+    /**
+     * @return string
+     * @author 陈妙威
+     */
+    abstract public function getApplicationName();
+
     /**
      * {@inheritdoc}
      */
@@ -108,7 +115,7 @@ abstract class PhabricatorCustomFieldStorage
      */
     final public function getStorageSourceKey()
     {
-        return $this->getApplicationName() . '/' . $this->getTableName();
+        return $this->getApplicationName() . '/' . static::tableName();
     }
 
 
@@ -121,6 +128,7 @@ abstract class PhabricatorCustomFieldStorage
      *
      * @param array<string, PhabricatorCustomField> $fields Map of fields.
      * @return array<String, PhabricatorCustomField> Map of available field data.
+     * @throws \yii\base\InvalidConfigException
      */
     final public function loadStorageSourceData(array $fields)
     {
@@ -141,20 +149,30 @@ abstract class PhabricatorCustomFieldStorage
             return array();
         }
 
-        $conn = $this->establishConnection('r');
-        $rows = queryfx_all(
-            $conn,
-            'SELECT objectPHID, fieldIndex, fieldValue FROM %T
-        WHERE objectPHID IN (%Ls) AND fieldIndex IN (%Ls)',
-            $this->getTableName(),
-            $object_phids,
-            $indexes);
+//        $conn = $this->establishConnection('r');
+//        $rows = queryfx_all(
+//            $conn,
+//            'SELECT objectPHID, fieldIndex, fieldValue FROM %T
+//        WHERE objectPHID IN (%Ls) AND fieldIndex IN (%Ls)',
+//            $this->getTableName(),
+//            $object_phids,
+//            $indexes);
+        /** @var static[] $rows */
+        $rows = static::find()
+            ->andWhere([
+                'IN', 'object_phid', $object_phids
+            ])
+            ->andWhere([
+                'IN', 'field_index', $indexes
+            ])
+            ->all();
+
 
         $result = array();
         foreach ($rows as $row) {
-            $index = $row['fieldIndex'];
-            $object_phid = $row['objectPHID'];
-            $value = $row['fieldValue'];
+            $index = $row->field_index;
+            $object_phid = $row->object_phid;
+            $value = $row->field_value;
 
             $key = $map[$index][$object_phid];
             $result[$key] = $value;
@@ -162,5 +180,4 @@ abstract class PhabricatorCustomFieldStorage
 
         return $result;
     }
-
 }
