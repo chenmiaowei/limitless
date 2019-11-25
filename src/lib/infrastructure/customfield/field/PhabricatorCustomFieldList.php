@@ -22,7 +22,6 @@ use Exception;
 use PhutilInvalidStateException;
 use PhutilJSONParserException;
 use PhutilSafeHTML;
-use PhutilSortVector;
 use Yii;
 
 /**
@@ -39,6 +38,11 @@ final class PhabricatorCustomFieldList extends OranginsObject
      * @var PhabricatorCustomField[]
      */
     private $fields;
+
+    /**
+     * @var PhabricatorCustomFieldGroup[]
+     */
+    private $groups = [];
     /**
      * @var PhabricatorUser
      */
@@ -55,12 +59,41 @@ final class PhabricatorCustomFieldList extends OranginsObject
     }
 
     /**
+     * @return PhabricatorCustomFieldGroup[]
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * @param PhabricatorCustomFieldGroup[] $groups
+     * @return self
+     */
+    public function setGroups($groups)
+    {
+        $this->groups = $groups;
+        return $this;
+    }
+
+
+    /**
      * @return PhabricatorCustomField[]
      * @author 陈妙威
      */
     public function getFields()
     {
         return $this->fields;
+    }
+
+    /**
+     * @param PhabricatorCustomField[] $fields
+     * @return self
+     */
+    public function setFields($fields)
+    {
+        $this->fields = $fields;
+        return $this;
     }
 
     /**
@@ -153,7 +186,7 @@ final class PhabricatorCustomFieldList extends OranginsObject
 
         /** @var PhabricatorCustomFieldGroup[] $groups */
         $groups = [];
-        $defaultGroup = (new PhabricatorCustomFieldGroup())->setName('General')->setSortOrder(1);
+        $defaultGroup = (new PhabricatorGeneralCustomFieldGroup());
         foreach ($enabled as $field) {
 //            /** @var array $field_handles */
 //            $field_handles = array_select_keys($handles, $phids[$field_key]);
@@ -166,13 +199,20 @@ final class PhabricatorCustomFieldList extends OranginsObject
 //            $form->appendChild($field->renderEditControl($field_handles));
 
             $group = $field->getFieldGroup() ? $field->getFieldGroup() : $defaultGroup;
-            if (!isset($groups[$group->getName()])) {
-                $groups[$group->getName()] = $group;
+            if (!isset($groups[$group->getKey()])) {
+                $groups[$group->getKey()] = $group;
             }
 
-            $groups[$group->getName()]->addField($field);
+            $groups[$group->getKey()]->addField($field);
+        }
+
+        foreach ($this->getGroups() as $group) {
+            if (!isset($groups[$group->getKey()])) {
+                $groups[$group->getKey()] = $group;
+            }
         }
         $groups = msortv($groups, 'getOrderVector');
+        $groups = array_values($groups);
 
         $i = 0;
         foreach ($groups as $group) {
@@ -185,9 +225,9 @@ final class PhabricatorCustomFieldList extends OranginsObject
                 $fields[] = $item->renderEditControl($field_handles);
             }
             $groupView = JavelinHtml::phutil_tag('div', ['class' => 'card-group-control card-group-control-left'], [
-                $group->getName() !== 'General' ?  JavelinHtml::phutil_tag('div', ['class' => 'card-header bg-light'], [
+                !$isFirst ?  JavelinHtml::phutil_tag('div', ['class' => 'card-header bg-light'], [
                     JavelinHtml::phutil_tag("h6", ['class' => 'card-title'], new PhutilSafeHTML('<a data-toggle="collapse" class="text-default' . ($isFirst ? '' : ' collapsed') . '" href="#collapsible-item-group-' . $i . '">' . $group->getName() . '</a>'))
-                ]) : '',
+                ]) : null,
                 JavelinHtml::phutil_tag('div', ['class' => 'collapse ' . ($isFirst ? ' show' : ''), 'id' => 'collapsible-item-group-' . $i], [
                     JavelinHtml::phutil_tag('div', ['class' => 'card-body'], [
                         JavelinHtml::phutil_implode_html("\n", $fields)
@@ -255,6 +295,7 @@ final class PhabricatorCustomFieldList extends OranginsObject
             $phids[$key] = $field->getRequiredHandlePHIDsForPropertyView();
         }
 
+        /** @var array $all_phids */
         $all_phids = array_mergev($phids);
         if ($all_phids) {
             $handles = (new PhabricatorHandleQuery())
@@ -266,6 +307,7 @@ final class PhabricatorCustomFieldList extends OranginsObject
         }
 
         foreach ($fields as $key => $field) {
+            /** @var array $field_handles */
             $field_handles = array_select_keys($handles, $phids[$key]);
             $label = $field->renderPropertyViewLabel();
             $value = $field->renderPropertyViewValue($field_handles);

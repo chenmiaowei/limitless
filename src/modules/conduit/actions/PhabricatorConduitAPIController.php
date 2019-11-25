@@ -2,14 +2,18 @@
 
 namespace orangins\modules\conduit\actions;
 
+use AphrontQueryException;
 use AphrontWriteGuard;
 use ConduitClient;
 use Exception;
+use FilesystemException;
+use orangins\lib\db\PhabricatorDataNotAttachedException;
 use orangins\lib\env\PhabricatorEnv;
 use orangins\lib\infrastructure\log\PhabricatorAccessLog;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\response\AphrontJSONResponse;
 use orangins\lib\view\control\AphrontTableView;
+use orangins\lib\view\page\PhabricatorStandardPageView;
 use orangins\lib\view\phui\PHUIHeaderView;
 use orangins\lib\view\phui\PHUIObjectBoxView;
 use orangins\lib\view\phui\PHUITwoColumnView;
@@ -33,8 +37,13 @@ use orangins\modules\userservice\conduitprice\UserServiceConduitPriceCounter;
 use orangins\modules\userservice\exceptions\UserServiceNotSufficientFundsException;
 use PhutilJSON;
 use PhutilJSONParserException;
+use PhutilMethodNotImplementedException;
 use PhutilProxyException;
+use PhutilSafeHTML;
 use PhutilUTF8StringTruncator;
+use Yii;
+use yii\base\InvalidConfigException;
+use yii\db\IntegrityException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -58,8 +67,8 @@ final class PhabricatorConduitAPIController
     }
 
     /**
-     * @return AphrontJSONResponse|\orangins\lib\view\page\PhabricatorStandardPageView
-     * @throws \Exception
+     * @return AphrontJSONResponse|PhabricatorStandardPageView
+     * @throws Exception
      * @author 陈妙威
      */
     public function run()
@@ -115,13 +124,16 @@ final class PhabricatorConduitAPIController
                     }
                     $call->setUser($api_request->getUser());
                 }
+            } else if (($user = Yii::$app->user->getIdentity()) && $user->isLoggedIn()) {
+                $call->setUser($user);
+
             }
 
             $access_log = PhabricatorAccessLog::getLog();
             if ($access_log) {
                 $access_log->setData(
                     array(
-                        'r' => \Yii::$app->request->getUerHostIP(),
+                        'r' => Yii::$app->request->getUerHostIP(),
                         'a' => ArrayHelper::getValue($metadata, 'token'),
                         'u' => $conduit_username,
                         'm' => $method,
@@ -165,7 +177,7 @@ final class PhabricatorConduitAPIController
             }
         } catch (Exception $ex) {
             if (!($ex instanceof ConduitMethodNotFoundException)) {
-                \Yii::error($ex);
+                Yii::error($ex);
             }
             $result = null;
             $error_code = 'ERR-CONDUIT-CORE';
@@ -221,16 +233,16 @@ final class PhabricatorConduitAPIController
      *
      * @param ConduitAPIRequest $api_request
      * @param array $metadata
-     * @param   ConduitAPIRequest Request being executed.
+     * @param ConduitAPIRequest Request being executed.
      * @return array|null
      *                            an error code and error message pair.
      * @throws PhutilProxyException
-     * @throws \AphrontQueryException
-     * @throws \FilesystemException
-     * @throws \orangins\lib\db\PhabricatorDataNotAttachedException
+     * @throws AphrontQueryException
+     * @throws FilesystemException
+     * @throws PhabricatorDataNotAttachedException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\IntegrityException
+     * @throws InvalidConfigException
+     * @throws IntegrityException
      * @throws Exception
      */
     private function authenticateUser(
@@ -253,7 +265,7 @@ final class PhabricatorConduitAPIController
             if (!$host) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Request is missing required "{0}" parameter.', [
                             'auth.host'
                         ]),
@@ -277,7 +289,7 @@ final class PhabricatorConduitAPIController
             } catch (Exception $ex) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app",
+                    Yii::t("app",
                         'Signature verification failure. %s',
                         $ex->getMessage()),
                 );
@@ -297,7 +309,7 @@ final class PhabricatorConduitAPIController
                     ->truncateString($raw_key);
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app",
+                    Yii::t("app",
                         'No user or device is associated with the public key "%s".',
                         $key_summary),
                 );
@@ -311,7 +323,7 @@ final class PhabricatorConduitAPIController
                 if (!$stored_key->getIsTrusted()) {
                     return array(
                         'ERR-INVALID-AUTH',
-                        \Yii::t("app",
+                        Yii::t("app",
                             'The key which signed this request is not trusted. Only ' .
                             'trusted keys can be used to sign API calls.'),
                     );
@@ -320,7 +332,7 @@ final class PhabricatorConduitAPIController
                 if (!PhabricatorEnv::isClusterRemoteAddress()) {
                     return array(
                         'ERR-INVALID-AUTH',
-                        \Yii::t("app",
+                        Yii::t("app",
                             'This request originates from outside of the Phabricator ' .
                             'cluster address range. Requests signed with trusted ' .
                             'device keys must originate from within the cluster.'),
@@ -342,10 +354,12 @@ final class PhabricatorConduitAPIController
         } else {
             return array(
                 'ERR-INVALID-AUTH',
-                \Yii::t("app",
-                    'Provided "%s" ("%s") is not recognized.',
-                    'auth.type',
-                    $auth_type),
+                Yii::t("app",
+                    'Provided "{0}" ("{1}") is not recognized.',
+                    [
+                        'auth.type',
+                        $auth_type
+                    ]),
             );
         }
 
@@ -355,7 +369,7 @@ final class PhabricatorConduitAPIController
             if (strlen($token_string) != 32) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app",
+                    Yii::t("app",
                         'API token "{0}" has the wrong length. API tokens should be ' .
                         '32 characters long.', [
                             $token_string
@@ -369,7 +383,7 @@ final class PhabricatorConduitAPIController
             if (empty($valid_types[$type])) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app",
+                    Yii::t("app",
                         'API token "{0}" has the wrong format. API tokens should be ' .
                         '32 characters long and begin with one of these prefixes: {1}.', [
                             $token_string,
@@ -393,7 +407,7 @@ final class PhabricatorConduitAPIController
                 if ($token) {
                     return array(
                         'ERR-INVALID-AUTH',
-                        \Yii::t("app",
+                        Yii::t("app",
                             'API token "{0}" was previously valid, but has expired.', [
                                 $token_string
                             ]),
@@ -401,7 +415,7 @@ final class PhabricatorConduitAPIController
                 } else {
                     return array(
                         'ERR-INVALID-AUTH',
-                        \Yii::t("app",
+                        Yii::t("app",
                             'API token "{0}" is not valid.', [
                                 $token_string
                             ]),
@@ -411,11 +425,11 @@ final class PhabricatorConduitAPIController
 
             $ip = $token->getParameter('ip', []);
             if (!empty($ip)) {
-                $remoteIP = \Yii::$app->request->getUerHostIP();
+                $remoteIP = Yii::$app->request->getUerHostIP();
                 if (!in_array($remoteIP, $ip)) {
                     return array(
                         'ERR-INVALID-AUTH',
-                        \Yii::t("app",
+                        Yii::t("app",
                             'Current IP "{0}" is not valid.', [
                                 $remoteIP
                             ]),
@@ -442,7 +456,7 @@ final class PhabricatorConduitAPIController
                 if (!PhabricatorEnv::isClusterRemoteAddress()) {
                     return array(
                         'ERR-INVALID-AUTH',
-                        \Yii::t("app",
+                        Yii::t("app",
                             'This request originates from outside of the Phabricator ' .
                             'cluster address range. Requests signed with cluster API ' .
                             'tokens must originate from within the cluster.'),
@@ -457,7 +471,7 @@ final class PhabricatorConduitAPIController
             if (!($user instanceof PhabricatorUser)) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app", 'API token is not associated with a valid user.'),
+                    Yii::t("app", 'API token is not associated with a valid user.'),
                 );
             }
 
@@ -473,7 +487,7 @@ final class PhabricatorConduitAPIController
             if (!$token) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app", 'Access token does not exist.'),
+                    Yii::t("app", 'Access token does not exist.'),
                 );
             }
 
@@ -482,7 +496,7 @@ final class PhabricatorConduitAPIController
             if (!$authorization) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app", 'Access token is invalid or expired.'),
+                    Yii::t("app", 'Access token is invalid or expired.'),
                 );
             }
 
@@ -493,7 +507,7 @@ final class PhabricatorConduitAPIController
             if (!$user) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app", 'Access token is for invalid user.'),
+                    Yii::t("app", 'Access token is for invalid user.'),
                 );
             }
 
@@ -501,7 +515,7 @@ final class PhabricatorConduitAPIController
             if (!$ok) {
                 return array(
                     'ERR-OAUTH-ACCESS',
-                    \Yii::t("app", 'You do not have authorization to call this method.'),
+                    Yii::t("app", 'You do not have authorization to call this method.'),
                 );
             }
 
@@ -540,7 +554,7 @@ final class PhabricatorConduitAPIController
             if (!$user) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app", 'Authentication is invalid.'),
+                    Yii::t("app", 'Authentication is invalid.'),
                 );
             }
             $token = ArrayHelper::getValue($metadata, 'authToken');
@@ -550,7 +564,7 @@ final class PhabricatorConduitAPIController
             if (!phutil_hashes_are_identical($hash, $signature)) {
                 return array(
                     'ERR-INVALID-AUTH',
-                    \Yii::t("app", 'Authentication is invalid.'),
+                    Yii::t("app", 'Authentication is invalid.'),
                 );
             }
             return $this->validateAuthenticatedUser(
@@ -565,7 +579,7 @@ final class PhabricatorConduitAPIController
         if (!$session_key) {
             return array(
                 'ERR-INVALID-SESSION',
-                \Yii::t("app", 'Session key is not present.'),
+                Yii::t("app", 'Session key is not present.'),
             );
         }
 
@@ -575,7 +589,7 @@ final class PhabricatorConduitAPIController
         if (!$user) {
             return array(
                 'ERR-INVALID-SESSION',
-                \Yii::t("app", 'Session key is invalid.'),
+                Yii::t("app", 'Session key is invalid.'),
             );
         }
 
@@ -588,8 +602,8 @@ final class PhabricatorConduitAPIController
      * @param ConduitAPIRequest $request
      * @param PhabricatorUser $user
      * @return array|null
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function validateAuthenticatedUser(
         ConduitAPIRequest $request,
@@ -599,7 +613,7 @@ final class PhabricatorConduitAPIController
         if (!$user->canEstablishAPISessions()) {
             return array(
                 'ERR-INVALID-AUTH',
-                \Yii::t("app", 'User account is not permitted to use the API.'),
+                Yii::t("app", 'User account is not permitted to use the API.'),
             );
         }
 
@@ -616,8 +630,8 @@ final class PhabricatorConduitAPIController
      * @param ConduitAPIRequest|null $request
      * @param null $result
      * @param ConduitAPIMethod|null $method_implementation
-     * @return \orangins\lib\view\page\PhabricatorStandardPageView
-     * @throws \PhutilMethodNotImplementedException
+     * @return PhabricatorStandardPageView
+     * @throws PhutilMethodNotImplementedException
      * @throws Exception
      * @author 陈妙威
      */
@@ -662,12 +676,12 @@ final class PhabricatorConduitAPIController
             ));
 
         $param_panel = (new PHUIObjectBoxView())
-            ->setHeaderText(\Yii::t("app", 'Method Parameters'))
+            ->setHeaderText(Yii::t("app", 'Method Parameters'))
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->setTable($param_table);
 
         $result_panel = (new PHUIObjectBoxView())
-            ->setHeaderText(\Yii::t("app", 'Method Result'))
+            ->setHeaderText(Yii::t("app", 'Method Result'))
             ->setBackground(PHUIObjectBoxView::BLUE_PROPERTY)
             ->setTable($result_table);
 
@@ -675,7 +689,7 @@ final class PhabricatorConduitAPIController
 
         $crumbs = $this->buildApplicationCrumbs()
             ->addTextCrumb($method, $method_uri)
-            ->addTextCrumb(\Yii::t("app", 'Call'))
+            ->addTextCrumb(Yii::t("app", 'Call'))
             ->setBorder(true);
 
         $example_panel = null;
@@ -686,7 +700,7 @@ final class PhabricatorConduitAPIController
                 $params);
         }
 
-        $title = \Yii::t("app", 'Method Call Result');
+        $title = Yii::t("app", 'Method Call Result');
         $header = (new PHUIHeaderView())
             ->setHeader($title)
             ->setHeaderIcon('fa-exchange');
@@ -699,7 +713,7 @@ final class PhabricatorConduitAPIController
                 $example_panel,
             ));
 
-        $title = \Yii::t("app", 'Method Call Result');
+        $title = Yii::t("app", 'Method Call Result');
 
         return $this->newPage()
             ->setTitle($title)
@@ -710,8 +724,8 @@ final class PhabricatorConduitAPIController
 
     /**
      * @param $value
-     * @return \PhutilSafeHTML
-     * @throws \Exception
+     * @return PhutilSafeHTML
+     * @throws Exception
      * @author 陈妙威
      */
     private function renderAPIValue($value)
@@ -733,8 +747,8 @@ final class PhabricatorConduitAPIController
      * @param AphrontRequest $request
      * @param $method
      * @return array
-     * @author 陈妙威
      * @throws Exception
+     * @author 陈妙威
      */
     private function decodeConduitParams(
         AphrontRequest $request,
@@ -767,7 +781,7 @@ final class PhabricatorConduitAPIController
 //                    // actually do type checking, it might be reasonable to treat it as
 //                    // a string if the parameter type is string.
                     throw new Exception(
-                        \Yii::t("app",
+                        Yii::t("app",
                             "The value for parameter '{0}' is not valid JSON. All " .
                             "parameters must be encoded as JSON values, including strings " .
                             "(which means you need to surround them in double quotes). " .
@@ -795,7 +809,7 @@ final class PhabricatorConduitAPIController
                 $params = phutil_json_decode($params_json);
             } catch (PhutilJSONParserException $ex) {
                 throw new PhutilProxyException(
-                    \Yii::t("app",
+                    Yii::t("app",
                         "Invalid parameter information was passed to method '%s'.",
                         $method),
                     $ex);

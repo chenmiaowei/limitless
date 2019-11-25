@@ -7,6 +7,7 @@ use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\response\AphrontDialogResponse;
 use orangins\lib\response\AphrontResponseProducerInterface;
 use orangins\lib\view\form\AphrontFormView;
+use orangins\lib\view\phui\PHUIButtonView;
 use orangins\lib\view\phui\PHUIHeaderView;
 use orangins\lib\view\phui\PHUIInfoView;
 use orangins\lib\view\phui\PHUIObjectBoxView;
@@ -120,7 +121,10 @@ final class AphrontDialogView extends AphrontView implements AphrontResponseProd
      */
     private $resizeY;
 
-
+    /**
+     * @var PHUIButtonView[]
+     */
+    private $actionLinks = array();
     /**
      *
      */
@@ -134,6 +138,16 @@ final class AphrontDialogView extends AphrontView implements AphrontResponseProd
      */
     const WIDTH_FULL = 'wmin-lg-600';
 
+    /**
+     * @param PHUIButtonView $button
+     * @return $this
+     * @author 陈妙威
+     */
+    public function addActionLink(PHUIButtonView $button)
+    {
+        $this->actionLinks[] = $button;
+        return $this;
+    }
 
     /**
      * @param $class
@@ -677,6 +691,7 @@ final class AphrontDialogView extends AphrontView implements AphrontResponseProd
 
         $header = new PHUIHeaderView();
         $header->setHeader($this->title);
+        $header->setActionLinks($this->actionLinks);
 
         $footer = null;
         if ($this->footers) {

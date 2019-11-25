@@ -2,6 +2,8 @@
 
 namespace orangins\lib\response;
 
+use HTTPSFuture;
+
 /**
  * Responds to a request by proxying an HTTP future.
  *

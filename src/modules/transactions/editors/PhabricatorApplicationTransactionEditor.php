@@ -1075,6 +1075,7 @@ abstract class PhabricatorApplicationTransactionEditor extends PhabricatorEditor
     /**
      * @param ActiveRecordPHID $object
      * @param PhabricatorApplicationTransaction $xaction
+     * @return mixed|void
      * @throws Exception
      * @throws PhabricatorApplicationTransactionStructureException
      * @throws PhabricatorApplicationTransactionValidationException

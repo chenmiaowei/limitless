@@ -7,6 +7,7 @@ use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStorage;
 use orangins\lib\OranginsObject;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -75,6 +76,7 @@ final class PhabricatorCustomFieldStorageQuery extends OranginsObject
     }
 
     /**
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     public function execute()
@@ -88,6 +90,7 @@ final class PhabricatorCustomFieldStorageQuery extends OranginsObject
     /**
      * @param PhabricatorCustomFieldStorage $storage
      * @param array $fields
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     private function loadFieldsFromStorage(PhabricatorCustomFieldStorage $storage, array $fields)
@@ -123,5 +126,4 @@ final class PhabricatorCustomFieldStorageQuery extends OranginsObject
             }
         }
     }
-
 }

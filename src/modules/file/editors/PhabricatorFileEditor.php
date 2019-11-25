@@ -28,6 +28,8 @@ class PhabricatorFileEditor extends PhabricatorApplicationTransactionEditor
 
     /**
      * @return array
+     * @throws \PhutilInvalidStateException
+     * @throws \ReflectionException
      * @author 陈妙威
      */
     public function getTransactionTypes()
@@ -35,6 +37,7 @@ class PhabricatorFileEditor extends PhabricatorApplicationTransactionEditor
         $types = parent::getTransactionTypes();
 
         $types[] = PhabricatorTransactions::TYPE_COMMENT;
+        $types[] = PhabricatorTransactions::TYPE_EDGE;
         $types[] = PhabricatorTransactions::TYPE_VIEW_POLICY;
 
         return $types;

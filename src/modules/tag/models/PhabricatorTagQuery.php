@@ -137,6 +137,25 @@ class PhabricatorTagQuery extends PhabricatorCursorPagedPolicyAwareQuery
         return $this;
     }
 
+
+    /**
+     * @return PhabricatorTag
+     * @author 陈妙威
+     */
+    public function newResultObject()
+    {
+        return new PhabricatorTag();
+    }
+
+    /**
+     * @return string
+     * @author 陈妙威
+     */
+    public function getPrimaryTableAlias()
+    {
+        return 't';
+    }
+
     /**
      * @return array|null|ActiveRecord[]
      * @throws AphrontAccessDeniedQueryException

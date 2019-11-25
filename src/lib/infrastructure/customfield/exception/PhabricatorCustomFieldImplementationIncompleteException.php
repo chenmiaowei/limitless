@@ -3,6 +3,7 @@
 namespace orangins\lib\infrastructure\customfield\exception;
 
 use orangins\lib\infrastructure\customfield\field\PhabricatorCustomField;
+use Yii;
 use yii\base\UserException;
 
 /**
@@ -25,15 +26,15 @@ final class PhabricatorCustomFieldImplementationIncompleteException extends User
     {
 
         if ($field_key_is_incomplete) {
-            $key = \Yii::t("app",'<incomplete key>');
-            $name = \Yii::t("app",'<incomplete name>');
+            $key = Yii::t("app",'<incomplete key>');
+            $name = Yii::t("app",'<incomplete name>');
         } else {
             $key = $field->getFieldKey();
             $name = $field->getFieldName();
         }
 
         parent::__construct(
-            \Yii::t("app",
+            Yii::t("app",
                 "Custom field '{0}' (with key '{1}', of class '{2}') is incompletely " .
                 "implemented: it claims to support a feature, but does not " .
                 "implement all of the required methods for that feature.", [

@@ -2,6 +2,7 @@
 
 namespace orangins\lib\infrastructure\customfield\field;
 
+use orangins\lib\db\ActiveRecordPHID;
 use orangins\lib\infrastructure\customfield\editor\PhabricatorCustomFieldEditField;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldIndexStorage;
 use orangins\lib\infrastructure\customfield\storage\PhabricatorCustomFieldStorage;
@@ -35,6 +36,7 @@ use PhutilJSONParserException;
 use PhutilSafeHTML;
 use PhutilSortVector;
 use Yii;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -214,7 +216,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * @param array $spec
      * @param $object
      * @param array $options
-     * @return array
+     * @return PhabricatorCustomField[]
      * @throws Exception
      */
     public static function buildFieldList(
@@ -1185,7 +1187,7 @@ abstract class PhabricatorCustomField extends OranginsObject
     /**
      * @task appxaction
      * @param PhabricatorApplicationTransaction $xaction
-     * @return void
+     * @return mixed
      * @throws Exception
      * @throws PhabricatorCustomFieldImplementationIncompleteException
      */
@@ -1197,32 +1199,45 @@ abstract class PhabricatorCustomField extends OranginsObject
         }
 
         if (!$this->shouldEnableForRole(self::ROLE_STORAGE)) {
-            return;
+            return null;
         }
 
         $this->setValueFromApplicationTransactions($xaction->getNewValue());
         $value = $this->getValueForStorage();
 
         $table = $this->newStorageObject();
-        $conn_w = $table->establishConnection('w');
+//        $conn_w = $table->establishConnection('w');
 
         if ($value === null) {
-            queryfx(
-                $conn_w,
-                'DELETE FROM %T WHERE objectPHID = %s AND fieldIndex = %s',
-                $table->getTableName(),
-                $this->getObject()->getPHID(),
-                $this->getFieldIndex());
+            $table::deleteAll([
+                'object_phid' => $this->getObject()->getPHID(),
+                'field_index' => $this->getFieldIndex()
+            ]);
+//            queryfx(
+//                $conn_w,
+//                'DELETE FROM %T WHERE objectPHID = %s AND fieldIndex = %s',
+//                $table->getTableName(),
+//                $this->getObject()->getPHID(),
+//                $this->getFieldIndex());
         } else {
-            queryfx(
-                $conn_w,
-                'INSERT INTO %T (objectPHID, fieldIndex, fieldValue)
-          VALUES (%s, %s, %s)
-          ON DUPLICATE KEY UPDATE fieldValue = VALUES(fieldValue)',
-                $table->getTableName(),
-                $this->getObject()->getPHID(),
-                $this->getFieldIndex(),
-                $value);
+            $arr = [
+                'object_phid' => $this->getObject()->getPHID(),
+                'field_index' => $this->getFieldIndex(),
+                'field_value' => $value,
+
+            ];
+            Yii::$app->getDb()->createCommand()->upsert($table::tableName(), $arr, [
+                'field_value' => new Expression('VALUES(field_value)'),
+            ])->execute();
+//            queryfx(
+//                $conn_w,
+//                'INSERT INTO %T (objectPHID, fieldIndex, fieldValue)
+//          VALUES (%s, %s, %s)
+//          ON DUPLICATE KEY UPDATE fieldValue = VALUES(fieldValue)',
+//                $table->getTableName(),
+//                $this->getObject()->getPHID(),
+//                $this->getFieldIndex(),
+//                $value);
         }
 
         return;
@@ -1235,7 +1250,7 @@ abstract class PhabricatorCustomField extends OranginsObject
      * is required but no transactions provide value.
      *
      * @param PhabricatorApplicationTransactionEditor $editor
-     * @param PhabricatorLiskDAO Editor applying the transactions.
+     * @param ActiveRecordPHID Editor applying the transactions.
      * @param PhabricatorApplicationTransaction[] $xactions
      * @return array
      *   errors.

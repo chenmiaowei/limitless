@@ -330,6 +330,17 @@ class PHUIHeaderView extends AphrontTagView
     }
 
     /**
+     * @param PHUIButtonView[] $actionLinks
+     * @return self
+     */
+    public function setActionLinks($actionLinks)
+    {
+        $this->actionLinks = $actionLinks;
+        return $this;
+    }
+
+
+    /**
      * @param $action
      * @return $this
      * @author 陈妙威

@@ -38,7 +38,7 @@ class PhabricatorCustomFieldGroup extends OranginsObject
     /**
      * @var PhabricatorCustomField[]
      */
-    public $fields;
+    public $fields = [];
 
     /**
      * @return string

@@ -99,8 +99,10 @@ final class PHUIFormFileAjaxControl
                 $imageItems[] = $this->renderItem(null, $uploadButtonText);
             } else {
                 foreach ($default_value as $item) {
+                    if (empty($item))  continue;
                     $imageItems[] = $this->renderItem($item, $uploadButtonText);
                 }
+                $imageItems[] = $this->renderItem(null, $uploadButtonText);
             }
         } else {
             $imageItems[] = $this->renderItem($default_value, $uploadButtonText);

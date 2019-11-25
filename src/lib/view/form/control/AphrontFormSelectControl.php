@@ -29,6 +29,12 @@ final class AphrontFormSelectControl extends AphrontFormControl
      * @var
      */
     private $data;
+
+    /**
+     * @var bool
+     */
+    private $enableSelect2 = true;
+
     /**
      * @var array
      */
@@ -44,6 +50,17 @@ final class AphrontFormSelectControl extends AphrontFormControl
         $this->data = $options;
         return $this;
     }
+
+    /**
+     * @param bool $enableSelect2
+     * @return self
+     */
+    public function setEnableSelect2($enableSelect2)
+    {
+        $this->enableSelect2 = $enableSelect2;
+        return $this;
+    }
+
 
     /**
      * @return mixed
@@ -95,7 +112,8 @@ final class AphrontFormSelectControl extends AphrontFormControl
                 'id' => $this->getID(),
                 'class' => 'form-control'
             ),
-            $this->disabledOptions);
+            $this->disabledOptions,
+            $this->enableSelect2);
     }
 
     /**
@@ -103,21 +121,31 @@ final class AphrontFormSelectControl extends AphrontFormControl
      * @param array $options
      * @param array $attrs
      * @param array $disabled
+     * @param bool $enableSelect2
      * @return mixed
-     * @throws Exception
+     * @throws \ReflectionException
+     * @throws \yii\base\Exception
      * @author 陈妙威
      */
     public static function renderSelectTag(
         $selected,
         array $options,
         array $attrs = array(),
-        array $disabled = array())
+        array $disabled = array(),
+        $enableSelect2 = true)
     {
         $option_tags = self::renderOptions($selected, $options, $disabled);
 
-        JavelinHtml::initBehavior(new JavelinSelect2Asset(), [
-           'id' => ArrayHelper::getValue($attrs, 'id')
-        ]);
+        if ($enableSelect2) {
+            JavelinHtml::initBehavior(new JavelinSelect2Asset(), [
+                'id' => ArrayHelper::getValue($attrs, 'id'),
+                'options' => [
+                    'width' => '100%',
+                    'minimumResultsForSearch'=> 20,
+                ]
+            ]);
+        }
+
         return JavelinHtml::phutil_tag('select', $attrs, $option_tags);
     }
 

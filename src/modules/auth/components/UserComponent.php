@@ -50,6 +50,7 @@ class UserComponent extends User
         $session_engine = new PhabricatorAuthSessionEngine();
         /** @var AphrontRequest $request */
         $request = Yii::$app->getRequest();
+
         $phsid = $request->getCookie(PhabricatorCookies::COOKIE_SESSION);
         $access_token = $request->getStr("access_token");
         $access_token = $access_token ? $access_token : $request->getHeaders()->get("Access-Token");

@@ -23,6 +23,7 @@ use AphrontSchemaQueryException;
 use orangins\lib\infrastructure\query\PhabricatorQuery;
 use Yii;
 use Exception;
+use yii\db\ActiveQuery;
 use yii\db\Command;
 use yii\db\IntegrityException;
 use yii\db\Schema;
@@ -206,9 +207,9 @@ abstract class ActiveRecord extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return PhabricatorQuery
+     * {@inheritdoc}
+     * @return ActiveQuery the newly created [[ActiveQuery]] instance.
      * @throws \yii\base\InvalidConfigException
-     * @author 陈妙威
      */
     public static function find()
     {
