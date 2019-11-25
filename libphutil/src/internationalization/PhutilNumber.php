@@ -64,4 +64,13 @@ final class PhutilNumber extends Phobject
     {
         return bcadd($this->value, 0, $this->decimals);
     }
+
+    /**
+     * @return float
+     * @author 陈妙威
+     */
+    public function toFloat()
+    {
+        return floatval(bcadd($this->value, 0, $this->decimals));
+    }
 }
