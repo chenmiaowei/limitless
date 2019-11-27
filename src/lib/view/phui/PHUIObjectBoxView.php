@@ -382,7 +382,6 @@ final class PHUIObjectBoxView extends AphrontTagView
      */
     public function setTable($table)
     {
-        $this->enable_collapse = true;
         $this->table = $table;
         return $this;
     }
