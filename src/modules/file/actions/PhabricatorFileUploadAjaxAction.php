@@ -6,10 +6,11 @@ use orangins\lib\response\AphrontAjaxResponse;
 use orangins\lib\view\form\AphrontFormView;
 use orangins\lib\view\form\control\AphrontFormSelectControl;
 use orangins\lib\view\form\control\AphrontFormSwitchControl;
+use orangins\lib\view\form\control\AphrontFormTextCaptchaControl;
 use orangins\lib\view\form\control\PHUIFormFileAjaxControl;
-use orangins\modules\file\models\PhabricatorFile;
 use orangins\modules\widgets\form\control\PhabricatorCKEditorControl;
 use Yii;
+use yii\helpers\Url;
 
 /**
  * Class PhabricatorFileUploadDialogAction
@@ -22,10 +23,6 @@ final class PhabricatorFileUploadAjaxAction
 
     /**
      * @return AphrontAjaxResponse|\orangins\lib\view\AphrontDialogView
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
      * @throws \Exception
      * @author 陈妙威
      */
@@ -41,6 +38,13 @@ final class PhabricatorFileUploadAjaxAction
         }
 
         $form = (new AphrontFormView())
+            ->appendChild(
+                (new AphrontFormTextCaptchaControl())
+                    ->setValue($request->getStr('filePHID'))
+                    ->setName('filePHID')
+                    ->setUrl(Url::to(['/uiexample/form/captcha']))
+                    ->setLabel(Yii::t("app", 'CAPTCHA'))
+                    ->setError($e_file))
             ->appendChild(
                 (new AphrontFormSwitchControl())
                     ->setOptions([
@@ -66,6 +70,7 @@ final class PhabricatorFileUploadAjaxAction
                     ->setLabel(Yii::t("app", 'Upload File'))
                     ->setAllowMultiple(false)
                     ->setError($e_file))
+
             ->appendChild(
                 (new PHUIFormFileAjaxControl())
                     ->setValue($request->getArr('filePHIDs'))
