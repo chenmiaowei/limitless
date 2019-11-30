@@ -40,6 +40,7 @@ JX.behavior('text-captcha', function (config) {
 
         var list_of_pairs = [];
         list_of_pairs.push([$('meta[name=csrf-param]').attr('content'), $('meta[name=csrf-token]').attr('content')]);
+        list_of_pairs.push(['mobile', text.value.trim()]);
         request.setDataWithListOfPairs(list_of_pairs);
         request.send();
     });
