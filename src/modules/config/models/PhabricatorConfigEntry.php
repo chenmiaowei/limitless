@@ -149,7 +149,7 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
      */
     public function getValue()
     {
-        return $this->value === null ? null : phutil_json_decode($this->value);
+        return $this->value === null ? null : @json_decode($this->getAttribute('value'), true);
     }
 
     /**
@@ -159,7 +159,7 @@ class PhabricatorConfigEntry extends ActiveRecordPHID
      */
     public function setValue($value)
     {
-        $this->value = $value === null ? null : phutil_json_encode($value);
+        $this->setAttribute("value", $value === null ? null : phutil_json_encode($value));
         return $this;
     }
 
