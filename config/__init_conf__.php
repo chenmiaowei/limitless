@@ -39,7 +39,7 @@ function orangins_read_config_file($original_config)
         $files = '    ' . implode("\n    ", $files);
 
         throw new Exception(
-            \Yii::t("app",
+            Yii::t("app",
                 "CONFIGURATION ERROR\n" .
                 "Config file '{0}' does not exist. Valid config files are:\n\n{1}",
                 [
@@ -62,7 +62,7 @@ function orangins_read_config_file($original_config)
 
     if ($conf === false) {
         throw new Exception(
-            \Yii::t("app",
+            Yii::t("app",
                 "Failed to read config file '{0}': {1}",
                 [
                     $config,

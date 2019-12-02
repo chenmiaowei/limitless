@@ -19,6 +19,8 @@ use orangins\modules\file\document\PhabricatorDocumentEngine;
 use orangins\modules\file\document\PhabricatorDocumentRef;
 use PhutilInvalidStateException;
 use Exception;
+use ReflectionException;
+use Yii;
 
 /**
  * Class PhabricatorDocumentRenderingEngine
@@ -119,7 +121,7 @@ abstract class PhabricatorDocumentRenderingEngine
      * @return mixed
      * @throws Exception
      * @throws PhutilInvalidStateException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final public function newDocumentView(PhabricatorDocumentRef $ref)
@@ -220,20 +222,20 @@ abstract class PhabricatorDocumentRenderingEngine
             'views' => $views,
             'encode' => array(
                 'icon' => 'fa-font',
-                'name' => \Yii::t("app",'Change Text Encoding...'),
+                'name' => Yii::t("app",'Change Text Encoding...'),
                 'uri' => '/services/encoding/',
                 'value' => $encode_setting,
             ),
             'highlight' => array(
                 'icon' => 'fa-lightbulb-o',
-                'name' => \Yii::t("app",'Highlight As...'),
+                'name' => Yii::t("app",'Highlight As...'),
                 'uri' => '/services/highlight/',
                 'value' => $highlight_setting,
             ),
             'blame' => array(
                 'icon' => 'fa-backward',
-                'hide' => \Yii::t("app",'Hide Blame'),
-                'show' => \Yii::t("app",'Show Blame'),
+                'hide' => Yii::t("app",'Hide Blame'),
+                'show' => Yii::t("app",'Show Blame'),
                 'uri' => $ref->getBlameURI(),
                 'enabled' => $blame_setting,
                 'value' => null,
@@ -242,10 +244,10 @@ abstract class PhabricatorDocumentRenderingEngine
                 'labels' => array(
                     // TODO: Modularize this properly, see T13125.
                     array(
-                        'C' => \Yii::t("app",'Covered'),
-                        'U' => \Yii::t("app",'Not Covered'),
-                        'N' => \Yii::t("app",'Not Executable'),
-                        'X' => \Yii::t("app",'Not Reachable'),
+                        'C' => Yii::t("app",'Covered'),
+                        'U' => Yii::t("app",'Not Covered'),
+                        'N' => Yii::t("app",'Not Executable'),
+                        'X' => Yii::t("app",'Not Reachable'),
                     ),
                 ),
             ),
@@ -253,7 +255,7 @@ abstract class PhabricatorDocumentRenderingEngine
 
         $view_button = (new PHUIButtonView())
             ->setTag('a')
-            ->setText(\Yii::t("app",'View Options'))
+            ->setText(Yii::t("app",'View Options'))
             ->setIcon('fa-file-image-o')
             ->setColor(PhabricatorEnv::getEnvConfig("ui.widget-color"))
             ->setID($control_id)
@@ -291,7 +293,7 @@ abstract class PhabricatorDocumentRenderingEngine
         $engine_key = $this->getSelectedDocumentEngineKey();
         if (!isset($engines[$engine_key])) {
             return $this->newErrorResponse(
-                \Yii::t("app",
+                Yii::t("app",
                     'The engine ("%s") is unknown, or unable to render this document.',
                     $engine_key));
         }
@@ -325,7 +327,7 @@ abstract class PhabricatorDocumentRenderingEngine
     /**
      * @param $message
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function newErrorResponse($message)
@@ -380,10 +382,10 @@ abstract class PhabricatorDocumentRenderingEngine
         if ($ref) {
             $title = array(
                 $ref->getName(),
-                \Yii::t("app",'Standalone'),
+                Yii::t("app",'Standalone'),
             );
         } else {
-            $title = \Yii::t("app",'Document');
+            $title = Yii::t("app",'Document');
         }
 
         return $controller->newPage()

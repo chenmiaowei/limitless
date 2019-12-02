@@ -56,7 +56,7 @@ final class PhabricatorUserServiceMenuItem extends PhabricatorProfileMenuItem
      */
     public function isPinnedByDefault()
     {
-        return true;
+        return false;
     }
 
     /**

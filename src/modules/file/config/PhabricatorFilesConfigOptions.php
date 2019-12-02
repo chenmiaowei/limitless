@@ -3,6 +3,7 @@
 namespace orangins\modules\file\config;
 
 use orangins\modules\config\option\PhabricatorApplicationConfigOptions;
+use Yii;
 
 /**
  * Class PhabricatorFilesConfigOptions
@@ -17,7 +18,7 @@ final class PhabricatorFilesConfigOptions
      */
     public function getName()
     {
-        return \Yii::t('app', 'Files');
+        return Yii::t('app', 'Files');
     }
 
     /**
@@ -25,7 +26,7 @@ final class PhabricatorFilesConfigOptions
      */
     public function getDescription()
     {
-        return \Yii::t('app', 'Configure files and file storage.');
+        return Yii::t('app', 'Configure files and file storage.');
     }
 
     /**
@@ -160,9 +161,9 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('files.viewable-mime-types', 'wild', $viewable_default)
                 ->setLocked(true)
                 ->setSummary(
-                    \Yii::t('app', 'Configure which MIME types are viewable in the browser.'))
+                    Yii::t('app', 'Configure which MIME types are viewable in the browser.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Configure which uploaded file types may be viewed directly " .
                         "in the browser. Other file types will be downloaded instead " .
                         "of displayed. This is mainly a usability consideration, since " .
@@ -173,9 +174,9 @@ final class PhabricatorFilesConfigOptions
                         "the browser.")),
             $this->newOption('files.image-mime-types', 'set', $image_default)
                 ->setLocked(true)
-                ->setSummary(\Yii::t('app', 'Configure which MIME types are images.'))
+                ->setSummary(Yii::t('app', 'Configure which MIME types are images.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         'List of MIME types which can be used as the `%s` for an `%s` tag.',
                         [
                             'src',
@@ -183,36 +184,36 @@ final class PhabricatorFilesConfigOptions
                         ])),
             $this->newOption('files.audio-mime-types', 'set', $audio_default)
                 ->setLocked(true)
-                ->setSummary(\Yii::t('app', 'Configure which MIME types are audio.'))
+                ->setSummary(Yii::t('app', 'Configure which MIME types are audio.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         'List of MIME types which can be rendered with an `%s` tag.',
                         '<audio />')),
             $this->newOption('files.video-mime-types', 'set', $video_default)
                 ->setLocked(true)
-                ->setSummary(\Yii::t('app', 'Configure which MIME types are video.'))
+                ->setSummary(Yii::t('app', 'Configure which MIME types are video.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         'List of MIME types which can be rendered with a `%s` tag.',
                         '<video />')),
             $this->newOption('files.icon-mime-types', 'wild', $icon_default)
                 ->setLocked(true)
-                ->setSummary(\Yii::t('app', 'Configure which MIME types map to which icons.'))
+                ->setSummary(Yii::t('app', 'Configure which MIME types map to which icons.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         'Map of MIME type to icon name. MIME types which can not be ' .
                         'found default to icon `%s`.',
                         'doc_files')),
             $this->newOption('storage.mysql-engine.max-size', 'int', 10 * 1024)
                 ->setSummary(
-                    \Yii::t('app',
+                    Yii::t('app',
                         'Configure the largest file which will be put into the MySQL ' .
                         'storage engine.')),
             $this->newOption('storage.local-disk.path', 'string', $storageLocalDiskPath)
                 ->setLocked(true)
-                ->setSummary(\Yii::t('app', 'Local storage disk path.'))
+                ->setSummary(Yii::t('app', 'Local storage disk path.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Phabricator provides a local disk storage engine, which just " .
                         "writes files to some directory on local disk. The webserver " .
                         "must have read/write permissions on this directory. This is " .
@@ -223,9 +224,9 @@ final class PhabricatorFilesConfigOptions
                         "local disk storage engine, specify the path to a directory " .
                         "here. To disable it, specify null.")),
             $this->newOption('storage.s3.bucket', 'string', null)
-                ->setSummary(\Yii::t('app', 'Amazon S3 bucket.'))
+                ->setSummary(Yii::t('app', 'Amazon S3 bucket.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Amazon S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Amazon Web Services' " .
                         "group.")),
@@ -233,15 +234,15 @@ final class PhabricatorFilesConfigOptions
                 'metamta.files.subject-prefix',
                 'string',
                 '[File]')
-                ->setDescription(\Yii::t('app', 'Subject prefix for Files email.')),
+                ->setDescription(Yii::t('app', 'Subject prefix for Files email.')),
             $this->newOption('files.enable-imagemagick', 'bool', false)
                 ->setBoolOptions(
                     array(
-                        \Yii::t('app', 'Enable'),
-                        \Yii::t('app', 'Disable'),
+                        Yii::t('app', 'Enable'),
+                        Yii::t('app', 'Disable'),
                     ))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         'This option will use Imagemagick to rescale images, so animated ' .
                         'GIFs can be thumbnailed and set as profile pictures. Imagemagick ' .
                         'must be installed and the "%s" binary must be available to ' .
@@ -249,19 +250,19 @@ final class PhabricatorFilesConfigOptions
                         'convert')),
 
             $this->newOption('huawei-s3.bucket', 'string', 'web-uploads')
-                ->setSummary(\Yii::t('app', 'Huawei S3 bucket.'))
+                ->setSummary(Yii::t('app', 'Huawei S3 bucket.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
 
             $this->newOption('huawei-s3.access.key.id', 'string', 'MFD0NPJXAWFSCWOMX2YJ')
-                ->setSummary(\Yii::t('app', 'ccess Key Id.'))
+                ->setSummary(Yii::t('app', 'ccess Key Id.'))
                 ->setLocked(true)
                 ->setHidden(true)
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
@@ -269,9 +270,9 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('huawei-s3.secret.access.key', 'string', 'QUpenXD1hyu6SZ3o9c83beVgvsWb4NHUFwCQ9aIq')
                 ->setLocked(true)
                 ->setHidden(true)
-                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setSummary(Yii::t('app', 'Secret Access Key.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
@@ -279,28 +280,28 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('huawei-s3.endpoint', 'string', 'obs.cn-north-1.myhuaweicloud.com')
                 ->setLocked(true)
                 ->setHidden(true)
-                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setSummary(Yii::t('app', 'Secret Access Key.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
 
 
             $this->newOption('aliyun-s3.bucket', 'string', 'kl-web')
-                ->setSummary(\Yii::t('app', 'Huawei S3 bucket.'))
+                ->setSummary(Yii::t('app', 'Huawei S3 bucket.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
 
             $this->newOption('aliyun-s3.access.key.id', 'string', 'qLyWc9kJk0m499Sy')
-                ->setSummary(\Yii::t('app', 'ccess Key Id.'))
+                ->setSummary(Yii::t('app', 'ccess Key Id.'))
                 ->setLocked(true)
                 ->setHidden(true)
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
@@ -308,9 +309,9 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('aliyun-s3.secret.access.key', 'string', '7KmWX4Pp75RZgJhhEyhvttmzxbFwrh')
                 ->setLocked(true)
                 ->setHidden(true)
-                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setSummary(Yii::t('app', 'Secret Access Key.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
@@ -318,9 +319,9 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('aliyun-s3.internal.endpoint', 'string', 'oss-cn-beijing-internal.aliyuncs.com')
                 ->setLocked(true)
                 ->setHidden(true)
-                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setSummary(Yii::t('app', 'Secret Access Key.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
@@ -328,28 +329,28 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('aliyun-s3.endpoint', 'string', 'oss-cn-beijing.aliyuncs.com')
                 ->setLocked(true)
                 ->setHidden(true)
-                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setSummary(Yii::t('app', 'Secret Access Key.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
 
 
             $this->newOption('qiniu-s3.bucket', 'string', 'ok-fuliyun')
-                ->setSummary(\Yii::t('app', 'Huawei S3 bucket.'))
+                ->setSummary(Yii::t('app', 'Huawei S3 bucket.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
 
             $this->newOption('qiniu-s3.access.key', 'string', 'gz2J-SI28Tt37KtmlBd6jC4Z7adENHCmjzGqZTT3')
-                ->setSummary(\Yii::t('app', 'ccess Key Id.'))
+                ->setSummary(Yii::t('app', 'ccess Key Id.'))
                 ->setLocked(true)
                 ->setHidden(true)
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
@@ -357,9 +358,9 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('qiniu-s3.secret.key', 'string', '6hwx4uWNtv-vFefJGlX6zXIGMmXNiRadBtdrnJmF')
                 ->setLocked(true)
                 ->setHidden(true)
-                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setSummary(Yii::t('app', 'Secret Access Key.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
@@ -367,9 +368,9 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('qiniu-s3.endpoint', 'string', 'https://qiniu-fuliyun.okchexian.com/')
                 ->setLocked(true)
                 ->setHidden(true)
-                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setSummary(Yii::t('app', 'Secret Access Key.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),
@@ -377,9 +378,9 @@ final class PhabricatorFilesConfigOptions
             $this->newOption('qiniu-s3.region', 'string', 'z2.qiniup.com')
                 ->setLocked(true)
                 ->setHidden(true)
-                ->setSummary(\Yii::t('app', 'Secret Access Key.'))
+                ->setSummary(Yii::t('app', 'Secret Access Key.'))
                 ->setDescription(
-                    \Yii::t('app',
+                    Yii::t('app',
                         "Set this to a valid Huawei S3 bucket to store files there. You " .
                         "must also configure S3 access keys in the 'Huawei Web Services' " .
                         "group.")),

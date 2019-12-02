@@ -6,6 +6,9 @@ use orangins\lib\OranginsObject;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\view\phui\PHUIIconView;
 use PhutilClassMapQuery;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -18,9 +21,14 @@ abstract class PhabricatorIconSet extends OranginsObject
 {
 
     /**
+     * @return PhabricatorIconSetIcon[]
+     * @author 陈妙威
+     */
+    abstract protected function newIcons();
+
+    /**
      * @return string
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
      * @author 陈妙威
      */
     final public function getIconSetKey()
@@ -34,7 +42,7 @@ abstract class PhabricatorIconSet extends OranginsObject
      */
     public function getChooseButtonText()
     {
-        return \Yii::t("app",'Choose Icon...');
+        return Yii::t("app",'Choose Icon...');
     }
 
     /**
@@ -43,13 +51,12 @@ abstract class PhabricatorIconSet extends OranginsObject
      */
     public function getSelectIconTitleText()
     {
-        return \Yii::t("app",'Choose Icon');
+        return Yii::t("app",'Choose Icon');
     }
 
     /**
      * @return string
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws ReflectionException
      * @author 陈妙威
      */
     public function getSelectURI()
@@ -104,9 +111,9 @@ abstract class PhabricatorIconSet extends OranginsObject
 
     /**
      * @param PhabricatorIconSetIcon $icon
-     * @author 陈妙威
      * @return string
-     * @throws \yii\base\Exception
+     * @throws \Exception
+     * @author 陈妙威
      */
     final public function renderIconForControl(PhabricatorIconSetIcon $icon)
     {
@@ -122,6 +129,7 @@ abstract class PhabricatorIconSet extends OranginsObject
     /**
      * @param $key
      * @return PhabricatorIconSet
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getIconSetByKey($key)
@@ -132,6 +140,7 @@ abstract class PhabricatorIconSet extends OranginsObject
 
     /**
      * @return mixed
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     final public static function getAllIconSets()

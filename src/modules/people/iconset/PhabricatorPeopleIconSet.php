@@ -2,9 +2,9 @@
 
 namespace orangins\modules\people\iconset;
 
-use orangins\lib\helpers\OranginsUtil;
 use orangins\modules\file\iconset\PhabricatorIconSet;
 use orangins\modules\file\iconset\PhabricatorIconSetIcon;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -26,7 +26,7 @@ final class PhabricatorPeopleIconSet extends PhabricatorIconSet
      */
     public function getSelectIconTitleText()
     {
-        return \Yii::t("app", 'Choose User Icon');
+        return Yii::t("app", 'Choose User Icon');
     }
 
     /**
@@ -108,83 +108,83 @@ final class PhabricatorPeopleIconSet extends PhabricatorIconSet
             array(
                 'key' => 'person',
                 'icon' => 'fa-user',
-                'name' => \Yii::t("app", 'User'),
+                'name' => Yii::t("app", 'User'),
                 'default' => true,
             ),
             array(
                 'key' => 'engineering',
                 'icon' => 'fa-code',
-                'name' => \Yii::t("app", 'Engineering'),
+                'name' => Yii::t("app", 'Engineering'),
             ),
             array(
                 'key' => 'operations',
                 'icon' => 'fa-space-shuttle',
-                'name' => \Yii::t("app", 'Operations'),
+                'name' => Yii::t("app", 'Operations'),
             ),
             array(
                 'key' => 'resources',
                 'icon' => 'fa-heart',
-                'name' => \Yii::t("app", 'Resources'),
+                'name' => Yii::t("app", 'Resources'),
             ),
             array(
                 'key' => 'camera',
                 'icon' => 'fa-camera-retro',
-                'name' => \Yii::t("app", 'Design'),
+                'name' => Yii::t("app", 'Design'),
             ),
             array(
                 'key' => 'music',
                 'icon' => 'fa-headphones',
-                'name' => \Yii::t("app", 'Musician'),
+                'name' => Yii::t("app", 'Musician'),
             ),
             array(
                 'key' => 'spy',
                 'icon' => 'fa-user-secret',
-                'name' => \Yii::t("app", 'Spy'),
+                'name' => Yii::t("app", 'Spy'),
             ),
             array(
                 'key' => 'android',
                 'icon' => 'fa-android',
-                'name' => \Yii::t("app", 'Bot'),
+                'name' => Yii::t("app", 'Bot'),
             ),
             array(
                 'key' => 'relationships',
                 'icon' => 'fa-glass',
-                'name' => \Yii::t("app", 'Relationships'),
+                'name' => Yii::t("app", 'Relationships'),
             ),
             array(
                 'key' => 'administration',
                 'icon' => 'fa-fax',
-                'name' => \Yii::t("app", 'Administration'),
+                'name' => Yii::t("app", 'Administration'),
             ),
             array(
                 'key' => 'security',
                 'icon' => 'fa-shield',
-                'name' => \Yii::t("app", 'Security'),
+                'name' => Yii::t("app", 'Security'),
             ),
             array(
                 'key' => 'logistics',
                 'icon' => 'fa-truck',
-                'name' => \Yii::t("app", 'Logistics'),
+                'name' => Yii::t("app", 'Logistics'),
             ),
             array(
                 'key' => 'research',
                 'icon' => 'fa-flask',
-                'name' => \Yii::t("app", 'Research'),
+                'name' => Yii::t("app", 'Research'),
             ),
             array(
                 'key' => 'analysis',
                 'icon' => 'fa-bar-chart-o',
-                'name' => \Yii::t("app", 'Analysis'),
+                'name' => Yii::t("app", 'Analysis'),
             ),
             array(
                 'key' => 'executive',
                 'icon' => 'fa-angle-double-up',
-                'name' => \Yii::t("app", 'Executive'),
+                'name' => Yii::t("app", 'Executive'),
             ),
             array(
                 'key' => 'animal',
                 'icon' => 'fa-paw',
-                'name' => \Yii::t("app", 'Animal'),
+                'name' => Yii::t("app", 'Animal'),
             ),
         );
     }
