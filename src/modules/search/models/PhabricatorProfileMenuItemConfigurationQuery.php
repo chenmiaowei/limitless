@@ -178,7 +178,7 @@ class PhabricatorProfileMenuItemConfigurationQuery extends PhabricatorCursorPage
     {
         $items = PhabricatorProfileMenuItem::getAllMenuItems();
         foreach ($page as $key => $item) {
-            $item_type = ArrayHelper::getValue($items, $item->getMenuItemKey());
+            $item_type = idx($items, $item->getMenuItemKey());
             if (!$item_type) {
                 $this->didRejectResult($item);
                 unset($page[$key]);
