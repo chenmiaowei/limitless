@@ -1,39 +1,87 @@
 <?php
+
 namespace orangins\modules\search\field;
 
 use orangins\lib\request\AphrontRequest;
+use orangins\lib\view\form\control\AphrontFormSelectControl;
 
+/**
+ * Class PhabricatorSearchSelectField
+ * @package orangins\modules\search\field
+ * @author 陈妙威
+ */
 final class PhabricatorSearchSelectField
-  extends PhabricatorSearchField {
+    extends PhabricatorSearchField
+{
 
-  private $options;
-  private $default;
+    /**
+     * @var
+     */
+    private $options;
+    /**
+     * @var
+     */
+    private $default;
 
-  public function setOptions(array $options) {
-    $this->options = $options;
-    return $this;
-  }
+    /**
+     * @param array $options
+     * @return $this
+     * @author 陈妙威
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+        return $this;
+    }
 
-  public function getOptions() {
-    return $this->options;
-  }
+    /**
+     * @return mixed
+     * @author 陈妙威
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
 
-  protected function getDefaultValue() {
-    return $this->default;
-  }
+    /**
+     * @return null
+     * @author 陈妙威
+     */
+    protected function getDefaultValue()
+    {
+        return $this->default;
+    }
 
-  public function setDefault($default) {
-    $this->default = $default;
-    return $this;
-  }
+    /**
+     * @param $default
+     * @return $this
+     * @author 陈妙威
+     */
+    public function setDefault($default)
+    {
+        $this->default = $default;
+        return $this;
+    }
 
-  protected function getValueFromRequest(AphrontRequest $request, $key) {
-    return $request->getStr($key);
-  }
+    /**
+     * @param AphrontRequest $request
+     * @param $key
+     * @return mixed|string|null
+     * @author 陈妙威
+     */
+    protected function getValueFromRequest(AphrontRequest $request, $key)
+    {
+        return $request->getStr($key);
+    }
 
-  protected function newControl() {
-    return (new AphrontFormSelectControl())
-      ->setOptions($this->getOptions());
-  }
+    /**
+     * @return AphrontFormSelectControl|void
+     * @author 陈妙威
+     */
+    protected function newControl()
+    {
+        return (new AphrontFormSelectControl())
+            ->setOptions($this->getOptions());
+    }
 
 }
