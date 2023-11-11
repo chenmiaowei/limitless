@@ -155,7 +155,7 @@ final class <?= $modelClassName ?>MenuItem extends PhabricatorProfileMenuItem
             ->setURI('#')
             ->setSubListItems($subitems)
             ->setName($config->getMenuItemProperty('name') ? $config->getMenuItemProperty('name') : $this->getDefaultName())
-            ->setIcon('<?= \orangins\modules\people\iconset\PhabricatorFaIconSet::getRandomIcon()->getIcon() ?>');
+            ->setIcon('<?= \orangins\modules\file\iconset\PhabricatorFaIconSet::getRandomIcon()->getIcon() ?>');
 
         return $item;
     }

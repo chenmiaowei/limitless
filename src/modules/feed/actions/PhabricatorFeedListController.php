@@ -4,6 +4,9 @@ namespace orangins\modules\feed\actions;
 
 use orangins\modules\feed\query\PhabricatorFeedSearchEngine;
 use orangins\modules\search\actions\PhabricatorApplicationSearchAction;
+use PhutilInvalidStateException;
+use ReflectionException;
+use yii\base\Exception;
 
 /**
  * Class PhabricatorFeedListController
@@ -24,9 +27,9 @@ final class PhabricatorFeedListController extends PhabricatorFeedController
 
     /**
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \ReflectionException
-     * @throws \yii\base\Exception
+     * @throws PhutilInvalidStateException
+     * @throws ReflectionException
+     * @throws Exception
      * @author 陈妙威
      */
     public function run()
@@ -36,7 +39,7 @@ final class PhabricatorFeedListController extends PhabricatorFeedController
 
         $controller = (new PhabricatorApplicationSearchAction('search', $this->controller))
             ->setQueryKey($querykey)
-            ->setSearchEngine(new PhabricatorFeedSearchEngine())
+            ->setSearchEngine((new PhabricatorFeedSearchEngine())->addClass('p-3'))
             ->setNavigation($this->buildSideNavView());
 
         return $this->delegateToAction($controller);

@@ -6,6 +6,7 @@ use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsViewUtil;
 use orangins\lib\view\AphrontView;
 use orangins\modules\widgets\javelin\JavelinHoverCardAsset;
+use yii\helpers\Url;
 
 /**
  * Class PHUIFeedStoryView
@@ -440,7 +441,7 @@ final class PHUIFeedStoryView extends AphrontView
             $foot = JavelinHtml::phutil_tag(
                 'a',
                 array(
-                    'href' => '/feed/' . $this->chronologicalKey . '/',
+                    'href' => Url::to(['/feed/index/view', 'id' => $this->chronologicalKey]),
                 ),
                 $foot);
         }

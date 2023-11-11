@@ -19,6 +19,7 @@ use orangins\modules\conduit\method\ConduitAPIMethod;
 use orangins\modules\conduit\protocol\ConduitAPIRequest;
 use orangins\modules\conduit\query\ConduitResultSearchEngineExtension;
 use orangins\modules\search\field\PhabricatorSearchField;
+use orangins\modules\search\view\PhabricatorApplicationSearchResultView;
 use PhutilMethodNotImplementedException;
 use orangins\lib\exception\ActiveRecordException;
 use orangins\lib\PhabricatorApplication;
@@ -1498,7 +1499,7 @@ abstract class PhabricatorApplicationSearchEngine extends OranginsObject
     /**
      * @param array $objects
      * @param PhabricatorSavedQuery $query
-     * @return mixed
+     * @return PhabricatorApplicationSearchResultView
      * @throws Exception
      * @throws PhutilInvalidStateException
      * @throws ReflectionException

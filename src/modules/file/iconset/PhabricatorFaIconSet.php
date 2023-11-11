@@ -1,6 +1,6 @@
 <?php
 
-namespace orangins\modules\people\iconset;
+namespace orangins\modules\file\iconset;
 
 use orangins\modules\file\iconset\PhabricatorIconSet;
 use orangins\modules\file\iconset\PhabricatorIconSetIcon;

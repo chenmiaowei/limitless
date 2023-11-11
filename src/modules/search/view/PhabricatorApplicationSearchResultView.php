@@ -66,7 +66,7 @@ final class PhabricatorApplicationSearchResultView extends OranginsObject
     }
 
     /**
-     * @return null
+     * @return PHUIObjectItemListView
      * @author 陈妙威
      */
     public function getObjectList()

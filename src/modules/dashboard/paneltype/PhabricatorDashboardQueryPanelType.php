@@ -3,6 +3,7 @@
 namespace orangins\modules\dashboard\paneltype;
 
 use orangins\lib\env\PhabricatorEnv;
+use orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException;
 use orangins\lib\infrastructure\customfield\field\PhabricatorCustomFieldList;
 use orangins\lib\request\AphrontRequest;
 use orangins\lib\view\phui\PHUIBoxView;
@@ -23,6 +24,11 @@ use orangins\modules\search\actions\PhabricatorApplicationSearchAction;
 use orangins\modules\search\engine\PhabricatorApplicationSearchEngine;
 use orangins\modules\search\models\PhabricatorSavedQuery;
 use Exception;
+use PhutilInvalidStateException;
+use PhutilMethodNotImplementedException;
+use ReflectionException;
+use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * Class PhabricatorDashboardQueryPanelType
@@ -48,7 +54,7 @@ final class PhabricatorDashboardQueryPanelType
      */
     public function getPanelTypeName()
     {
-        return \Yii::t("app",'Query Panel');
+        return Yii::t("app",'Query Panel');
     }
 
     /**
@@ -66,7 +72,7 @@ final class PhabricatorDashboardQueryPanelType
      */
     public function getPanelTypeDescription()
     {
-        return \Yii::t("app",
+        return Yii::t("app",
             'Show results of a search query, like the most recently filed tasks or ' .
             'revisions you need to review.');
     }
@@ -106,7 +112,7 @@ final class PhabricatorDashboardQueryPanelType
      * @param PhabricatorDashboardPanel $panel
      * @param PhabricatorCustomFieldList $field_list
      * @param AphrontRequest $request
-     * @throws \orangins\lib\infrastructure\customfield\exception\PhabricatorCustomFieldImplementationIncompleteException
+     * @throws PhabricatorCustomFieldImplementationIncompleteException
      * @author 陈妙威
      */
     public function initializeFieldsFromRequest(
@@ -141,10 +147,10 @@ final class PhabricatorDashboardQueryPanelType
      * @param PhabricatorDashboardPanel $panel
      * @param PhabricatorDashboardPanelRenderingEngine $engine
      * @return mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \PhutilMethodNotImplementedException
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
+     * @throws PhutilInvalidStateException
+     * @throws PhutilMethodNotImplementedException
+     * @throws ReflectionException
+     * @throws InvalidConfigException
      * @throws Exception
      * @author 陈妙威
      */
@@ -275,12 +281,13 @@ final class PhabricatorDashboardQueryPanelType
         $href = $search_engine->getQueryResultsPageURI($key);
 
         $icon = (new PHUIIconView())
+            ->addClass('pr-1')
             ->setIcon('fa-search');
 
         $button = (new PHUIButtonView())
             ->addClass("btn-xs")
             ->setTag('a')
-            ->setText(\Yii::t("app", 'View All'))
+            ->setText(Yii::t("app", 'View All'))
             ->setIcon($icon)
             ->setHref($href)
             ->setColor(PhabricatorEnv::getEnvConfig('ui.widget-color'));

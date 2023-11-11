@@ -25,6 +25,7 @@ use orangins\modules\people\models\PhabricatorUser;
 use orangins\lib\view\AphrontView;
 use ReflectionException;
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
 /**
@@ -504,7 +505,7 @@ final class PhabricatorMainMenuView extends AphrontView
             'a',
             array(
                 'class' => 'navbar-brand',
-                'href' => Yii::$app->getHomeUrl(),
+                'href' =>  Url::to([ArrayHelper::getValue(Yii::$app->params, 'home_router',  '/home/index/index')]),
             ),
             array(
                 JavelinHtml::phutil_tag(

@@ -2,6 +2,7 @@
 
 namespace orangins\modules\feed\query;
 
+use Exception;
 use orangins\lib\helpers\JavelinHtml;
 use orangins\lib\helpers\OranginsUtil;
 use orangins\modules\feed\builder\PhabricatorFeedBuilder;
@@ -14,6 +15,10 @@ use orangins\modules\search\field\PhabricatorSearchCheckboxesField;
 use orangins\modules\search\field\PhabricatorSearchDateControlField;
 use orangins\modules\search\models\PhabricatorSavedQuery;
 use orangins\modules\search\view\PhabricatorApplicationSearchResultView;
+use PhutilInvalidStateException;
+use ReflectionException;
+use Yii;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -25,13 +30,26 @@ use yii\helpers\Url;
 final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngine
 {
 
+    public $classes = [];
+
+    /**
+     * @param string $classes
+     * @return self
+     */
+    public function addClass($classes)
+    {
+        $this->classes[] = $classes;
+        return $this;
+    }
+
+
     /**
      * @return string
      * @author 陈妙威
      */
     public function getResultTypeDescription()
     {
-        return \Yii::t("app",'Feed Stories');
+        return Yii::t("app", 'Feed Stories');
     }
 
     /**
@@ -45,8 +63,8 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
 
     /**
      * @return PhabricatorFeedQuery
+     * @throws InvalidConfigException
      * @author 陈妙威
-     * @throws \yii\base\InvalidConfigException
      */
     public function newQuery()
     {
@@ -70,7 +88,7 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
     {
         return array(
             (new PhabricatorUsersSearchField())
-                ->setLabel(\Yii::t("app",'Include Users'))
+                ->setLabel(Yii::t("app", 'Include Users'))
                 ->setKey('userPHIDs'),
             // NOTE: This query is not executed with EdgeLogic, so we can't use
             // a fancy logical datasource.
@@ -79,10 +97,10 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
 //                ->setLabel(\Yii::t("app",'Include Projects'))
 //                ->setKey('projectPHIDs'),
             (new PhabricatorSearchDateControlField())
-                ->setLabel(\Yii::t("app",'Occurs After'))
+                ->setLabel(Yii::t("app", 'Occurs After'))
                 ->setKey('rangeStart'),
             (new PhabricatorSearchDateControlField())
-                ->setLabel(\Yii::t("app",'Occurs Before'))
+                ->setLabel(Yii::t("app", 'Occurs Before'))
                 ->setKey('rangeEnd'),
 
             // NOTE: This is a legacy field retained only for backward
@@ -92,7 +110,7 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
                 ->setKey('viewerProjects')
                 ->setOptions(
                     array(
-                        'self' => \Yii::t("app",'Include stories about projects I am a member of.'),
+                        'self' => Yii::t("app", 'Include stories about projects I am a member of.'),
                     )),
         );
     }
@@ -101,7 +119,7 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
      * @param array $map
      * @return PhabricatorFeedQuery|null
      * @throws PhabricatorSearchConstraintException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @author 陈妙威
      */
     protected function buildQueryFromParameters(array $map)
@@ -131,7 +149,7 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
         if ($range_min && $range_max) {
             if ($range_min > $range_max) {
                 throw new PhabricatorSearchConstraintException(
-                    \Yii::t("app",
+                    Yii::t("app",
                         'The specified "Occurs Before" date is earlier in time than the ' .
                         'specified "Occurs After" date, so this query can never match ' .
                         'any results.'));
@@ -158,17 +176,17 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
 
     /**
      * @return array
-     * @throws \PhutilInvalidStateException
+     * @throws PhutilInvalidStateException
      * @author 陈妙威
      */
     protected function getBuiltinQueryNames()
     {
         $names = array(
-            'all' => \Yii::t("app",'All Stories'),
+            'all' => Yii::t("app", 'All Stories'),
         );
 
         if ($this->requireViewer()->isLoggedIn()) {
-            $names['projects'] = \Yii::t("app",'Tags');
+            $names['projects'] = Yii::t("app", 'Tags');
         }
 
         return $names;
@@ -176,9 +194,9 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
 
     /**
      * @param $query_key
-     * @return \orangins\modules\search\models\PhabricatorSavedQuery
-     * @throws \ReflectionException*@throws \Exception
-     * @throws \Exception
+     * @return PhabricatorSavedQuery
+     * @throws ReflectionException*@throws \Exception
+     * @throws Exception
      * @author 陈妙威
      */
     public function buildSavedQueryFromBuiltin($query_key)
@@ -202,8 +220,8 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
      * @param PhabricatorSavedQuery $query
      * @param array $handles
      * @return PhabricatorApplicationSearchResultView|mixed
-     * @throws \PhutilInvalidStateException
-     * @throws \Exception
+     * @throws PhutilInvalidStateException
+     * @throws Exception
      * @author 陈妙威
      */
     protected function renderResultList(
@@ -223,7 +241,7 @@ final class PhabricatorFeedSearchEngine extends PhabricatorApplicationSearchEngi
         $builder->setUser($this->requireViewer());
         $view = $builder->buildView();
 
-        $list = JavelinHtml::phutil_tag_div('phabricator-feed-frame', $view);
+        $list = JavelinHtml::phutil_tag_div('phabricator-feed-frame ' . implode(' ', $this->classes), $view);
 
         $result = new PhabricatorApplicationSearchResultView();
         $result->setContent($list);
